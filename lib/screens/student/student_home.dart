@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tanga_acadamie/screens/shared/custom_appbar.dart';
 import 'package:tanga_acadamie/screens/student/explore_page.dart';
 import 'package:tanga_acadamie/screens/student/profile_page.dart';
 import 'package:tanga_acadamie/screens/student/student_dashboard.dart';
@@ -36,12 +37,7 @@ class _StudentHomeState extends State<StudentHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tanga academie'),
-        actions: [
-          IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
-        ],
-      ),
+      appBar: CustomAppbar(isLoggedIn: widget.isLoggedIn),
       body: _pages[_index],
       bottomNavigationBar: BottomNavigationBar(
         fixedColor: Colors.greenAccent,

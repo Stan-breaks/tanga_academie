@@ -39,6 +39,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
       ),
       home: HomePage(isLoggedIn: isLoggedIn, user: user),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tanga_acadamie/screens/home_page.dart';
+import 'package:tanga_acadamie/screens/login_page.dart';
+import 'package:tanga_acadamie/storage_service.dart';
 
 class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   final bool isLoggedIn;
@@ -54,7 +57,23 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: TextButton(
-            onPressed: () {},
+            onPressed: () async {
+              if (isLoggedIn) {
+                await logout();
+                if (!context.mounted) return;
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const HomePage(isLoggedIn: false),
+                  ),
+                );
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                );
+              }
+            },
             style: TextButton.styleFrom(
               padding: EdgeInsets.zero,
               minimumSize: Size(0, 0),

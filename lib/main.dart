@@ -10,11 +10,26 @@ Future<void> main() async {
   await Hive.initFlutter();
   await dotenv.load(fileName: ".env");
 
-  runApp(MyApp());
+  final token = await getToken();
+  final user = await getUser();
+  final isLoggedIn =
+      token != null &&
+      token.isNotEmpty &&
+      user['email'] != null &&
+      user['email'].isNotEmpty &&
+      user['role'] != null &&
+      user['role'].isNotEmpty;
+  runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn;
+  final Map<String, dynamic> user;
+  const MyApp({
+    super.key,
+    required this.isLoggedIn,
+    this.user = const {"role": "guest"},
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +38,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
       ),
-      home: HomePage(),
+      home: HomePage(isLoggedIn: isLoggedIn, user: user),
     );
   }
 }

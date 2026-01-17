@@ -100,7 +100,10 @@ class _LoginPageState extends State<LoginPage> {
                     if (user['isVerified']) {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => const HomePage()),
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              HomePage(isLoggedIn: true, user: user),
+                        ),
                       );
                     } else {
                       Navigator.pushReplacement(

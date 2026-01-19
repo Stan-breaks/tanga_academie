@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/screens/shared/course_card.dart';
 
+
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
 
@@ -11,12 +12,28 @@ class ExplorePage extends StatefulWidget {
 
 class _ExplorePageState extends State<ExplorePage> {
   String selectedCategory = 'All';
+  String searchQuery = '';
   List<String> categories = ['All'];
+  final TextEditingController searchController = TextEditingController();
+  
+  late Future<Map<String, dynamic>> coursesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    coursesFuture = fetchCourses();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: fetchCourses(),
+      future: coursesFuture, // Use the cached future
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -41,11 +58,21 @@ class _ExplorePageState extends State<ExplorePage> {
               .toList();
           categories = ['All', ...uniqueCategories.where((c) => c != 'All')];
 
-          // Filter courses based on selected category
-          final filteredCourses = selectedCategory == 'All'
-              ? courses
-              : courses.where((course) => 
-                  course['category'] == selectedCategory).toList();
+          // Filter courses based on selected category AND search query
+          final filteredCourses = courses.where((course) {
+            final matchesCategory = selectedCategory == 'All' || 
+                course['category'] == selectedCategory;
+            
+            final matchesSearch = searchQuery.isEmpty ||
+                (course['title'] as String?)
+                    ?.toLowerCase()
+                    .contains(searchQuery.toLowerCase()) == true ||
+                (course['description'] as String?)
+                    ?.toLowerCase()
+                    .contains(searchQuery.toLowerCase()) == true;
+            
+            return matchesCategory && matchesSearch;
+          }).toList();
 
           return CustomScrollView(
             slivers: [
@@ -59,16 +86,33 @@ class _ExplorePageState extends State<ExplorePage> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withAlpha(10),
+                          color: Colors.black.withAlpha(13),
                           blurRadius: 10,
                           offset: const Offset(0, 2),
                         ),
                       ],
                     ),
                     child: TextField(
+                      controller: searchController,
+                      onChanged: (value) {
+                        setState(() {
+                          searchQuery = value;
+                        });
+                      },
                       decoration: InputDecoration(
                         hintText: 'Search courses...',
                         prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                        suffixIcon: searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, color: Colors.grey),
+                                onPressed: () {
+                                  setState(() {
+                                    searchController.clear();
+                                    searchQuery = '';
+                                  });
+                                },
+                              )
+                            : null,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide.none,
@@ -81,7 +125,6 @@ class _ExplorePageState extends State<ExplorePage> {
                 ),
               ),
 
-              // Category Filter
               SliverToBoxAdapter(
                 child: SizedBox(
                   height: 50,
@@ -132,14 +175,22 @@ class _ExplorePageState extends State<ExplorePage> {
                 ),
               ),
 
-              // Courses List
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: filteredCourses
-                        .map((course) => CourseCard(course: course))
-                        .toList(),
+              // Courses Grid
+              SliverPadding(
+                padding: const EdgeInsets.all(16.0),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.75,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final course = filteredCourses[index];
+                      return CourseCard(course: course);
+                    },
+                    childCount: filteredCourses.length,
                   ),
                 ),
               ),

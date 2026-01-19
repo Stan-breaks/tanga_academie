@@ -40,7 +40,7 @@ class _StudentHomeState extends State<StudentHome> {
       appBar: CustomAppbar(isLoggedIn: widget.isLoggedIn),
       body: _pages[_index],
       bottomNavigationBar: BottomNavigationBar(
-        fixedColor: Colors.greenAccent,
+        fixedColor: Colors.blueGrey,
         currentIndex: _index,
         onTap: _onItemTapped,
         items: const [

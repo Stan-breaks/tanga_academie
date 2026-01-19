@@ -1,6 +1,12 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
+import 'package:tanga_acadamie/screens/home_page.dart';
 import 'package:tanga_acadamie/screens/student/lesson_video_player_page.dart';
 
 class CourseLearnPage extends StatefulWidget {
@@ -25,6 +31,20 @@ class _CourseLearnPageState extends State<CourseLearnPage>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> downloadAndOpen(String fileName, String url) async {
+    final dio = Dio();
+
+    final dir = await getApplicationDocumentsDirectory();
+    final filePath = '${dir.path}/$fileName';
+
+    final file = File(filePath);
+    if (!await file.exists()) {
+      await dio.download(url, filePath);
+    }
+
+    await OpenFilex.open(filePath);
   }
 
   @override
@@ -110,6 +130,15 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     return SliverAppBar(
       expandedHeight: 200,
       pinned: true,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.blueGrey),
+        onPressed: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomePage(isLoggedIn: true)),
+          );
+        },
+      ),
       flexibleSpace: FlexibleSpaceBar(
         background: course['bannerImage'] != null
             ? Image.network(
@@ -390,7 +419,10 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               icon: Icons.picture_as_pdf,
               color: Colors.red,
               onTap: () {
-                // Open PDF
+                downloadAndOpen(
+                  pdf['title'],
+                  "${ApiConfig.baseUrl}${pdf['url']}",
+                );
               },
             ),
           ),
@@ -572,4 +604,3 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
     return false;
   }
 }
-

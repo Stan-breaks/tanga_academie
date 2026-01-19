@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:tanga_acadamie/api_config.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'dart:io' show Platform;
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 
 class LessonVideoPlayerPage extends StatefulWidget {
   final Map<String, dynamic> lesson;
@@ -27,15 +26,25 @@ class LessonVideoPlayerPage extends StatefulWidget {
 }
 
 class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
-  WebViewController? _webViewController;
+  VideoPlayerController? _videoController;
+  ChewieController? _chewieController;
   bool _isLoading = true;
   bool _isCompleted = false;
-  String _videoType = 'none'; // 'vimeo', 'video', 'none'
+  bool _hasError = false;
+  String _errorMessage = '';
+  String _videoType = 'none'; // 'url', 'vimeo', 'none'
 
   @override
   void initState() {
     super.initState();
     _initializeVideo();
+  }
+
+  @override
+  void dispose() {
+    _chewieController?.dispose();
+    _videoController?.dispose();
+    super.dispose();
   }
 
   void _initializeVideo() async {
@@ -50,213 +59,157 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
       return;
     }
 
-    // Priority 1: Check for Vimeo (vimeoId or embedCode)
-    if (video['vimeoId'] != null || video['embedCode'] != null) {
-      _initializeVimeo(video);
-      return;
-    }
-
-    // Priority 2: Check for URL (MP4 or M3U8)
+    // Priority 1: Check for direct URL (MP4 or M3U8/HLS)
     final url = video['url'];
     
-    if (url != null && url.toString().isNotEmpty) {
-      _initializeWebViewVideo(url.toString());
+    if (url != null && url.toString().trim().isNotEmpty) {
+      await _initializeUrlVideo(url.toString().trim());
       return;
     }
 
+    // Priority 2: Check for Vimeo ID
+    final vimeoId = video['vimeoId'];
+    if (vimeoId != null && vimeoId.toString().trim().isNotEmpty) {
+      await _initializeVimeoVideo(vimeoId.toString().trim());
+      return;
+    }
+
+    // Priority 3: Check for embed code (extract Vimeo ID)
+    final embedCode = video['embedCode'];
+    if (embedCode != null && embedCode.toString().isNotEmpty) {
+      final extractedId = _extractVimeoId(embedCode.toString());
+      if (extractedId != null) {
+        await _initializeVimeoVideo(extractedId);
+        return;
+      }
+    }
+
+    // No valid video source found
     setState(() {
       _videoType = 'none';
       _isLoading = false;
+      _hasError = true;
+      _errorMessage = 'No valid video source found.\n\nAvailable fields: ${video.keys.join(', ')}';
     });
   }
 
-  void _initializeVimeo(Map<String, dynamic> video) {
-    // Check if platform supports WebView
-    if (!kIsWeb && (Platform.isLinux || Platform.isWindows || Platform.isMacOS)) {
-      setState(() {
-        _videoType = 'none';
-        _isLoading = false;
-      });
-      return;
-    }
+  String? _extractVimeoId(String embedCode) {
+    // Extract Vimeo ID from embed code
+    final regex = RegExp(r'vimeo\.com/video/(\d+)');
+    final match = regex.firstMatch(embedCode);
+    return match?.group(1);
+  }
 
+  Future<void> _initializeUrlVideo(String url) async {
+    try {
+      // Validate URL
+      if (url.isEmpty) {
+        throw Exception('Video URL is empty');
+      }
+
+      final fullUrl = url.startsWith('http') ? url : '${ApiConfig.baseUrl}$url';
+      
+      
+      setState(() {
+        _videoType = 'url';
+        _isLoading = true;
+        _hasError = false;
+      });
+
+      // Validate that it's a proper URL
+      final uri = Uri.tryParse(fullUrl);
+      if (uri == null) {
+        throw Exception('Invalid video URL format: $fullUrl');
+      }
+
+      // Initialize video player - supports both MP4 and HLS natively
+      _videoController = VideoPlayerController.networkUrl(
+        uri,
+        videoPlayerOptions: VideoPlayerOptions(
+          mixWithOthers: false,
+          allowBackgroundPlayback: false,
+        ),
+      );
+
+      final primaryColor = Theme.of(context).primaryColor;
+      await _videoController!.initialize();
+      
+      
+      _chewieController = ChewieController(
+        videoPlayerController: _videoController!,
+        autoPlay: false,
+        looping: false,
+        allowFullScreen: true,
+        allowMuting: true,
+        showControls: true,
+        // Show playback speed for both HLS and MP4
+        playbackSpeeds: [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0],
+        materialProgressColors: ChewieProgressColors(
+          playedColor: primaryColor,
+          handleColor: primaryColor,
+          backgroundColor: Colors.grey,
+          bufferedColor: Colors.grey.shade300,
+        ),
+        placeholder: Container(
+          color: Colors.black,
+          child: const Center(
+            child: CircularProgressIndicator(color: Colors.white),
+          ),
+        ),
+        errorBuilder: (context, errorMessage) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error, color: Colors.red, size: 48),
+                const SizedBox(height: 16),
+                Text(
+                  'Error playing video',
+                  style: TextStyle(color: Colors.grey.shade300, fontSize: 16),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    errorMessage,
+                    style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _hasError = true;
+          _errorMessage = 'Failed to load video.\n\n${e.toString()}';
+        });
+      }
+    }
+  }
+
+  Future<void> _initializeVimeoVideo(String vimeoId) async {
     setState(() {
       _videoType = 'vimeo';
       _isLoading = false;
+      _hasError = true;
+      _errorMessage = 'Vimeo direct playback not yet implemented.\n\n'
+          'Vimeo ID: $vimeoId\n\n'
+          'Options:\n'
+          '1. Use vimeo_video_player package\n'
+          '2. Extract video URL from Vimeo API\n'
+          '3. Use WebView (original implementation)';
     });
-
-    _webViewController = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Colors.black)
-      ..loadHtmlString(_getVimeoHtml(video));
-  }
-
-  void _initializeWebViewVideo(String url) {
-    final fullUrl = url.startsWith('http') ? url : '${ApiConfig.baseUrl}$url';
-
-    if (!kIsWeb && (Platform.isLinux || Platform.isWindows || Platform.isMacOS)) {
-      setState(() {
-        _videoType = 'none';
-        _isLoading = false;
-      });
-      return;
-    }
-
-    setState(() {
-      _videoType = 'video';
-      _isLoading = false;
-    });
-
-    // Determine if it's HLS or MP4
-    final isHls = url.contains('.m3u8');
-    
-    _webViewController = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Colors.black)
-      ..loadHtmlString(_getVideoPlayerHtml(fullUrl, isHls));
-  }
-
-  String _getVimeoHtml(Map<String, dynamic> video) {
-    String vimeoContent;
-    
-    if (video['embedCode'] != null) {
-      vimeoContent = video['embedCode'];
-    } else if (video['vimeoId'] != null) {
-      vimeoContent = '''
-        <iframe 
-          src="https://player.vimeo.com/video/${video['vimeoId']}?autoplay=0" 
-          width="100%" 
-          height="100%" 
-          frameborder="0" 
-          allow="autoplay; fullscreen; picture-in-picture" 
-          allowfullscreen>
-        </iframe>
-      ''';
-    } else {
-      vimeoContent = '<p style="color: white;">No video available</p>';
-    }
-
-    return '''
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          * { margin: 0; padding: 0; }
-          body { background: #000; }
-          iframe { 
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-          }
-        </style>
-      </head>
-      <body>
-        $vimeoContent
-      </body>
-      </html>
-    ''';
-  }
-
-  String _getVideoPlayerHtml(String videoUrl, bool isHls) {
-    if (isHls) {
-      // HLS video player using hls.js
-      return '''
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            * { margin: 0; padding: 0; }
-            body { 
-              background: #000; 
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 100vh;
-            }
-            video {
-              width: 100%;
-              height: 100%;
-              object-fit: contain;
-            }
-          </style>
-          <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-        </head>
-        <body>
-          <video id="video" controls playsinline></video>
-          <script>
-            var video = document.getElementById('video');
-            var videoSrc = '$videoUrl';
-            
-            if (Hls.isSupported()) {
-              var hls = new Hls({
-                debug: false,
-                enableWorker: true,
-                lowLatencyMode: true,
-                backBufferLength: 90
-              });
-              hls.loadSource(videoSrc);
-              hls.attachMedia(video);
-              hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                console.log('HLS manifest loaded');
-              });
-              hls.on(Hls.Events.ERROR, function(event, data) {
-                console.error('HLS error:', data);
-              });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-              // For Safari/iOS native HLS support
-              video.src = videoSrc;
-            } else {
-              console.error('HLS not supported');
-            }
-          </script>
-        </body>
-        </html>
-      ''';
-    } else {
-      // Regular MP4 video player
-      return '''
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            * { margin: 0; padding: 0; }
-            body { 
-              background: #000; 
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 100vh;
-            }
-            video {
-              width: 100%;
-              height: 100%;
-              object-fit: contain;
-            }
-          </style>
-        </head>
-        <body>
-          <video id="video" controls playsinline>
-            <source src="$videoUrl" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-          <script>
-            var video = document.getElementById('video');
-            video.addEventListener('error', function(e) {
-              console.error('Video error:', e);
-            });
-            video.addEventListener('loadedmetadata', function() {
-              console.log('Video loaded successfully');
-            });
-          </script>
-        </body>
-        </html>
-      ''';
-    }
   }
 
   @override
@@ -445,52 +398,69 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
       );
     }
 
-    if (_videoType == 'none') {
-      return _buildNoVideoPlaceholder();
-    }
-
-    // Both Vimeo and regular videos use WebView
-    return WebViewWidget(controller: _webViewController!);
-  }
-
-  Widget _buildNoVideoPlaceholder() {
-    final isDesktop = !kIsWeb && (Platform.isLinux || Platform.isWindows || Platform.isMacOS);
-    
-    return Container(
-      color: Colors.black,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.videocam_off,
-              size: 64,
-              color: Colors.grey.shade700,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              isDesktop 
-                ? 'Video player not supported on desktop\nPlease test on Android, iOS, or Web'
-                : 'No video available',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey.shade400,
-                fontSize: 16,
-              ),
-            ),
-            if (isDesktop) ...[
-              const SizedBox(height: 12),
+    if (_hasError) {
+      return Container(
+        color: Colors.black,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error, color: Colors.red, size: 48),
+              const SizedBox(height: 16),
               Text(
-                'Run: flutter run -d chrome',
-                style: TextStyle(
-                  color: Colors.grey.shade500,
-                  fontSize: 12,
-                  fontFamily: 'monospace',
+                'Error loading video',
+                style: TextStyle(color: Colors.grey.shade300, fontSize: 16),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Text(
+                  _errorMessage,
+                  style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],
-          ],
+          ),
         ),
+      );
+    }
+
+    if (_videoType == 'none') {
+      return Container(
+        color: Colors.black,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.videocam_off,
+                size: 64,
+                color: Colors.grey.shade700,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No video available',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey.shade400,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_chewieController != null) {
+      return Chewie(controller: _chewieController!);
+    }
+
+    return Container(
+      color: Colors.black,
+      child: const Center(
+        child: CircularProgressIndicator(color: Colors.white),
       ),
     );
   }
@@ -502,4 +472,3 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
     return '$minutes:${seconds.toString().padLeft(2, '0')} min';
   }
 }
-

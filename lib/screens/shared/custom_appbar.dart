@@ -15,11 +15,11 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       elevation: 0,
       flexibleSpace: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF455A64), // Blue Grey 700
-              Color(0xFF607D8B), // Blue Grey 500
+              Color(0xFF1E88E5), // Blue 600
+              Color(0xFF42A5F5), // Blue 400
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -29,62 +29,112 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
       title: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withAlpha(51),
-              borderRadius: BorderRadius.circular(8),
+              color: Colors.white.withAlpha(30),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withAlpha(40),
+                width: 1,
+              ),
             ),
-            child: Icon(Icons.school, color: Colors.white, size: 24),
+            child: const Icon(Icons.school, color: Colors.white, size: 22),
           ),
-          SizedBox(width: 12),
-          Text(
-            'Tanga Academie',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-            ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Tanga Academie',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.3,
+                ),
+              ),
+              Text(
+                'Learn • Grow • Succeed',
+                style: TextStyle(
+                  color: Colors.white.withAlpha(200),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
           ),
         ],
       ),
       actions: [
         Container(
-          margin: EdgeInsets.only(right: 12, top: 8, bottom: 8),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          margin: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
           decoration: BoxDecoration(
-            color: Colors.white.withAlpha(51),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: TextButton(
-            onPressed: () async {
-              if (isLoggedIn) {
-                await logout();
-                if (!context.mounted) return;
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const HomePage(isLoggedIn: false),
+            gradient: isLoggedIn
+                ? LinearGradient(
+                    colors: [
+                      Colors.red.shade400.withAlpha(200),
+                      Colors.red.shade600.withAlpha(200),
+                    ],
+                  )
+                : const LinearGradient(
+                    colors: [
+                      Colors.white,
+                      Colors.white,
+                    ],
                   ),
-                );
-              } else {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
-                );
-              }
-            },
-            style: TextButton.styleFrom(
-              padding: EdgeInsets.zero,
-              minimumSize: Size(0, 0),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              isLoggedIn ? 'Logout' : 'Login',
-              style: TextStyle(
-                color: isLoggedIn ? Colors.red.shade300 : Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(20),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(25),
+              onTap: () async {
+                if (isLoggedIn) {
+                  await logout();
+                  if (!context.mounted) return;
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const HomePage(isLoggedIn: false),
+                    ),
+                  );
+                } else {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                  );
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isLoggedIn ? Icons.logout_rounded : Icons.login_rounded,
+                      size: 18,
+                      color: isLoggedIn ? Colors.white : Colors.blueAccent,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      isLoggedIn ? 'Logout' : 'Login',
+                      style: TextStyle(
+                        color: isLoggedIn ? Colors.white : Colors.blueAccent,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

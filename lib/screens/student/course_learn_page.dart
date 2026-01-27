@@ -53,18 +53,81 @@ class _CourseLearnPageState extends State<CourseLearnPage>
       future: fetchCourse(widget.courseId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+          return Scaffold(
+            backgroundColor: Colors.grey.shade50,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(
+                    color: Colors.blueAccent,
+                    strokeWidth: 3,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Loading course...',
+                    style: TextStyle(color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+            ),
           );
         } else if (snapshot.hasError) {
           return Scaffold(
-            body: Center(child: Text('Error: ${snapshot.error}')),
+            backgroundColor: Colors.grey.shade50,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: Colors.red.shade300,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Error loading course',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade800,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${snapshot.error}',
+                    style: TextStyle(color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+            ),
           );
         } else {
           final course = snapshot.data?['course'];
           if (course == null) {
-            return const Scaffold(
-              body: Center(child: Text('Course not found')),
+            return Scaffold(
+              backgroundColor: Colors.grey.shade50,
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.search_off,
+                      size: 64,
+                      color: Colors.grey.shade400,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Course not found',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           }
 
@@ -89,17 +152,23 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                     TabBar(
                       controller: _tabController,
                       isScrollable: false,
-                      labelColor: Theme.of(context).primaryColor,
-                      unselectedLabelColor: Colors.grey,
-                      indicatorColor: Theme.of(context).primaryColor,
+                      labelColor: Colors.blueAccent,
+                      unselectedLabelColor: Colors.grey.shade600,
+                      indicatorColor: Colors.blueAccent,
+                      indicatorWeight: 3,
+                      indicatorSize: TabBarIndicatorSize.label,
                       labelStyle: const TextStyle(
                         fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                      unselectedLabelStyle: const TextStyle(
+                        fontWeight: FontWeight.w500,
                         fontSize: 14,
                       ),
                       tabs: const [
                         Tab(text: 'Lessons'),
                         Tab(text: 'Resources'),
-                        Tab(text: 'Assignments'),
+                        Tab(text: 'Tasks'),
                         Tab(text: 'About'),
                       ],
                     ),
@@ -128,37 +197,85 @@ class _CourseLearnPageState extends State<CourseLearnPage>
 
   Widget _buildAppBar(Map<String, dynamic> course) {
     return SliverAppBar(
-      expandedHeight: 200,
+      expandedHeight: 220,
       pinned: true,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.blueGrey),
-        onPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const HomePage(isLoggedIn: true)),
-          );
-        },
+      backgroundColor: Colors.blueAccent,
+      leading: Container(
+        margin: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withAlpha(60),
+          shape: BoxShape.circle,
+        ),
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const HomePage(isLoggedIn: true)),
+            );
+          },
+        ),
       ),
       flexibleSpace: FlexibleSpaceBar(
-        background: course['bannerImage'] != null
-            ? Image.network(
-                '${ApiConfig.baseUrl}${course['bannerImage']}',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.blue.shade700,
+        background: Stack(
+          fit: StackFit.expand,
+          children: [
+            course['bannerImage'] != null
+                ? Image.network(
+                    '${ApiConfig.baseUrl}${course['bannerImage']}',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.blueAccent.shade400,
+                              Colors.blue.shade800,
+                            ],
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.school,
+                          size: 80,
+                          color: Colors.white38,
+                        ),
+                      );
+                    },
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.blueAccent.shade400,
+                          Colors.blue.shade800,
+                        ],
+                      ),
+                    ),
                     child: const Icon(
                       Icons.school,
                       size: 80,
-                      color: Colors.white,
+                      color: Colors.white38,
                     ),
-                  );
-                },
-              )
-            : Container(
-                color: Colors.blue.shade700,
-                child: const Icon(Icons.school, size: 80, color: Colors.white),
+                  ),
+            // Gradient overlay
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withAlpha(80),
+                  ],
+                ),
               ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -172,21 +289,32 @@ class _CourseLearnPageState extends State<CourseLearnPage>
         children: [
           Text(
             course['title'] ?? 'Untitled Course',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+              height: 1.3,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Wrap(
-            spacing: 12,
-            runSpacing: 8,
+            spacing: 10,
+            runSpacing: 10,
             children: [
               _buildInfoChip(
                 Icons.category_outlined,
                 course['category'] ?? 'All',
+                Colors.blueAccent,
               ),
-              _buildInfoChip(Icons.language, course['language'] ?? 'French'),
+              _buildInfoChip(
+                Icons.language,
+                course['language'] ?? 'French',
+                Colors.green,
+              ),
               _buildInfoChip(
                 Icons.people_outline,
                 '${course['enrollmentCount'] ?? 0} enrolled',
+                Colors.orange,
               ),
             ],
           ),
@@ -195,21 +323,26 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     );
   }
 
-  Widget _buildInfoChip(IconData icon, String label) {
+  Widget _buildInfoChip(IconData icon, String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: color.withAlpha(20),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withAlpha(50)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: Colors.grey.shade700),
+          Icon(icon, size: 16, color: color),
           const SizedBox(width: 6),
           Text(
             label,
-            style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+            style: TextStyle(
+              fontSize: 13,
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -217,42 +350,67 @@ class _CourseLearnPageState extends State<CourseLearnPage>
   }
 
   Widget _buildContinueLearning(Map<String, dynamic> course) {
-    // This would come from progress tracking
     final currentLesson = _getCurrentLesson(course);
 
     if (currentLesson == null) return const SizedBox.shrink();
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.blue.shade400, Colors.blue.shade600],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.blueAccent.shade400,
+            Colors.blueAccent.shade700,
+          ],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withAlpha(50),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.blueAccent.withAlpha(80),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Continue Learning',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(50),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.play_circle_fill,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Continue Learning',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text(
             currentLesson['title'] ?? 'Next Lesson',
-            style: const TextStyle(color: Colors.white, fontSize: 15),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -263,15 +421,23 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
-                foregroundColor: Colors.blue.shade600,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                foregroundColor: Colors.blueAccent,
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                elevation: 0,
               ),
-              child: const Text(
-                'Resume',
-                style: TextStyle(fontWeight: FontWeight.w600),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.play_arrow, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Resume',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ],
               ),
             ),
           ),
@@ -284,7 +450,32 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     final chapters = course['chapters'] as List<dynamic>? ?? [];
 
     if (chapters.isEmpty) {
-      return const Center(child: Text('No lessons available yet'));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.menu_book_outlined,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No lessons yet',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Lessons will appear here soon',
+              style: TextStyle(color: Colors.grey.shade500),
+            ),
+          ],
+        ),
+      );
     }
 
     return ListView.builder(
@@ -301,27 +492,67 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     final lessons = chapter['lessons'] as List<dynamic>? ?? [];
     final isLocked = chapter['isLockedUntilQuizPass'] ?? false;
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(8),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: ExpansionTile(
-        leading: CircleAvatar(
-          backgroundColor: isLocked ? Colors.grey : Colors.blue,
-          child: isLocked
-              ? const Icon(Icons.lock, color: Colors.white, size: 20)
-              : Text(
-                  '$chapterNumber',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        childrenPadding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        collapsedShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        leading: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isLocked
+                  ? [Colors.grey.shade400, Colors.grey.shade600]
+                  : [Colors.blueAccent.shade200, Colors.blueAccent.shade700],
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(
+            child: isLocked
+                ? const Icon(Icons.lock, color: Colors.white, size: 22)
+                : Text(
+                    '$chapterNumber',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                   ),
-                ),
+          ),
         ),
         title: Text(
           chapter['title'] ?? 'Chapter $chapterNumber',
-          style: const TextStyle(fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+          ),
         ),
-        subtitle: Text('${lessons.length} lessons'),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            '${lessons.length} ${lessons.length == 1 ? 'lesson' : 'lessons'}',
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 13,
+            ),
+          ),
+        ),
         children: lessons.asMap().entries.map((entry) {
           return _buildLessonTile(
             entry.value,
@@ -343,56 +574,112 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     final hasVideo = lesson['video'] != null;
     final hasQuiz = lesson['quiz'] != null;
 
-    return ListTile(
-      leading: Icon(
-        hasVideo ? Icons.play_circle_outline : Icons.article_outlined,
-        color: isChapterLocked ? Colors.grey : Colors.blue,
-      ),
-      title: Text(lesson['title'] ?? 'Lesson $lessonNumber'),
-      subtitle: Row(
-        children: [
-          if (hasVideo) ...[
-            const Icon(Icons.videocam, size: 14, color: Colors.grey),
-            const SizedBox(width: 4),
-            Text(
-              _formatDuration(lesson['video']['duration']),
-              style: const TextStyle(fontSize: 12),
-            ),
-          ],
-          if (hasQuiz) ...[
-            const SizedBox(width: 12),
-            const Icon(Icons.quiz, size: 14, color: Colors.orange),
-            const SizedBox(width: 4),
-            const Text('Quiz', style: TextStyle(fontSize: 12)),
-          ],
-        ],
-      ),
-      trailing: isChapterLocked
-          ? const Icon(Icons.lock, size: 20, color: Colors.grey)
-          : const Icon(Icons.chevron_right),
-      onTap: isChapterLocked
-          ? null
-          : () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LessonVideoPlayerPage(
-                    lesson: lesson,
-                    chapter: chapter,
-                    courseId: widget.courseId,
-                    onComplete: () {
-                      // Save progress
-                    },
-                    onNext: () {
-                      // Load next lesson
-                    },
-                    onPrevious: () {
-                      // Load previous lesson
-                    },
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isChapterLocked
+            ? null
+            : () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LessonVideoPlayerPage(
+                      lesson: lesson,
+                      chapter: chapter,
+                      courseId: widget.courseId,
+                      onComplete: () {},
+                      onNext: () {},
+                      onPrevious: () {},
+                    ),
                   ),
+                );
+              },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: isChapterLocked
+                      ? Colors.grey.shade200
+                      : Colors.blueAccent.withAlpha(25),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              );
-            },
+                child: Icon(
+                  hasVideo ? Icons.play_circle_outline : Icons.article_outlined,
+                  color: isChapterLocked
+                      ? Colors.grey.shade400
+                      : Colors.blueAccent,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      lesson['title'] ?? 'Lesson $lessonNumber',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isChapterLocked
+                            ? Colors.grey.shade500
+                            : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        if (hasVideo) ...[
+                          Icon(
+                            Icons.videocam,
+                            size: 14,
+                            color: Colors.grey.shade500,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _formatDuration(lesson['video']['duration']),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ],
+                        if (hasQuiz) ...[
+                          if (hasVideo) const SizedBox(width: 12),
+                          Icon(
+                            Icons.quiz,
+                            size: 14,
+                            color: Colors.orange.shade400,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Quiz',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.orange.shade400,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                isChapterLocked ? Icons.lock_outline : Icons.chevron_right,
+                size: 22,
+                color: isChapterLocked
+                    ? Colors.grey.shade400
+                    : Colors.grey.shade500,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -401,21 +688,44 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     final certificateFile = course['certificateFile'];
 
     if (pdfFiles.isEmpty && certificateFile == null) {
-      return const Center(child: Text('No resources available'));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.folder_outlined,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No resources available',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Resources will be added by the instructor',
+              style: TextStyle(color: Colors.grey.shade500),
+            ),
+          ],
+        ),
+      );
     }
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         if (pdfFiles.isNotEmpty) ...[
-          const Text(
-            'Course Materials',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          _buildResourcesHeader('Course Materials', Icons.description),
           const SizedBox(height: 12),
           ...pdfFiles.map(
             (pdf) => _buildResourceCard(
               title: pdf['title'] ?? 'Document',
+              subtitle: 'PDF Document',
               icon: Icons.picture_as_pdf,
               color: Colors.red,
               onTap: () {
@@ -428,18 +738,19 @@ class _CourseLearnPageState extends State<CourseLearnPage>
           ),
         ],
         if (certificateFile != null) ...[
-          const SizedBox(height: 20),
-          const Text(
-            'Certificate',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          const SizedBox(height: 24),
+          _buildResourcesHeader('Certificate', Icons.workspace_premium),
           const SizedBox(height: 12),
           _buildResourceCard(
             title: 'Course Certificate',
+            subtitle: 'Complete the course to unlock',
             icon: Icons.workspace_premium,
             color: Colors.amber,
             onTap: () {
-              // View certificate
+              downloadAndOpen(
+                'Course Certificate',
+                "${ApiConfig.baseUrl}$certificateFile",
+              );
             },
           ),
         ],
@@ -447,22 +758,107 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     );
   }
 
+  Widget _buildResourcesHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.blueAccent.withAlpha(25),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: Colors.blueAccent, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildResourceCard({
     required String title,
+    required String subtitle,
     required IconData icon,
     required Color color,
     required VoidCallback onTap,
   }) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: color.withAlpha(50),
-          child: Icon(icon, color: color),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(8),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: color.withAlpha(25),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: color, size: 26),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent.withAlpha(25),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.download,
+                    color: Colors.blueAccent,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-        title: Text(title),
-        trailing: const Icon(Icons.download),
-        onTap: onTap,
       ),
     );
   }
@@ -471,7 +867,32 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     final assignments = course['assignments'] as List<dynamic>? ?? [];
 
     if (assignments.isEmpty) {
-      return const Center(child: Text('No assignments yet'));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.assignment_outlined,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No assignments yet',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Assignments will appear here when added',
+              style: TextStyle(color: Colors.grey.shade500),
+            ),
+          ],
+        ),
+      );
     }
 
     return ListView.builder(
@@ -479,15 +900,57 @@ class _CourseLearnPageState extends State<CourseLearnPage>
       itemCount: assignments.length,
       itemBuilder: (context, index) {
         final assignment = assignments[index];
-        return Card(
+        return Container(
           margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(8),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
           child: ListTile(
-            leading: const CircleAvatar(
-              backgroundColor: Colors.orange,
-              child: Icon(Icons.assignment, color: Colors.white),
+            contentPadding: const EdgeInsets.all(16),
+            leading: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.orange.shade400,
+                    Colors.deepOrange.shade600,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.assignment, color: Colors.white),
             ),
-            title: Text(assignment['title'] ?? 'Assignment ${index + 1}'),
-            subtitle: const Text('Due: Not submitted'),
+            title: Text(
+              assignment['title'] ?? 'Assignment ${index + 1}',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Pending',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.orange.shade700,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               // Navigate to assignment
@@ -502,24 +965,32 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildAboutSection('Description', course['description']),
-        _buildAboutSection('What you\'ll learn', course['benefits']),
-        _buildAboutSection('Requirements', course['requirements']),
+        _buildAboutSection('Description', course['description'], Icons.info_outline),
+        _buildAboutSection('What you\'ll learn', course['benefits'], Icons.lightbulb_outline),
+        _buildAboutSection('Requirements', course['requirements'], Icons.checklist),
         if ((course['tags'] as List?)?.isNotEmpty ?? false) ...[
-          const SizedBox(height: 20),
-          const Text(
-            'Tags',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 24),
+          _buildResourcesHeader('Tags', Icons.local_offer),
+          const SizedBox(height: 16),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: (course['tags'] as List).map((tag) {
-              return Chip(
-                label: Text(tag.toString()),
-                backgroundColor: Colors.blue.shade50,
-                labelStyle: TextStyle(color: Colors.blue.shade700),
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.blueAccent.withAlpha(25),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.blueAccent.withAlpha(50)),
+                ),
+                child: Text(
+                  tag.toString(),
+                  style: const TextStyle(
+                    color: Colors.blueAccent,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                ),
               );
             }).toList(),
           ),
@@ -528,39 +999,68 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     );
   }
 
-  Widget _buildAboutSection(String title, dynamic content) {
+  Widget _buildAboutSection(String title, dynamic content, IconData icon) {
     if (content == null || content.toString().isEmpty) {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          content.toString(),
-          style: TextStyle(
-            fontSize: 15,
-            color: Colors.grey.shade700,
-            height: 1.5,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(8),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-        ),
-        const SizedBox(height: 20),
-      ],
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.blueAccent.withAlpha(25),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: Colors.blueAccent, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            content.toString(),
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade700,
+              height: 1.6,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   bool _hasInProgressContent(Map<String, dynamic> course) {
-    // Implement logic to check if user has started the course
-    return true; // Placeholder
+    return true;
   }
 
   Map<String, dynamic>? _getCurrentLesson(Map<String, dynamic> course) {
-    // Implement logic to get current lesson from progress
     final chapters = course['chapters'] as List<dynamic>? ?? [];
     if (chapters.isEmpty) return null;
 
@@ -568,7 +1068,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     final lessons = firstChapter['lessons'] as List<dynamic>? ?? [];
     if (lessons.isEmpty) return null;
 
-    return lessons[0]; // Placeholder - return first lesson
+    return lessons[0];
   }
 
   String _formatDuration(dynamic duration) {
@@ -596,7 +1096,10 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Container(color: Colors.white, child: tabBar);
+    return Container(
+      color: Colors.white,
+      child: tabBar,
+    );
   }
 
   @override

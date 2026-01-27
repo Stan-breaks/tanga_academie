@@ -3,6 +3,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tanga_acadamie/screens/home_page.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
+import 'package:tanga_acadamie/screens/instructor/create_course_page.dart';
+import 'package:tanga_acadamie/screens/instructor/instructor_courses_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 
 Future<void> main() async {
@@ -19,7 +21,7 @@ Future<void> main() async {
       user['email'].isNotEmpty &&
       user['role'] != null &&
       user['role'].isNotEmpty;
-  runApp(MyApp(isLoggedIn: isLoggedIn));
+  runApp(MyApp(isLoggedIn: isLoggedIn, user: user));
 }
 
 class MyApp extends StatelessWidget {
@@ -34,12 +36,19 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Tanga Academie',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+        useMaterial3: true,
       ),
       home: HomePage(isLoggedIn: isLoggedIn, user: user),
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/create-course': (context) => const CreateCoursePage(),
+        '/instructor-courses': (context) => const InstructorCoursesPage(),
+        '/login': (context) => const LoginPage(),
+      },
     );
   }
 }
+

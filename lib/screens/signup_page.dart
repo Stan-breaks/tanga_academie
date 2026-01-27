@@ -5,10 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tanga_acadamie/screens/home_page.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/screens/verification_page.dart';
-import 'package:tanga_acadamie/storage_service.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});

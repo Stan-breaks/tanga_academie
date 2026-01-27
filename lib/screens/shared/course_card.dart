@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:tanga_acadamie/screens/student/course_learn_page.dart';
 
 class CourseCard extends StatelessWidget {
   final Map<String, dynamic> course;
-  const CourseCard({super.key, required this.course});
+  final VoidCallback onTap;
+  const CourseCard({super.key, required this.course, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -38,14 +38,7 @@ class CourseCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => CourseLearnPage(courseId: course['_id']),
-              ),
-            );
-          },
+          onTap: onTap,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

@@ -438,7 +438,7 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.68,
+          childAspectRatio: 0.95,
           crossAxisSpacing: 14,
           mainAxisSpacing: 14,
         ),

@@ -7,7 +7,11 @@ import 'package:tanga_acadamie/screens/shared/profile_page.dart';
 class InstructorHomePage extends StatefulWidget {
   final bool isLoggedIn;
   final Map<String, dynamic> user;
-  const InstructorHomePage({super.key, required this.isLoggedIn, required this.user});
+  const InstructorHomePage({
+    super.key,
+    required this.isLoggedIn,
+    required this.user,
+  });
 
   @override
   State<InstructorHomePage> createState() => _InstructorHomeState();
@@ -31,7 +35,7 @@ class _InstructorHomeState extends State<InstructorHomePage> {
   @override
   void initState() {
     super.initState();
-    _index = widget.isLoggedIn ? 1 : 0;
+    _index = 0;
   }
 
   @override

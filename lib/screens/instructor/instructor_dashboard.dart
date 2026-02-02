@@ -64,26 +64,56 @@ class InstructorDashboard extends StatelessWidget {
                       StatCard(
                         title: 'Total Courses',
                         value: "${stats['totalCourses'] ?? 0}",
+                        icon: Icons.library_books,
+                        gradientColors: [
+                          Colors.blueAccent.shade200,
+                          Colors.blueAccent.shade700,
+                        ],
                       ),
                       StatCard(
                         title: 'Active Courses',
                         value: "${stats['activeCourses'] ?? 0}",
+                        icon: Icons.play_circle_fill,
+                        gradientColors: [
+                          Colors.green.shade400,
+                          Colors.green.shade700,
+                        ],
                       ),
                       StatCard(
                         title: 'Total Students',
                         value: "${stats['totalStudents'] ?? 0}",
+                        icon: Icons.people,
+                        gradientColors: [
+                          Colors.orange.shade400,
+                          Colors.deepOrange.shade600,
+                        ],
                       ),
                       StatCard(
                         title: 'Pending Submissions',
                         value: "${stats['pendingSubmissions'] ?? 0}",
+                        icon: Icons.assignment_late,
+                        gradientColors: [
+                          Colors.purple.shade400,
+                          Colors.purple.shade800,
+                        ],
                       ),
                       StatCard(
                         title: 'Total Reviews',
                         value: "${stats['totalReviews'] ?? 0}",
+                        icon: Icons.rate_review,
+                        gradientColors: [
+                          Colors.teal.shade400,
+                          Colors.teal.shade700,
+                        ],
                       ),
                       StatCard(
                         title: 'Course Rating',
                         value: "4.5 ⭐",
+                        icon: Icons.star,
+                        gradientColors: [
+                          Colors.amber.shade400,
+                          Colors.amber.shade700,
+                        ],
                       ),
                     ],
                   ),

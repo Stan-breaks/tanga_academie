@@ -41,6 +41,7 @@ class CourseCard extends StatelessWidget {
           onTap: onTap,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Image with overlay and badges
               Stack(

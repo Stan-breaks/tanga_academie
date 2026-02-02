@@ -187,7 +187,7 @@ class _ExplorePageState extends State<ExplorePage>
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
-                                childAspectRatio: 0.75,
+                                childAspectRatio: 0.95,
                                 crossAxisSpacing: 14,
                                 mainAxisSpacing: 14,
                               ),

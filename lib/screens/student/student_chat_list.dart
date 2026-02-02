@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/screens/shared/chat_page.dart';
+import 'package:tanga_acadamie/screens/login_page.dart';
+import 'package:tanga_acadamie/screens/signup_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 
 class StudentChatList extends StatefulWidget {
@@ -19,6 +21,7 @@ class _StudentChatListState extends State<StudentChatList>
   List<InstructorContact> _instructors = [];
   bool _isLoading = true;
   bool _showInstructorList = false;
+  bool _isAuthenticated = true;
   String? _error;
   String? _currentUserId;
   late AnimationController _animationController;
@@ -71,7 +74,7 @@ class _StudentChatListState extends State<StudentChatList>
       final token = await getToken();
       if (token == null) {
         setState(() {
-          _error = 'Not authenticated';
+          _isAuthenticated = false;
           _isLoading = false;
         });
         return;
@@ -280,6 +283,8 @@ class _StudentChatListState extends State<StudentChatList>
                   ],
                 ),
               )
+            : !_isAuthenticated
+            ? _buildNotLoggedInState()
             : _buildBody(),
       ),
     );
@@ -297,7 +302,9 @@ class _StudentChatListState extends State<StudentChatList>
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              child: _showInstructorList ? _buildInstructorList() : const SizedBox(),
+              child: _showInstructorList
+                  ? _buildInstructorList()
+                  : const SizedBox(),
             ),
 
             // Error Message
@@ -470,10 +477,7 @@ class _StudentChatListState extends State<StudentChatList>
                   const SizedBox(height: 4),
                   Text(
                     'Enroll in courses to message instructors',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade500,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
                   ),
                 ],
               ),
@@ -820,6 +824,237 @@ class _StudentChatListState extends State<StudentChatList>
               ),
               elevation: 0,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotLoggedInState() {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 40),
+              // Message Icon Container
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.blueAccent.shade100,
+                      Colors.blueAccent.shade400,
+                    ],
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blueAccent.withAlpha(60),
+                      blurRadius: 30,
+                      offset: const Offset(0, 15),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.chat_rounded,
+                  size: 56,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Welcome Text
+              const Text(
+                'Connect with Instructors',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+
+              // Subtitle
+              Text(
+                'Sign in to message your course instructors, ask questions, and get personalized help with your learning.',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey.shade600,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 40),
+
+              // Feature Cards
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildFeatureCard(
+                      Icons.question_answer_rounded,
+                      'Ask Questions',
+                      'Get help from experts',
+                      Colors.blue,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildFeatureCard(
+                      Icons.support_agent_rounded,
+                      'Direct Support',
+                      'One-on-one guidance',
+                      Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildFeatureCard(
+                      Icons.notifications_active_rounded,
+                      'Updates',
+                      'Course announcements',
+                      Colors.orange,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildFeatureCard(
+                      Icons.group_rounded,
+                      'Community',
+                      'Connect with peers',
+                      Colors.purple,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 40),
+
+              // Login Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.login_rounded, size: 20),
+                      SizedBox(width: 10),
+                      Text(
+                        'Sign In to Continue',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Signup Text
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Don't have an account? ",
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SignupPage()),
+                      );
+                    },
+                    child: const Text(
+                      'Sign Up',
+                      style: TextStyle(
+                        color: Colors.blueAccent,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureCard(
+    IconData icon,
+    String title,
+    String subtitle,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(8),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withAlpha(25),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
           ),
         ],
       ),

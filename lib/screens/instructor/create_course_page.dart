@@ -21,8 +21,44 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
   // Form Controllers
   final _titleController = TextEditingController();
   final _priceController = TextEditingController();
+  final _discountedPriceController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _requirementsController = TextEditingController();
+  final _benefitsController = TextEditingController();
   final _tagsController = TextEditingController();
+
+  // Dropdown/Selection values
+  String _selectedCategory = 'All';
+  String _selectedOfferType = 'premium';
+  String _selectedLanguage = 'French';
+  DateTime? _startDate;
+
+  // Category options
+  final List<String> _categories = [
+    'All',
+    'Programming',
+    'Design',
+    'Business',
+    'Marketing',
+    'Photography',
+    'Music',
+    'Health',
+    'Language',
+    'Other',
+  ];
+
+  // Offer type options
+  final List<String> _offerTypes = ['freemium', 'premium', 'free'];
+
+  // Language options
+  final List<String> _languages = [
+    'French',
+    'English',
+    'Swahili',
+    'Arabic',
+    'Spanish',
+    'Portuguese',
+  ];
 
   // Files
   File? _bannerImage;
@@ -37,6 +73,16 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
   final ImagePicker _picker = ImagePicker();
 
+  // Helper function to generate slug from title
+  String _generateSlug(String title) {
+    return title
+        .toLowerCase()
+        .trim()
+        .replaceAll(RegExp(r'[^a-z0-9\s-]'), '') // Remove special chars
+        .replaceAll(RegExp(r'\s+'), '-') // Replace spaces with hyphens
+        .replaceAll(RegExp(r'-+'), '-'); // Remove multiple hyphens
+  }
+
   @override
   void initState() {
     super.initState();
@@ -48,7 +94,10 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
   void dispose() {
     _titleController.dispose();
     _priceController.dispose();
+    _discountedPriceController.dispose();
     _descriptionController.dispose();
+    _requirementsController.dispose();
+    _benefitsController.dispose();
     _tagsController.dispose();
     _pageController.dispose();
     super.dispose();
@@ -186,13 +235,34 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
       final formData = FormData();
 
+      // Generate slug from title
+      final slug = _generateSlug(_titleController.text);
+
       // Add basic fields
       formData.fields.addAll([
         MapEntry('title', _titleController.text),
+        MapEntry('slug', slug),
         MapEntry('price', _priceController.text),
+        MapEntry('category', _selectedCategory),
+        MapEntry('offerType', _selectedOfferType),
+        MapEntry('language', _selectedLanguage),
         MapEntry('description', _descriptionController.text),
         MapEntry('tags', _tagsController.text),
       ]);
+
+      // Add optional fields if provided
+      if (_discountedPriceController.text.isNotEmpty) {
+        formData.fields.add(MapEntry('discountedPrice', _discountedPriceController.text));
+      }
+      if (_requirementsController.text.isNotEmpty) {
+        formData.fields.add(MapEntry('requirements', _requirementsController.text));
+      }
+      if (_benefitsController.text.isNotEmpty) {
+        formData.fields.add(MapEntry('benefits', _benefitsController.text));
+      }
+      if (_startDate != null) {
+        formData.fields.add(MapEntry('startDate', _startDate!.toIso8601String()));
+      }
 
       // Add chapters data
       for (int i = 0; i < _chapters.length; i++) {
@@ -487,21 +557,118 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           ),
           const SizedBox(height: 16),
 
-          // Price Field
-          _buildInputField(
-            controller: _priceController,
-            label: 'Price',
-            hint: 'Enter course price',
-            icon: Icons.attach_money,
-            keyboardType: TextInputType.number,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Price is required';
+          // Category Dropdown
+          _buildDropdownField(
+            label: 'Category',
+            value: _selectedCategory,
+            items: _categories,
+            icon: Icons.category,
+            onChanged: (value) {
+              setState(() {
+                _selectedCategory = value!;
+              });
+            },
+          ),
+          const SizedBox(height: 16),
+
+          // Offer Type Dropdown
+          _buildDropdownField(
+            label: 'Offer Type',
+            value: _selectedOfferType,
+            items: _offerTypes,
+            icon: Icons.local_offer,
+            onChanged: (value) {
+              setState(() {
+                _selectedOfferType = value!;
+              });
+            },
+          ),
+          const SizedBox(height: 16),
+
+          // Price Fields Row
+          Row(
+            children: [
+              Expanded(
+                child: _buildInputField(
+                  controller: _priceController,
+                  label: 'Price',
+                  hint: 'Course price',
+                  icon: Icons.attach_money,
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Price is required';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Enter a valid price';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildInputField(
+                  controller: _discountedPriceController,
+                  label: 'Discounted Price',
+                  hint: 'Optional',
+                  icon: Icons.discount,
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value != null && value.isNotEmpty) {
+                      if (double.tryParse(value) == null) {
+                        return 'Enter a valid price';
+                      }
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Language Dropdown
+          _buildDropdownField(
+            label: 'Language',
+            value: _selectedLanguage,
+            items: _languages,
+            icon: Icons.language,
+            onChanged: (value) {
+              setState(() {
+                _selectedLanguage = value!;
+              });
+            },
+          ),
+          const SizedBox(height: 16),
+
+          // Start Date Picker
+          _buildDatePickerField(
+            label: 'Start Date',
+            value: _startDate,
+            icon: Icons.calendar_today,
+            onTap: () async {
+              final date = await showDatePicker(
+                context: context,
+                initialDate: _startDate ?? DateTime.now(),
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(const Duration(days: 365)),
+                builder: (context, child) {
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: const ColorScheme.light(
+                        primary: AppColors.primary,
+                      ),
+                    ),
+                    child: child!,
+                  );
+                },
+              );
+              if (date != null) {
+                setState(() {
+                  _startDate = date;
+                });
               }
-              if (double.tryParse(value) == null) {
-                return 'Enter a valid price';
-              }
-              return null;
             },
           ),
           const SizedBox(height: 16),
@@ -510,7 +677,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           _buildInputField(
             controller: _descriptionController,
             label: 'Description',
-            hint: 'Describe your course in detail',
+            hint: 'Describe your course in detail (max 5000 characters)',
             icon: Icons.description,
             maxLines: 5,
             validator: (value) {
@@ -519,6 +686,26 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
               }
               return null;
             },
+          ),
+          const SizedBox(height: 16),
+
+          // Requirements Field
+          _buildInputField(
+            controller: _requirementsController,
+            label: 'Requirements',
+            hint: 'What should students know before taking this course?',
+            icon: Icons.checklist,
+            maxLines: 3,
+          ),
+          const SizedBox(height: 16),
+
+          // Benefits Field
+          _buildInputField(
+            controller: _benefitsController,
+            label: 'What Students Will Learn',
+            hint: 'List the key benefits and learning outcomes',
+            icon: Icons.emoji_events,
+            maxLines: 3,
           ),
           const SizedBox(height: 16),
 
@@ -802,6 +989,9 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           ),
 
           if (lesson.videoFile != null) ...[
+            const SizedBox(height: 12),
+            // Video Preview
+            _buildVideoPreview(lesson.videoFile!),
             const SizedBox(height: 12),
             _buildInputField(
               label: 'Video Duration (seconds)',
@@ -1268,6 +1458,91 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     );
   }
 
+  Widget _buildDropdownField({
+    required String label,
+    required String value,
+    required List<String> items,
+    required IconData icon,
+    required void Function(String?) onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      initialValue: value,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: AppColors.primary),
+        filled: true,
+        fillColor: AppColors.surfaceLight,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
+      items: items.map((item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(
+            item[0].toUpperCase() + item.substring(1),
+            style: const TextStyle(fontSize: 16),
+          ),
+        );
+      }).toList(),
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _buildDatePickerField({
+    required String label,
+    required DateTime? value,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon, color: AppColors.primary),
+          filled: true,
+          fillColor: AppColors.surfaceLight,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              value != null
+                  ? '${value.day}/${value.month}/${value.year}'
+                  : 'Select a date',
+              style: TextStyle(
+                fontSize: 16,
+                color: value != null ? AppColors.textDark : AppColors.textLight,
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: AppColors.textLight),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildAddButton({
     required VoidCallback onPressed,
     required String label,
@@ -1373,6 +1648,64 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           ),
           const SizedBox(height: 16),
           child,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVideoPreview(File videoFile) {
+    final fileName = videoFile.path.split('/').last;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.video_file,
+              color: AppColors.primary,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Video Selected',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  fileName,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textLight,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            Icons.check_circle,
+            color: AppColors.success,
+            size: 20,
+          ),
         ],
       ),
     );

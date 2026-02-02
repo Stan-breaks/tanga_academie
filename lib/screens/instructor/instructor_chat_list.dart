@@ -113,10 +113,13 @@ class _InstructorChatListState extends State<InstructorChatList> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print(data['data']);
         setState(() {
           _coursesWithStudents = (data['data'] as List)
               .map((course) => CourseWithStudents.fromJson(course))
-              .where((course) => course.students.isNotEmpty) // Only show courses with students
+              .where(
+                (course) => course.students.isNotEmpty,
+              ) // Only show courses with students
               .toList();
         });
       }
@@ -165,12 +168,16 @@ class _InstructorChatListState extends State<InstructorChatList> {
       Map body = {};
       if (userType == "Student") {
         url = '${ApiConfig.baseUrl}/api/chats/course-chat';
-        body = {'studentId': userId, 'courseId': courseId};
+        body = {
+          'studentId': userId,
+          'userType': "Instructor",
+          'courseId': courseId,
+        };
       } else {
         url = '${ApiConfig.baseUrl}/api/chats';
         body = {'participantId': userId};
       }
-      
+
       final response = await http.post(
         Uri.parse(url),
         headers: {
@@ -304,7 +311,9 @@ class _InstructorChatListState extends State<InstructorChatList> {
                       });
                     },
                     icon: Icon(_showAdminList ? Icons.close : Icons.add),
-                    label: Text(_showAdminList ? 'Hide Admin' : 'Message Admin'),
+                    label: Text(
+                      _showAdminList ? 'Hide Admin' : 'Message Admin',
+                    ),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 48),
                       shape: RoundedRectangleBorder(
@@ -319,10 +328,10 @@ class _InstructorChatListState extends State<InstructorChatList> {
 
           // Student List (grouped by course)
           if (_showStudentList) _buildStudentsList(),
-          
+
           // Admin List
           if (_showAdminList) _buildAdminsList(),
-          
+
           // Error Message
           if (_error != null)
             Container(
@@ -401,9 +410,12 @@ class _InstructorChatListState extends State<InstructorChatList> {
                   )
                 : ListView.separated(
                     itemCount: _coursesWithStudents.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 16),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 16),
                     itemBuilder: (context, index) {
-                      return _buildCourseWithStudents(_coursesWithStudents[index]);
+                      return _buildCourseWithStudents(
+                        _coursesWithStudents[index],
+                      );
                     },
                   ),
           ),
@@ -460,9 +472,12 @@ class _InstructorChatListState extends State<InstructorChatList> {
           const Divider(height: 1),
           const SizedBox(height: 8),
           // Students list
-          ...courseWithStudents.students.map((student) => 
-            _buildStudentItem(student, courseWithStudents.courseId)
-          ).toList(),
+          ...courseWithStudents.students
+              .map(
+                (student) =>
+                    _buildStudentItem(student, courseWithStudents.courseId),
+              )
+              .toList(),
         ],
       ),
     );
@@ -479,8 +494,8 @@ class _InstructorChatListState extends State<InstructorChatList> {
             CircleAvatar(
               radius: 18,
               backgroundColor: Colors.blue[100],
-              backgroundImage: student.profile.isNotEmpty 
-                  ? NetworkImage(student.profile) 
+              backgroundImage: student.profile.isNotEmpty
+                  ? NetworkImage(student.profile)
                   : null,
               child: student.profile.isEmpty
                   ? Text(
@@ -507,10 +522,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
                   if (student.email.isNotEmpty)
                     Text(
                       student.email,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -578,8 +590,8 @@ class _InstructorChatListState extends State<InstructorChatList> {
             CircleAvatar(
               radius: 20,
               backgroundColor: Colors.purple[100],
-              backgroundImage: admin.profile.isNotEmpty 
-                  ? NetworkImage(admin.profile) 
+              backgroundImage: admin.profile.isNotEmpty
+                  ? NetworkImage(admin.profile)
                   : null,
               child: admin.profile.isEmpty
                   ? Text(
@@ -610,10 +622,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
                   if (admin.email.isNotEmpty)
                     Text(
                       admin.email,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -809,7 +818,7 @@ class CourseWithStudents {
   factory CourseWithStudents.fromJson(Map<String, dynamic> json) {
     final course = json['course'];
     return CourseWithStudents(
-      courseId: course['_id'],
+      courseId: course['id'],
       courseTitle: course['title'] ?? 'Untitled Course',
       courseBanner: course['bannerImage'] ?? '',
       students: (json['students'] as List)
@@ -835,8 +844,11 @@ class StudentContact {
   factory StudentContact.fromJson(Map<String, dynamic> json) {
     return StudentContact(
       id: json['_id'],
-      name: '${json["firstName"] ?? "Unknown"} ${json["lastName"] ?? "Student"}',
-      profile: json["profile"] != null ? '${ApiConfig.baseUrl}${json["profile"]}' : '',
+      name:
+          '${json["firstName"] ?? "Unknown"} ${json["lastName"] ?? "Student"}',
+      profile: json["profile"] != null
+          ? '${ApiConfig.baseUrl}${json["profile"]}'
+          : '',
       email: json['email'] ?? '',
     );
   }
@@ -858,8 +870,12 @@ class AdminContact {
   factory AdminContact.fromJson(Map<String, dynamic> json) {
     return AdminContact(
       id: json["_id"],
-      name: json["fullName"] ?? '${json["firstName"] ?? "Unknown"} ${json["lastName"] ?? "Admin"}',
-      profile: json["profile"] != null ? '${ApiConfig.baseUrl}${json["profile"]}' : '',
+      name:
+          json["fullName"] ??
+          '${json["firstName"] ?? "Unknown"} ${json["lastName"] ?? "Admin"}',
+      profile: json["profile"] != null
+          ? '${ApiConfig.baseUrl}${json["profile"]}'
+          : '',
       email: json['email'] ?? '',
     );
   }

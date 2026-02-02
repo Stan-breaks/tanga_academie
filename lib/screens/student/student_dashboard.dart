@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/screens/shared/_stat_card.dart';
 import 'package:tanga_acadamie/screens/shared/annoucment_card.dart';
 import 'package:tanga_acadamie/screens/shared/course_card.dart';
+import 'package:tanga_acadamie/screens/signup_page.dart';
 import 'package:tanga_acadamie/screens/student/course_learn_page.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
@@ -19,7 +20,7 @@ class StudentDashboard extends StatelessWidget {
         } else if (snapshot.hasError) {
           // Check if it's an authentication error
           final errorString = snapshot.error.toString().toLowerCase();
-          if (errorString.contains('unauthorized') || 
+          if (errorString.contains('unauthorized') ||
               errorString.contains('401') ||
               errorString.contains('token') ||
               errorString.contains('not logged')) {
@@ -47,11 +48,11 @@ class StudentDashboard extends StatelessWidget {
                   // Welcome Section
                   _buildWelcomeSection(data['username'] ?? 'Guest'),
                   const SizedBox(height: 24),
-                  
+
                   // Stats Grid
                   _buildStatsGrid(data),
                   const SizedBox(height: 32),
-                  
+
                   // Continue Learning Section
                   _buildSectionHeader(
                     context,
@@ -62,7 +63,7 @@ class StudentDashboard extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildActiveCourses(context, activeCourses),
                   const SizedBox(height: 32),
-                  
+
                   // Announcements Section
                   _buildSectionHeader(
                     context,
@@ -95,10 +96,7 @@ class StudentDashboard extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               'Loading your dashboard...',
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
             ),
           ],
         ),
@@ -115,11 +113,7 @@ class StudentDashboard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red.shade300,
-              ),
+              Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
               const SizedBox(height: 16),
               Text(
                 'Something went wrong',
@@ -180,7 +174,7 @@ class StudentDashboard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               // Welcome Text
               const Text(
                 'Welcome to Tanga Academie',
@@ -192,7 +186,7 @@ class StudentDashboard extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
-              
+
               // Subtitle
               Text(
                 'Your personalized learning dashboard awaits! Sign in to access your enrolled courses, track your progress, and continue your learning journey.',
@@ -204,7 +198,7 @@ class StudentDashboard extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
-              
+
               // Feature Cards
               Row(
                 children: [
@@ -250,7 +244,7 @@ class StudentDashboard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 40),
-              
+
               // Login Button
               SizedBox(
                 width: double.infinity,
@@ -287,21 +281,21 @@ class StudentDashboard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Signup Text
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     "Don't have an account? ",
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/signup');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SignupPage()),
+                      );
                     },
                     child: const Text(
                       'Sign Up',
@@ -364,10 +358,7 @@ class StudentDashboard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey.shade600,
-            ),
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
           ),
         ],
       ),
@@ -378,7 +369,7 @@ class StudentDashboard extends StatelessWidget {
     final hour = DateTime.now().hour;
     String greeting;
     IconData greetingIcon;
-    
+
     if (hour < 12) {
       greeting = 'Good morning';
       greetingIcon = Icons.wb_sunny_outlined;
@@ -396,10 +387,7 @@ class StudentDashboard extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.blueAccent.shade400,
-            Colors.blue.shade700,
-          ],
+          colors: [Colors.blueAccent.shade400, Colors.blue.shade700],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -418,11 +406,7 @@ class StudentDashboard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      greetingIcon,
-                      color: Colors.white70,
-                      size: 18,
-                    ),
+                    Icon(greetingIcon, color: Colors.white70, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       greeting,
@@ -473,11 +457,7 @@ class StudentDashboard extends StatelessWidget {
               color: Colors.white.withAlpha(50),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.school,
-              color: Colors.white,
-              size: 36,
-            ),
+            child: const Icon(Icons.school, color: Colors.white, size: 36),
           ),
         ],
       ),
@@ -504,30 +484,22 @@ class StudentDashboard extends StatelessWidget {
         ),
         StatCard(
           title: 'Completed',
-          value: "${data['enrolledCourses']?['data']?['completed']?.length ?? 0}",
+          value:
+              "${data['enrolledCourses']?['data']?['completed']?.length ?? 0}",
           icon: Icons.check_circle,
-          gradientColors: [
-            Colors.green.shade400,
-            Colors.green.shade700,
-          ],
+          gradientColors: [Colors.green.shade400, Colors.green.shade700],
         ),
         StatCard(
           title: 'In Progress',
           value: "${data['enrolledCourses']?['data']?['active']?.length ?? 0}",
           icon: Icons.trending_up,
-          gradientColors: [
-            Colors.orange.shade400,
-            Colors.deepOrange.shade600,
-          ],
+          gradientColors: [Colors.orange.shade400, Colors.deepOrange.shade600],
         ),
         StatCard(
           title: 'Investment',
           value: "${data['investment']?['data']?['totalInvestment'] ?? 0}",
           icon: Icons.payments,
-          gradientColors: [
-            Colors.purple.shade400,
-            Colors.purple.shade800,
-          ],
+          gradientColors: [Colors.purple.shade400, Colors.purple.shade800],
         ),
       ],
     );
@@ -547,11 +519,7 @@ class StudentDashboard extends StatelessWidget {
             color: Colors.blueAccent.withAlpha(25),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            icon,
-            color: Colors.blueAccent,
-            size: 22,
-          ),
+          child: Icon(icon, color: Colors.blueAccent, size: 22),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -569,10 +537,7 @@ class StudentDashboard extends StatelessWidget {
               if (count > 0)
                 Text(
                   '$count ${count == 1 ? 'item' : 'items'}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
             ],
           ),
@@ -610,10 +575,7 @@ class StudentDashboard extends StatelessWidget {
             Text(
               'Start exploring courses to begin your learning journey!',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey.shade500,
-              ),
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
             ),
           ],
         ),
@@ -625,7 +587,7 @@ class StudentDashboard extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.75,
+        childAspectRatio: 0.95,
         crossAxisSpacing: 14,
         mainAxisSpacing: 14,
       ),
@@ -637,9 +599,8 @@ class StudentDashboard extends StatelessWidget {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (_) => CourseLearnPage(
-                  courseId: activeCourses[index]['_id'],
-                ),
+                builder: (_) =>
+                    CourseLearnPage(courseId: activeCourses[index]['_id']),
               ),
             );
           },
@@ -677,10 +638,7 @@ class StudentDashboard extends StatelessWidget {
             Text(
               'Instructors will post updates here',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey.shade500,
-              ),
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
             ),
           ],
         ),
@@ -689,10 +647,12 @@ class StudentDashboard extends StatelessWidget {
 
     return Column(
       children: announcements
-          .map((announcement) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: AnnouncementCard(announcement: announcement),
-              ))
+          .map(
+            (announcement) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: AnnouncementCard(announcement: announcement),
+            ),
+          )
           .toList(),
     );
   }

@@ -15,7 +15,6 @@ class SignupPage extends StatefulWidget {
   State<SignupPage> createState() => _SignupPageState();
 }
 
-// todo: role setting in the SignupPage
 class _SignupPageState extends State<SignupPage> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
@@ -24,281 +23,560 @@ class _SignupPageState extends State<SignupPage> {
   String _role = "student";
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _isobsure = true;
-  bool _isobureConfirm = true;
+  bool _isObscure = true;
+  bool _isObscureConfirm = true;
+  bool _isLoading = false;
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
 
   @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _userNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSignup() async {
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final userName = _userNameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    // Validation
+    if (firstName.isEmpty || lastName.isEmpty || userName.isEmpty || email.isEmpty || password.isEmpty) {
+      _showError('Please fill in all required fields');
+      return;
+    }
+
+    if (confirmPassword != password) {
+      _showError('Passwords do not match');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final apiUrl = dotenv.env['API_URL'];
+      if (apiUrl == null) {
+        throw Exception("API_URL not found");
+      }
+
+      var request = MultipartRequest(
+        'POST',
+        Uri.parse('$apiUrl/api/auth/register'),
+      )
+        ..fields["firstName"] = firstName
+        ..fields["lastName"] = lastName
+        ..fields["username"] = userName
+        ..fields["email"] = email
+        ..fields["role"] = _role
+        ..fields["password"] = password
+        ..fields["confirmPassword"] = confirmPassword
+        ..headers["Content-Type"] = "application/json";
+
+      if (_selectedImage != null) {
+        request.files.add(
+          await MultipartFile.fromPath('profile', _selectedImage!.path),
+        );
+      }
+
+      var response = await request.send();
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VerificationPage(email: email),
+          ),
+        );
+      } else {
+        final responseBody = await response.stream.bytesToString();
+        final decoded = jsonDecode(responseBody);
+        _showError('Registration failed: ${decoded['errors'] ?? decoded['message'] ?? 'Unknown error'}');
+      }
+    } catch (e) {
+      _showError('An error occurred. Please try again.');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red.shade400,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.blueAccent.shade100,
+              Colors.white,
+              Colors.white,
+            ],
+            stops: const [0.0, 0.25, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  "S'inscrire",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 40),
-
-                // First Name + Last Name Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _firstNameController,
-                        decoration: InputDecoration(
-                          labelText: "Prénom",
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.person),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        controller: _lastNameController,
-                        decoration: InputDecoration(
-                          labelText: "Nom de famille",
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.person),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Username (full width - important for uniqueness)
-                TextField(
-                  controller: _userNameController,
-                  decoration: InputDecoration(
-                    labelText: "Nom d'utilisateur",
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.person),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Email (full width - needs space for long emails)
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: "Email",
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Role Dropdown (full width)
-                DropdownButtonFormField(
-                  initialValue: _role,
-                  items: const [
-                    DropdownMenuItem(value: "student", child: Text("Étudiant")),
-                    DropdownMenuItem(
-                      value: "instructor",
-                      child: Text("Instructeur"),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _role = value!;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    labelText: "Je veux m'inscrire en tant que *",
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.person),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Password + Confirm Password Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _passwordController,
-                        obscureText: _isobsure,
-                        decoration: InputDecoration(
-                          labelText: "Mot de passe",
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _isobsure = !_isobsure;
-                              });
-                            },
-                            icon: Icon(
-                              _isobsure
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        controller: _confirmPasswordController,
-                        obscureText: _isobureConfirm,
-                        decoration: InputDecoration(
-                          labelText: "Confirmer",
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _isobureConfirm = !_isobureConfirm;
-                              });
-                            },
-                            icon: Icon(
-                              _isobureConfirm
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  "Image de profil",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () async {
-                    final pickedfile = await _picker.pickImage(
-                      source: ImageSource.gallery,
-                    );
-                    if (pickedfile != null) {
-                      setState(() {
-                        _selectedImage = File(pickedfile.path);
-                      });
-                    }
-                  },
-                  child: Container(
-                    height: 120, // Reduced from 150
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: _selectedImage != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.file(
-                              _selectedImage!,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : const Center(
-                            child: Text("Appuyez pour sélectionner Image"),
-                          ),
-                  ),
-                ),
+                const SizedBox(height: 30),
+                
+                // Logo Section
+                _buildLogoSection(),
+                const SizedBox(height: 30),
+                
+                // Signup Card
+                _buildSignupCard(),
                 const SizedBox(height: 24),
-
-                // Sign Up Button
-                ElevatedButton(
-                  onPressed: () async {
-                    final firstName = _firstNameController.text;
-                    final lastName = _lastNameController.text;
-                    final userName = _userNameController.text;
-                    final email = _emailController.text;
-                    final password = _passwordController.text;
-                    final confirmPassword = _confirmPasswordController.text;
-                    if (confirmPassword != password) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Passwords do not match")),
-                      );
-                      return;
-                    }
-
-                    final apiUrl = dotenv.env['API_URL'];
-                    if (apiUrl == null) {
-                      throw Exception("API_URL not found in .env file");
-                    }
-                    var request =
-                        MultipartRequest(
-                            'POST',
-                            Uri.parse('$apiUrl/api/auth/register'),
-                          )
-                          ..fields["firstName"] = firstName
-                          ..fields["lastName"] = lastName
-                          ..fields["username"] = userName
-                          ..fields["email"] = email
-                          ..fields["role"] = _role
-                          ..fields["password"] = password
-                          ..fields["confirmPassword"] = confirmPassword
-                          ..headers["Content-Type"] = "application/json";
-
-                    if (_selectedImage != null) {
-                      request.files.add(
-                        await MultipartFile.fromPath(
-                          'profile',
-                          _selectedImage!.path,
-                        ),
-                      );
-                    }
-                    var response = await request.send();
-                    if (response.statusCode == 200) {
-                      if (!context.mounted) return;
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => VerificationPage(email: email),
-                        ),
-                      );
-                    } else {
-                      final responseBody = await response.stream.bytesToString();
-                      final decoded = jsonDecode(responseBody);
-
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Failed to register: ${decoded['errors']}")),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.blueGrey,
-                    foregroundColor: Colors.white,
-                    textStyle: const TextStyle(fontSize: 18),
-                  ),
-                  child: const Text("Sign up"),
-                ),
-                const SizedBox(height: 12),
-
+                
                 // Login Link
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginPage()),
-                    );
-                  },
-                  child: const Text("You have an account?"),
-                ),
+                _buildLoginLink(),
+                const SizedBox(height: 30),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLogoSection() {
+    return Column(
+      children: [
+        // Logo Container
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.blueAccent.shade200,
+                Colors.blueAccent.shade700,
+              ],
+            ),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blueAccent.withAlpha(60),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.person_add_rounded,
+            size: 40,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 20),
+        
+        // Title
+        const Text(
+          'Create Account',
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+            letterSpacing: -0.5,
+          ),
+        ),
+        const SizedBox(height: 8),
+        
+        // Subtitle
+        Text(
+          'Join our learning community today',
+          style: TextStyle(
+            fontSize: 15,
+            color: Colors.grey.shade600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSignupCard() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(15),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Profile Image Picker
+          _buildProfileImagePicker(),
+          const SizedBox(height: 24),
+          
+          // First Name + Last Name Row
+          Row(
+            children: [
+              Expanded(
+                child: _buildInputField(
+                  controller: _firstNameController,
+                  label: 'First Name',
+                  icon: Icons.person_outline,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildInputField(
+                  controller: _lastNameController,
+                  label: 'Last Name',
+                  icon: Icons.person_outline,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          
+          // Username
+          _buildInputField(
+            controller: _userNameController,
+            label: 'Username',
+            icon: Icons.alternate_email,
+          ),
+          const SizedBox(height: 16),
+          
+          // Email
+          _buildInputField(
+            controller: _emailController,
+            label: 'Email',
+            icon: Icons.email_outlined,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 16),
+          
+          // Role Dropdown
+          _buildRoleDropdown(),
+          const SizedBox(height: 16),
+          
+          // Password Row
+          Row(
+            children: [
+              Expanded(
+                child: _buildInputField(
+                  controller: _passwordController,
+                  label: 'Password',
+                  icon: Icons.lock_outline,
+                  isPassword: true,
+                  isConfirm: false,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildInputField(
+                  controller: _confirmPasswordController,
+                  label: 'Confirm',
+                  icon: Icons.lock_outline,
+                  isPassword: true,
+                  isConfirm: true,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 28),
+          
+          // Signup Button
+          _buildSignupButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileImagePicker() {
+    return Center(
+      child: GestureDetector(
+        onTap: _pickImage,
+        child: Stack(
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.grey.shade300, width: 2),
+                image: _selectedImage != null
+                    ? DecorationImage(
+                        image: FileImage(_selectedImage!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+              ),
+              child: _selectedImage == null
+                  ? Icon(
+                      Icons.person,
+                      size: 50,
+                      color: Colors.grey.shade400,
+                    )
+                  : null,
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blueAccent,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: const Icon(
+                  Icons.camera_alt,
+                  size: 18,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType? keyboardType,
+    bool isPassword = false,
+    bool isConfirm = false,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword ? (isConfirm ? _isObscureConfirm : _isObscure) : false,
+        keyboardType: keyboardType,
+        style: const TextStyle(fontSize: 15),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(
+            color: Colors.grey.shade600,
+            fontSize: 14,
+          ),
+          prefixIcon: Icon(icon, color: Colors.blueAccent, size: 20),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    (isConfirm ? _isObscureConfirm : _isObscure)
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: Colors.grey.shade500,
+                    size: 20,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      if (isConfirm) {
+                        _isObscureConfirm = !_isObscureConfirm;
+                      } else {
+                        _isObscure = !_isObscure;
+                      }
+                    });
+                  },
+                )
+              : null,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoleDropdown() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: DropdownButtonFormField<String>(
+        initialValue: _role,
+        items: const [
+          DropdownMenuItem(
+            value: "student",
+            child: Row(
+              children: [
+                Icon(Icons.school, size: 18, color: Colors.green),
+                SizedBox(width: 8),
+                Text("Student"),
+              ],
+            ),
+          ),
+          DropdownMenuItem(
+            value: "instructor",
+            child: Row(
+              children: [
+                Icon(Icons.architecture, size: 18, color: Colors.blue),
+                SizedBox(width: 8),
+                Text("Instructor"),
+              ],
+            ),
+          ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _role = value!;
+          });
+        },
+        decoration: InputDecoration(
+          labelText: "I want to register as",
+          labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+          prefixIcon: const Icon(Icons.badge_outlined, color: Colors.blueAccent, size: 20),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+        ),
+        dropdownColor: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+    );
+  }
+
+  Widget _buildSignupButton() {
+    return SizedBox(
+      height: 54,
+      child: ElevatedButton(
+        onPressed: _isLoading ? null : _handleSignup,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blueAccent,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          elevation: 0,
+          disabledBackgroundColor: Colors.blueAccent.withAlpha(150),
+        ),
+        child: _isLoading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.person_add_rounded, size: 22),
+                  SizedBox(width: 10),
+                  Text(
+                    'Create Account',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _buildLoginLink() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: Divider(color: Colors.grey.shade300)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Already have an account?',
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            Expanded(child: Divider(color: Colors.grey.shade300)),
+          ],
+        ),
+        const SizedBox(height: 16),
+        
+        // Login Button
+        OutlinedButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginPage()),
+            );
+          },
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.blueAccent,
+            side: const BorderSide(color: Colors.blueAccent, width: 1.5),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.login_rounded, size: 20),
+              SizedBox(width: 10),
+              Text(
+                'Sign In Instead',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

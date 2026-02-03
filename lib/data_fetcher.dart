@@ -303,3 +303,166 @@ Future<Map<String, dynamic>> getInstructorDash() async {
     rethrow;
   }
 }
+
+// ============================================================
+// ADMIN ENDPOINTS
+// ============================================================
+
+/// Fetch admin dashboard stats
+Future<Map<String, dynamic>> getAdminDashboardStats() async {
+  try {
+    final token = await getToken();
+    if (token == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final response = await get(
+      Uri.parse('${ApiConfig.baseUrl}/api/admin/dashboard/stats'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    throw Exception('Failed to fetch admin stats: ${response.statusCode}');
+  } catch (e) {
+    rethrow;
+  }
+}
+
+/// Fetch admin chart data (enrollment trends, course distribution, revenue)
+Future<Map<String, dynamic>> getAdminChartData() async {
+  try {
+    final token = await getToken();
+    if (token == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+
+    // Fetch all chart data in parallel
+    final results = await Future.wait([
+      get(Uri.parse('${ApiConfig.baseUrl}/api/admin/charts/enrollment-trends'), headers: headers),
+      get(Uri.parse('${ApiConfig.baseUrl}/api/admin/charts/course-distribution'), headers: headers),
+      get(Uri.parse('${ApiConfig.baseUrl}/api/admin/charts/revenue-data'), headers: headers),
+    ]);
+
+    return {
+      'enrollment': results[0].statusCode == 200 ? jsonDecode(results[0].body)['data'] : null,
+      'distribution': results[1].statusCode == 200 ? jsonDecode(results[1].body)['data'] : null,
+      'revenue': results[2].statusCode == 200 ? jsonDecode(results[2].body)['data'] : null,
+    };
+  } catch (e) {
+    rethrow;
+  }
+}
+
+/// Fetch all courses for admin (with all statuses)
+Future<Map<String, dynamic>> getAdminCourses() async {
+  try {
+    final token = await getToken();
+    if (token == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final response = await get(
+      Uri.parse('${ApiConfig.baseUrl}/api/admin/all-courses'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    throw Exception('Failed to fetch admin courses: ${response.statusCode}');
+  } catch (e) {
+    rethrow;
+  }
+}
+
+/// Fetch top instructors for admin
+Future<List<dynamic>> getTopInstructors() async {
+  try {
+    final token = await getToken();
+    if (token == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final response = await get(
+      Uri.parse('${ApiConfig.baseUrl}/api/admin/instructors/top'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['data'] ?? [];
+    }
+    throw Exception('Failed to fetch top instructors: ${response.statusCode}');
+  } catch (e) {
+    rethrow;
+  }
+}
+
+/// Fetch admin notices
+Future<List<dynamic>> getAdminNotices() async {
+  try {
+    final token = await getToken();
+    if (token == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final response = await get(
+      Uri.parse('${ApiConfig.baseUrl}/api/admin/notices'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data is List ? data : (data['data'] ?? []);
+    }
+    throw Exception('Failed to fetch notices: ${response.statusCode}');
+  } catch (e) {
+    rethrow;
+  }
+}
+
+/// Update course status (approve/reject)
+Future<Map<String, dynamic>> updateCourseStatus(String courseId, String status) async {
+  try {
+    final token = await getToken();
+    if (token == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final response = await put(
+      Uri.parse('${ApiConfig.baseUrl}/api/courses/$courseId/status'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'status': status}),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    throw Exception('Failed to update course status: ${response.statusCode}');
+  } catch (e) {
+    rethrow;
+  }
+}
+

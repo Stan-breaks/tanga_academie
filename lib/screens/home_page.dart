@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tanga_acadamie/screens/admin_home/admin_home_page.dart';
+import 'package:tanga_acadamie/screens/admin/admin_home_page.dart';
 import 'package:tanga_acadamie/screens/instructor/instructor_home_page.dart';
 import 'package:tanga_acadamie/screens/student/student_home.dart';
 
@@ -14,8 +14,8 @@ class HomePage extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    if (user['role'] == "Admin") {
-      return const AdminHomePage();
+    if (user['role'] == "admin") {
+      return AdminHomePage(isLoggedIn: isLoggedIn, user: user);
     } else if (user['role'] == "instructor") {
       return InstructorHomePage(isLoggedIn: isLoggedIn, user: user);
     } else {

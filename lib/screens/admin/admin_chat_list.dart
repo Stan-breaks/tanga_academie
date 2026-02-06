@@ -29,10 +29,7 @@ class _AdminChatListState extends State<AdminChatList> {
 
   Future<void> _initialize() async {
     await _getCurrentUserId();
-    await Future.wait([
-      _fetchUserChats(),
-      _fetchAllUsers(),
-    ]);
+    await Future.wait([_fetchUserChats(), _fetchAllUsers()]);
   }
 
   Future<void> _getCurrentUserId() async {
@@ -101,7 +98,7 @@ class _AdminChatListState extends State<AdminChatList> {
       if (token == null) return;
 
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/admin/users'),
+        Uri.parse('${ApiConfig.baseUrl}/api/chats/admin/contacts'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -195,16 +192,11 @@ class _AdminChatListState extends State<AdminChatList> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: RefreshIndicator(
-        color: Colors.blueAccent,
+        color: Colors.blueGrey,
         onRefresh: () async {
-          await Future.wait([
-            _fetchUserChats(),
-            _fetchAllUsers(),
-          ]);
+          await Future.wait([_fetchUserChats(), _fetchAllUsers()]);
         },
-        child: _isLoading
-            ? _buildLoadingState()
-            : _buildBody(),
+        child: _isLoading ? _buildLoadingState() : _buildBody(),
       ),
     );
   }
@@ -215,7 +207,7 @@ class _AdminChatListState extends State<AdminChatList> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(
-            color: Colors.blueAccent,
+            color: Colors.blueGrey,
             strokeWidth: 3,
           ),
           const SizedBox(height: 20),
@@ -243,7 +235,7 @@ class _AdminChatListState extends State<AdminChatList> {
           label: Text(_showUserList ? 'Hide Users' : 'New Conversation'),
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(double.infinity, 52),
-            backgroundColor: Colors.blueAccent,
+            backgroundColor: Colors.blueGrey,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
@@ -254,10 +246,7 @@ class _AdminChatListState extends State<AdminChatList> {
         const SizedBox(height: 16),
 
         // User List
-        if (_showUserList) ...[
-          _buildUsersList(),
-          const SizedBox(height: 16),
-        ],
+        if (_showUserList) ...[_buildUsersList(), const SizedBox(height: 16)],
 
         // Error Message
         if (_error != null)
@@ -273,7 +262,10 @@ class _AdminChatListState extends State<AdminChatList> {
                 Icon(Icons.error_outline, color: Colors.red.shade400),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(_error!, style: TextStyle(color: Colors.red.shade700)),
+                  child: Text(
+                    _error!,
+                    style: TextStyle(color: Colors.red.shade700),
+                  ),
                 ),
               ],
             ),
@@ -285,9 +277,7 @@ class _AdminChatListState extends State<AdminChatList> {
         const SizedBox(height: 16),
 
         // Chat List
-        _chats.isEmpty
-            ? _buildEmptyState()
-            : _buildChatList(),
+        _chats.isEmpty ? _buildEmptyState() : _buildChatList(),
       ],
     );
   }
@@ -298,10 +288,10 @@ class _AdminChatListState extends State<AdminChatList> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.blueAccent.withAlpha(25),
+            color: Colors.blueGrey.withAlpha(25),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.chat, color: Colors.blueAccent, size: 22),
+          child: const Icon(Icons.chat, color: Colors.blueGrey, size: 22),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -351,7 +341,11 @@ class _AdminChatListState extends State<AdminChatList> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.people_outline, size: 48, color: Colors.grey.shade400),
+                        Icon(
+                          Icons.people_outline,
+                          size: 48,
+                          color: Colors.grey.shade400,
+                        ),
                         const SizedBox(height: 12),
                         Text(
                           'No users available',
@@ -405,13 +399,19 @@ class _AdminChatListState extends State<AdminChatList> {
                 children: [
                   Text(
                     user.name,
-                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: _getRoleColor(user.role).withAlpha(25),
                           borderRadius: BorderRadius.circular(8),
@@ -430,7 +430,10 @@ class _AdminChatListState extends State<AdminChatList> {
                         Expanded(
                           child: Text(
                             user.email,
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -444,10 +447,14 @@ class _AdminChatListState extends State<AdminChatList> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.blueAccent.withAlpha(25),
+                color: Colors.blueGrey.withAlpha(25),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.chat_bubble_outline, size: 20, color: Colors.blueAccent),
+              child: const Icon(
+                Icons.chat_bubble_outline,
+                size: 20,
+                color: Colors.blueGrey,
+              ),
             ),
           ],
         ),
@@ -498,13 +505,13 @@ class _AdminChatListState extends State<AdminChatList> {
           children: [
             CircleAvatar(
               radius: 26,
-              backgroundColor: Colors.blueAccent.withAlpha(25),
+              backgroundColor: Colors.blueGrey.withAlpha(25),
               child: Text(
                 chat.otherUserInitial,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent,
+                  color: Colors.blueGrey,
                 ),
               ),
             ),
@@ -519,8 +526,8 @@ class _AdminChatListState extends State<AdminChatList> {
                         child: Text(
                           chat.otherUserName,
                           style: TextStyle(
-                            fontWeight: chat.unreadCount > 0 
-                                ? FontWeight.bold 
+                            fontWeight: chat.unreadCount > 0
+                                ? FontWeight.bold
                                 : FontWeight.w600,
                             fontSize: 16,
                           ),
@@ -532,8 +539,8 @@ class _AdminChatListState extends State<AdminChatList> {
                         chat.formattedTime,
                         style: TextStyle(
                           fontSize: 12,
-                          color: chat.unreadCount > 0 
-                              ? Colors.blueAccent 
+                          color: chat.unreadCount > 0
+                              ? Colors.blueGrey
                               : Colors.grey.shade500,
                         ),
                       ),
@@ -548,11 +555,11 @@ class _AdminChatListState extends State<AdminChatList> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: chat.unreadCount > 0 
-                                ? Colors.black87 
+                            color: chat.unreadCount > 0
+                                ? Colors.black87
                                 : Colors.grey.shade600,
-                            fontWeight: chat.unreadCount > 0 
-                                ? FontWeight.w500 
+                            fontWeight: chat.unreadCount > 0
+                                ? FontWeight.w500
                                 : FontWeight.normal,
                             fontSize: 14,
                           ),
@@ -561,9 +568,12 @@ class _AdminChatListState extends State<AdminChatList> {
                       if (chat.unreadCount > 0)
                         Container(
                           margin: const EdgeInsets.only(left: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
-                            color: Colors.blueAccent,
+                            color: Colors.blueGrey,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -603,7 +613,11 @@ class _AdminChatListState extends State<AdminChatList> {
               color: Colors.grey.shade100,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.chat_bubble_outline, size: 48, color: Colors.grey.shade400),
+            child: Icon(
+              Icons.chat_bubble_outline,
+              size: 48,
+              color: Colors.grey.shade400,
+            ),
           ),
           const SizedBox(height: 20),
           Text(
@@ -645,12 +659,8 @@ class ChatItem {
   });
 
   factory ChatItem.fromJson(Map<String, dynamic> json, String? currentUserId) {
-    final participants = json['participants'] as List;
-    final otherParticipant = participants.firstWhere(
-      (p) => p['_id'] != currentUserId,
-      orElse: () => {'_id': '', 'name': 'Unknown User', 'firstName': '?'},
-    );
-
+    final otherParticipants = json['otherParticipants'] as List;
+    final otherParticipant = otherParticipants[0];
     final name =
         otherParticipant['name'] ??
         '${otherParticipant['firstName'] ?? ''} ${otherParticipant['lastName'] ?? ''}'

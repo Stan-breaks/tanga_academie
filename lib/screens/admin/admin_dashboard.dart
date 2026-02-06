@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
+import 'package:tanga_acadamie/screens/admin/admin_analytics_page.dart';
+import 'package:tanga_acadamie/screens/admin/admin_courses_page.dart';
+import 'package:tanga_acadamie/screens/admin/admin_users_list.dart';
 import 'package:tanga_acadamie/screens/shared/_stat_card.dart';
 import 'package:tanga_acadamie/screens/shared/course_card.dart';
 import 'package:tanga_acadamie/storage_service.dart';
@@ -51,7 +54,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
         _topInstructors = (results[1] as List<dynamic>).take(5).toList();
         _notices = (results[2] as List<dynamic>).take(5).toList();
         final coursesData = results[3] as Map<String, dynamic>;
-        _recentCourses = (coursesData['data'] as List<dynamic>? ?? []).take(6).toList();
+        _recentCourses = (coursesData['data'] as List<dynamic>? ?? [])
+            .take(6)
+            .toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -73,11 +78,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
     if (_isLoading) {
       return _buildLoadingState();
     }
-    
+
     if (_error != null) {
       return _buildErrorState();
     }
-    
+
     return _buildDashboard();
   }
 
@@ -89,7 +94,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const CircularProgressIndicator(
-              color: Colors.blueAccent,
+              color: Colors.blueGrey,
               strokeWidth: 3,
             ),
             const SizedBox(height: 20),
@@ -134,7 +139,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: Colors.blueGrey,
                   foregroundColor: Colors.white,
                 ),
               ),
@@ -151,7 +156,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: RefreshIndicator(
-        color: Colors.blueAccent,
+        color: Colors.blueGrey,
         onRefresh: _fetchDashboardData,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -165,12 +170,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const SizedBox(height: 32),
 
             // Quick Actions Section
-            _buildSectionHeader(
-              context,
-              'Quick Actions',
-              Icons.flash_on,
-              0,
-            ),
+            _buildSectionHeader(context, 'Quick Actions', Icons.flash_on, 0),
             const SizedBox(height: 16),
             _buildQuickActions(),
             const SizedBox(height: 32),
@@ -234,12 +234,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blueAccent.shade400, Colors.blue.shade700],
+          colors: [Colors.blueGrey.shade400, Colors.blue.shade700],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.blueAccent.withAlpha(80),
+            color: Colors.blueGrey.withAlpha(80),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -304,7 +304,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
               color: Colors.white.withAlpha(50),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.admin_panel_settings, color: Colors.white, size: 36),
+            child: const Icon(
+              Icons.admin_panel_settings,
+              color: Colors.white,
+              size: 36,
+            ),
           ),
         ],
       ),
@@ -346,10 +350,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           title: 'Total Courses',
           value: '${statsMap['totalCourses'] ?? 0}',
           icon: Icons.library_books,
-          gradientColors: [
-            Colors.blueAccent.shade200,
-            Colors.blueAccent.shade700,
-          ],
+          gradientColors: [Colors.blueGrey.shade200, Colors.blueGrey.shade700],
         ),
         StatCard(
           title: 'Active Courses',
@@ -396,10 +397,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.blueAccent.withAlpha(25),
+            color: Colors.blueGrey.withAlpha(25),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: Colors.blueAccent, size: 22),
+          child: Icon(icon, color: Colors.blueGrey, size: 22),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -431,28 +432,43 @@ class _AdminDashboardState extends State<AdminDashboard> {
       _QuickActionItem(
         title: 'Manage Courses',
         icon: Icons.library_books,
-        color: Colors.blue,
+        color: Colors.blueGrey,
         onTap: () {
-          // Handled by bottom navigation
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminCoursesPage()),
+          );
         },
-      ),
-      _QuickActionItem(
-        title: 'User Management',
-        icon: Icons.people,
-        color: Colors.green,
-        onTap: () => Navigator.pushNamed(context, '/admin-users'),
       ),
       _QuickActionItem(
         title: 'Analytics',
         icon: Icons.bar_chart,
-        color: Colors.orange,
-        onTap: () => Navigator.pushNamed(context, '/admin-analytics'),
+        color: Colors.purple,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminAnalyticsPage()),
+          );
+        },
+      ),
+      _QuickActionItem(
+        title: 'Users',
+        icon: Icons.people,
+        color: Colors.green,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminUsersList()),
+          );
+        },
       ),
       _QuickActionItem(
         title: 'Settings',
         icon: Icons.settings,
-        color: Colors.purple,
-        onTap: () => Navigator.pushNamed(context, '/admin-settings'),
+        color: Colors.orange,
+        onTap: () {
+          // Navigate to settings when implemented
+        },
       ),
     ];
 
@@ -550,7 +566,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: _topInstructors.length > 5 ? 5 : _topInstructors.length,
-        separatorBuilder: (_, __) => Divider(color: Colors.grey.shade200, height: 1),
+        separatorBuilder: (_, __) =>
+            Divider(color: Colors.grey.shade200, height: 1),
         itemBuilder: (context, index) {
           final instructor = _topInstructors[index];
           return _buildInstructorTile(instructor);
@@ -574,14 +591,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
         backgroundImage: profile != null && profile.isNotEmpty
             ? NetworkImage('${ApiConfig.baseUrl}$profile')
             : null,
-        backgroundColor: Colors.blueAccent.shade100,
+        backgroundColor: Colors.blueGrey.shade100,
         child: profile == null || profile.isEmpty
             ? Text(
                 name.isNotEmpty ? name[0].toUpperCase() : '?',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: Colors.blueAccent,
+                  color: Colors.blueGrey,
                 ),
               )
             : null,
@@ -630,7 +647,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: _notices.length,
-        separatorBuilder: (_, __) => Divider(color: Colors.grey.shade200, height: 1),
+        separatorBuilder: (_, __) =>
+            Divider(color: Colors.grey.shade200, height: 1),
         itemBuilder: (context, index) {
           final notice = _notices[index];
           return _buildNoticeTile(notice);
@@ -714,7 +732,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent,
+                    color: Colors.blueGrey,
                   ),
                 ),
               )

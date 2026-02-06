@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
+import 'package:tanga_acadamie/screens/shared/course_card.dart';
+import 'package:tanga_acadamie/screens/shared/custom_appbar.dart';
 
 class AdminCoursesPage extends StatefulWidget {
   const AdminCoursesPage({super.key});
@@ -9,24 +10,23 @@ class AdminCoursesPage extends StatefulWidget {
   State<AdminCoursesPage> createState() => _AdminCoursesPageState();
 }
 
-class _AdminCoursesPageState extends State<AdminCoursesPage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _AdminCoursesPageState extends State<AdminCoursesPage> {
+  String _selectedCategory = 'all';
   List<dynamic> _courses = [];
   bool _isLoading = true;
   String? _error;
 
+  final List<Map<String, String>> _categories = [
+    {'id': 'all', 'label': 'All Courses'},
+    {'id': 'published', 'label': 'Published'},
+    {'id': 'pending', 'label': 'Pending'},
+    {'id': 'rejected', 'label': 'Rejected'},
+  ];
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
     _fetchCourses();
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   Future<void> _fetchCourses() async {
@@ -49,14 +49,15 @@ class _AdminCoursesPageState extends State<AdminCoursesPage>
     }
   }
 
-  List<dynamic> get _publishedCourses =>
-      _courses.where((c) => c['status'] == 'published').toList();
+  List<dynamic> get _filteredCourses {
+    if (_selectedCategory == 'all') return _courses;
+    return _courses.where((c) => c['status'] == _selectedCategory).toList();
+  }
 
-  List<dynamic> get _pendingCourses =>
-      _courses.where((c) => c['status'] == 'pending').toList();
-
-  List<dynamic> get _rejectedCourses =>
-      _courses.where((c) => c['status'] == 'rejected').toList();
+  int _getCategoryCount(String category) {
+    if (category == 'all') return _courses.length;
+    return _courses.where((c) => c['status'] == category).toList().length;
+  }
 
   Future<void> _updateStatus(String courseId, String newStatus) async {
     try {
@@ -93,88 +94,23 @@ class _AdminCoursesPageState extends State<AdminCoursesPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: const CustomAppbar(isLoggedIn: true),
       backgroundColor: Colors.grey.shade50,
       body: Column(
         children: [
-          // Custom Tab Bar
-          Container(
-            margin: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(10),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: TabBar(
-              controller: _tabController,
-              indicator: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.blueAccent,
-              ),
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.grey.shade600,
-              labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerColor: Colors.transparent,
-              padding: const EdgeInsets.all(6),
-              tabs: [
-                Tab(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.check_circle, size: 16),
-                      const SizedBox(width: 4),
-                      Text('Published (${_publishedCourses.length})'),
-                    ],
-                  ),
-                ),
-                Tab(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.pending, size: 16),
-                      const SizedBox(width: 4),
-                      Text('Pending (${_pendingCourses.length})'),
-                    ],
-                  ),
-                ),
-                Tab(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.cancel, size: 16),
-                      const SizedBox(width: 4),
-                      Text('Rejected (${_rejectedCourses.length})'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Scrollable Category Pills
+          _buildCategoryScrollBar(),
           
-          // Tab Content
+          // Content
           Expanded(
             child: RefreshIndicator(
-              color: Colors.blueAccent,
+              color: Colors.blueGrey,
               onRefresh: _fetchCourses,
               child: _isLoading
                   ? _buildLoadingState()
                   : _error != null
                       ? _buildErrorState()
-                      : TabBarView(
-                          controller: _tabController,
-                          children: [
-                            _buildCourseList(_publishedCourses, 'published'),
-                            _buildCourseList(_pendingCourses, 'pending'),
-                            _buildCourseList(_rejectedCourses, 'rejected'),
-                          ],
-                        ),
+                      : _buildCourseGrid(),
             ),
           ),
         ],
@@ -182,19 +118,118 @@ class _AdminCoursesPageState extends State<AdminCoursesPage>
     );
   }
 
+  Widget _buildCategoryScrollBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: _categories.map((category) {
+            final isSelected = _selectedCategory == category['id'];
+            final count = _getCategoryCount(category['id']!);
+            
+            return Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _selectedCategory = category['id']!;
+                  });
+                },
+                borderRadius: BorderRadius.circular(25),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.blueGrey : Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(
+                      color: isSelected ? Colors.blueGrey : Colors.grey.shade300,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _getCategoryIcon(category['id']!, isSelected),
+                      const SizedBox(width: 6),
+                      Text(
+                        category['label']!,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.grey.shade700,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: isSelected 
+                              ? Colors.white.withAlpha(50) 
+                              : Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '$count',
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : Colors.grey.shade700,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _getCategoryIcon(String category, bool isSelected) {
+    Color color = isSelected ? Colors.white : Colors.grey.shade600;
+    IconData icon;
+    
+    switch (category) {
+      case 'published':
+        icon = Icons.check_circle;
+        color = isSelected ? Colors.white : Colors.green;
+        break;
+      case 'pending':
+        icon = Icons.pending;
+        color = isSelected ? Colors.white : Colors.orange;
+        break;
+      case 'rejected':
+        icon = Icons.cancel;
+        color = isSelected ? Colors.white : Colors.red;
+        break;
+      default:
+        icon = Icons.library_books;
+    }
+    
+    return Icon(icon, size: 16, color: color);
+  }
+
   Widget _buildLoadingState() {
-    return Center(
+    return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
-            color: Colors.blueAccent,
+          CircularProgressIndicator(
+            color: Colors.blueGrey,
             strokeWidth: 3,
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Text(
             'Loading courses...',
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+            style: TextStyle(color: Colors.grey, fontSize: 14),
           ),
         ],
       ),
@@ -230,7 +265,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage>
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: Colors.blueGrey,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -240,28 +275,93 @@ class _AdminCoursesPageState extends State<AdminCoursesPage>
     );
   }
 
-  Widget _buildCourseList(List<dynamic> courses, String status) {
+  Widget _buildCourseGrid() {
+    final courses = _filteredCourses;
+
     if (courses.isEmpty) {
-      return _buildEmptyState(status);
+      return _buildEmptyState();
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.78,
+        crossAxisSpacing: 14,
+        mainAxisSpacing: 14,
+      ),
       itemCount: courses.length,
       itemBuilder: (context, index) {
-        return _buildAdminCourseCard(courses[index]);
+        final course = courses[index];
+        return _buildAdminCourseCard(course);
       },
     );
   }
 
-  Widget _buildEmptyState(String status) {
+  Widget _buildAdminCourseCard(Map<String, dynamic> course) {
+    final status = course['status'] ?? 'pending';
+    
+    return Stack(
+      children: [
+        // Reuse the CourseCard widget
+        CourseCard(
+          course: course,
+          onTap: () => _showCourseActions(course),
+        ),
+        
+        // Status badge overlay
+        Positioned(
+          top: 8,
+          left: 8,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: _getStatusColor(status),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(40),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Text(
+              status.toUpperCase(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'published':
+        return Colors.green;
+      case 'pending':
+        return Colors.orange;
+      case 'rejected':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Widget _buildEmptyState() {
     String message;
     IconData icon;
     Color color;
 
-    switch (status) {
+    switch (_selectedCategory) {
       case 'published':
-        message = 'No published courses yet';
+        message = 'No published courses';
         icon = Icons.check_circle_outline;
         color = Colors.green;
         break;
@@ -276,9 +376,9 @@ class _AdminCoursesPageState extends State<AdminCoursesPage>
         color = Colors.red;
         break;
       default:
-        message = 'No courses';
-        icon = Icons.book_outlined;
-        color = Colors.grey;
+        message = 'No courses found';
+        icon = Icons.library_books_outlined;
+        color = Colors.blueGrey;
     }
 
     return Center(
@@ -307,327 +407,167 @@ class _AdminCoursesPageState extends State<AdminCoursesPage>
     );
   }
 
-  Widget _buildAdminCourseCard(Map<String, dynamic> course) {
+  void _showCourseActions(Map<String, dynamic> course) {
+    final courseId = course['_id'];
+    final currentStatus = course['status'] ?? 'pending';
     final title = course['title'] ?? 'Untitled Course';
-    final bannerImage = course['bannerImage'];
-    final status = course['status'] ?? 'pending';
-    final offerType = course['offerType'] ?? 'premium';
-    final category = course['category'] ?? 'Uncategorized';
-    final price = course['price'] ?? 0;
-    final discountedPrice = course['discountedPrice'];
-    final instructor = course['instructor'];
-    final enrollmentCount = course['enrollmentCount'] ?? 0;
 
-    String instructorName = 'Unknown Instructor';
-    if (instructor != null) {
-      final firstName = instructor['firstName'] ?? '';
-      final lastName = instructor['lastName'] ?? '';
-      instructorName = '$firstName $lastName'.trim();
-      if (instructorName.isEmpty) {
-        instructorName = instructor['Name'] ?? 'Unknown Instructor';
-      }
-    }
-
-    Color statusColor;
-    switch (status) {
-      case 'published':
-        statusColor = Colors.green;
-        break;
-      case 'pending':
-        statusColor = Colors.orange;
-        break;
-      case 'rejected':
-        statusColor = Colors.red;
-        break;
-      default:
-        statusColor = Colors.grey;
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(12),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Banner Image with badges
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                child: bannerImage != null
-                    ? Image.network(
-                        '${ApiConfig.baseUrl}$bannerImage',
-                        height: 140,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
-                      )
-                    : _buildImagePlaceholder(),
-              ),
-              // Status Badge
-              Positioned(
-                top: 12,
-                left: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: statusColor,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    status.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
-                    ),
-                  ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle bar
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              // Offer Type Badge
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: offerType == 'free' ? Colors.green : Colors.blueAccent,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    offerType.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
+            ),
+            const SizedBox(height: 20),
+            
+            // Title
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
-
-          // Course Info
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+            
+            // Current Status
+            Row(
               children: [
-                // Category
+                const Text(
+                  'Current Status: ',
+                  style: TextStyle(color: Colors.grey),
+                ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.blueAccent.withAlpha(25),
-                    borderRadius: BorderRadius.circular(6),
+                    color: _getStatusColor(currentStatus),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    category,
+                    currentStatus.toUpperCase(),
                     style: const TextStyle(
+                      color: Colors.white,
                       fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.blueAccent,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-
-                // Title
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-
-                // Instructor & Enrollment
-                Row(
-                  children: [
-                    Icon(Icons.person, size: 16, color: Colors.grey.shade600),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        instructorName,
-                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Icon(Icons.people, size: 16, color: Colors.grey.shade600),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$enrollmentCount students',
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // Price
-                Row(
-                  children: [
-                    Text(
-                      offerType == 'free' 
-                          ? 'FREE' 
-                          : '\$${discountedPrice ?? price}',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: offerType == 'free' ? Colors.green : Colors.blueAccent,
-                      ),
-                    ),
-                    if (discountedPrice != null && offerType != 'free') ...[
-                      const SizedBox(width: 8),
-                      Text(
-                        '\$$price',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade500,
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Action Buttons
-                _buildActionButtons(course['_id'], status),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImagePlaceholder() {
-    return Container(
-      height: 140,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.blueAccent.withAlpha(100),
-            Colors.blueAccent,
+            const SizedBox(height: 24),
+            
+            // Action Buttons
+            const Text(
+              'Change Status',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            Row(
+              children: [
+                if (currentStatus != 'published')
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _confirmStatusChange(courseId, 'published', title);
+                      },
+                      icon: const Icon(Icons.check),
+                      label: const Text('Approve'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (currentStatus != 'published') const SizedBox(width: 8),
+                
+                if (currentStatus != 'pending')
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _confirmStatusChange(courseId, 'pending', title);
+                      },
+                      icon: const Icon(Icons.pending),
+                      label: const Text('Pending'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.orange,
+                        side: const BorderSide(color: Colors.orange),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (currentStatus != 'pending') const SizedBox(width: 8),
+                
+                if (currentStatus != 'rejected')
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _confirmStatusChange(courseId, 'rejected', title);
+                      },
+                      icon: const Icon(Icons.close),
+                      label: const Text('Reject'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: const BorderSide(color: Colors.red),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
-      child: Center(
-        child: Icon(
-          Icons.school_outlined,
-          size: 48,
-          color: Colors.white.withAlpha(180),
-        ),
-      ),
     );
   }
 
-  Widget _buildActionButtons(String courseId, String currentStatus) {
-    return Row(
-      children: [
-        if (currentStatus != 'published')
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () => _showConfirmDialog(
-                courseId,
-                'published',
-                'Approve Course',
-                'Are you sure you want to approve this course?',
-              ),
-              icon: const Icon(Icons.check, size: 18),
-              label: const Text('Approve'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ),
-        if (currentStatus != 'published') const SizedBox(width: 8),
-        if (currentStatus != 'pending')
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () => _showConfirmDialog(
-                courseId,
-                'pending',
-                'Set to Pending',
-                'Are you sure you want to set this course to pending?',
-              ),
-              icon: const Icon(Icons.pending, size: 18),
-              label: const Text('Pending'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.orange,
-                side: const BorderSide(color: Colors.orange),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ),
-        if (currentStatus != 'pending') const SizedBox(width: 8),
-        if (currentStatus != 'rejected')
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () => _showConfirmDialog(
-                courseId,
-                'rejected',
-                'Reject Course',
-                'Are you sure you want to reject this course?',
-              ),
-              icon: const Icon(Icons.close, size: 18),
-              label: const Text('Reject'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  void _showConfirmDialog(
-    String courseId,
-    String newStatus,
-    String title,
-    String message,
-  ) {
+  void _confirmStatusChange(String courseId, String newStatus, String title) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
+        title: Text('${newStatus == 'published' ? 'Approve' : newStatus == 'rejected' ? 'Reject' : 'Set to Pending'} Course'),
+        content: Text('Are you sure you want to change "$title" status to $newStatus?'),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
+            child: Text('Cancel', style: TextStyle(color: Colors.grey.shade600)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -635,14 +575,8 @@ class _AdminCoursesPageState extends State<AdminCoursesPage>
               _updateStatus(courseId, newStatus);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: newStatus == 'published'
-                  ? Colors.green
-                  : newStatus == 'rejected'
-                      ? Colors.red
-                      : Colors.orange,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
+              backgroundColor: _getStatusColor(newStatus),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             child: const Text('Confirm'),
           ),

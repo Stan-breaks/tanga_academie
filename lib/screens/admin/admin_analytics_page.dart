@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
+import 'package:tanga_acadamie/screens/shared/custom_appbar.dart';
 
 class AdminAnalyticsPage extends StatefulWidget {
   const AdminAnalyticsPage({super.key});
@@ -43,14 +44,13 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Analytics'),
-        elevation: 0,
-      ),
+      appBar: const CustomAppbar(isLoggedIn: true),
+      backgroundColor: Colors.grey.shade50,
       body: RefreshIndicator(
+        color: Colors.blueGrey,
         onRefresh: _fetchChartData,
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? _buildLoadingState()
             : _error != null
                 ? _buildErrorState()
                 : _buildAnalytics(),
@@ -58,34 +58,60 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
     );
   }
 
-  Widget _buildErrorState() {
-    return Center(
+  Widget _buildLoadingState() {
+    return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
-          const SizedBox(height: 16),
-          Text(
-            'Error loading analytics',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade700,
-            ),
+          CircularProgressIndicator(
+            color: Colors.blueGrey,
+            strokeWidth: 3,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 20),
           Text(
-            _error ?? 'Unknown error',
-            style: TextStyle(color: Colors.grey.shade600),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: _fetchChartData,
-            icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            'Loading analytics...',
+            style: TextStyle(color: Colors.grey, fontSize: 14),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+            const SizedBox(height: 16),
+            Text(
+              'Error loading analytics',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _error ?? 'Unknown error',
+              style: TextStyle(color: Colors.grey.shade600),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _fetchChartData,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueGrey,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -94,32 +120,18 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Header
-        const Text(
-          'Platform Analytics',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'View platform performance and trends',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
+        // Header Section
+        _buildHeader(),
         const SizedBox(height: 24),
 
         // Enrollment Trends Chart
         _buildChartCard(
           title: 'Monthly Enrollment Trends',
           icon: Icons.trending_up,
-          color: Colors.blue,
+          color: Colors.blueGrey,
           child: _buildEnrollmentChart(),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
 
         // Course Distribution Chart
         _buildChartCard(
@@ -128,7 +140,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
           color: Colors.purple,
           child: _buildDistributionChart(),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
 
         // Revenue Chart
         _buildChartCard(
@@ -137,7 +149,81 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
           color: Colors.green,
           child: _buildRevenueChart(),
         ),
+        const SizedBox(height: 20),
       ],
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.blueGrey.shade600, Colors.blueGrey.shade800],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blueGrey.withAlpha(60),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.analytics, color: Colors.white70, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Platform Analytics',
+                      style: TextStyle(
+                        color: Colors.white.withAlpha(200),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Performance & Trends',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Track your platform growth and user engagement',
+                  style: TextStyle(
+                    color: Colors.white.withAlpha(180),
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(40),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.insights, color: Colors.white, size: 30),
+          ),
+        ],
+      ),
     );
   }
 
@@ -153,7 +239,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.black.withAlpha(15),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -170,17 +256,17 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withAlpha(25),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(icon, color: color, size: 24),
+                  child: Icon(icon, color: color, size: 22),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -199,24 +285,31 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
   }
 
   Widget _buildEnrollmentChart() {
-    final enrollmentData = _chartData?['enrollment'] as List<dynamic>? ?? [];
+    // Get enrollment data from API response
+    // API returns: { labels: [...], datasets: [{ label, data, ... }] }
+    final enrollmentData = _chartData?['enrollment'] as Map<String, dynamic>?;
 
-    if (enrollmentData.isEmpty) {
+    if (enrollmentData == null) {
+      return _buildNoDataState('No enrollment data available');
+    }
+
+    final labels = (enrollmentData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
+    final datasets = enrollmentData['datasets'] as List<dynamic>?;
+    final dataPoints = (datasets?.isNotEmpty == true) 
+        ? (datasets![0]['data'] as List<dynamic>?)?.cast<num>() ?? []
+        : <num>[];
+
+    if (dataPoints.isEmpty) {
       return _buildNoDataState('No enrollment data available');
     }
 
     final spots = <FlSpot>[];
-    final labels = <String>[];
-
-    for (int i = 0; i < enrollmentData.length; i++) {
-      final item = enrollmentData[i];
-      final value = (item['count'] ?? item['value'] ?? 0).toDouble();
-      spots.add(FlSpot(i.toDouble(), value));
-      labels.add(item['month'] ?? item['label'] ?? 'Month ${i + 1}');
+    for (int i = 0; i < dataPoints.length; i++) {
+      spots.add(FlSpot(i.toDouble(), dataPoints[i].toDouble()));
     }
 
     return SizedBox(
-      height: 250,
+      height: 220,
       child: LineChart(
         LineChartData(
           gridData: FlGridData(
@@ -235,7 +328,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) => Text(
                   value.toInt().toString(),
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
                 ),
               ),
             ),
@@ -249,7 +342,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                   if (index >= 0 && index < labels.length) {
                     return Text(
                       labels[index].substring(0, labels[index].length > 3 ? 3 : labels[index].length),
-                      style: TextStyle(color: Colors.grey[600], fontSize: 10),
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
                     );
                   }
                   return const Text('');
@@ -264,12 +357,12 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
             LineChartBarData(
               spots: spots,
               isCurved: true,
-              color: Colors.blue,
+              color: Colors.blueGrey,
               barWidth: 3,
               dotData: const FlDotData(show: true),
               belowBarData: BarAreaData(
                 show: true,
-                color: Colors.blue.withOpacity(0.1),
+                color: Colors.blueGrey.withAlpha(30),
               ),
             ),
           ],
@@ -279,14 +372,26 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
   }
 
   Widget _buildDistributionChart() {
-    final distributionData = _chartData?['distribution'] as List<dynamic>? ?? [];
+    // Get distribution data from API response
+    // API returns: { labels: [...], datasets: [{ data, backgroundColor, ... }] }
+    final distributionData = _chartData?['distribution'] as Map<String, dynamic>?;
 
-    if (distributionData.isEmpty) {
+    if (distributionData == null) {
+      return _buildNoDataState('No distribution data available');
+    }
+
+    final labels = (distributionData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
+    final datasets = distributionData['datasets'] as List<dynamic>?;
+    final dataPoints = (datasets?.isNotEmpty == true) 
+        ? (datasets![0]['data'] as List<dynamic>?)?.cast<num>() ?? []
+        : <num>[];
+
+    if (dataPoints.isEmpty || labels.isEmpty) {
       return _buildNoDataState('No distribution data available');
     }
 
     final colors = [
-      Colors.blue,
+      Colors.blueGrey,
       Colors.purple,
       Colors.orange,
       Colors.green,
@@ -299,10 +404,9 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
     final sections = <PieChartSectionData>[];
     final legendItems = <Widget>[];
 
-    for (int i = 0; i < distributionData.length; i++) {
-      final item = distributionData[i];
-      final value = (item['count'] ?? item['value'] ?? 0).toDouble();
-      final label = item['category'] ?? item['label'] ?? 'Category ${i + 1}';
+    for (int i = 0; i < dataPoints.length; i++) {
+      final value = dataPoints[i].toDouble();
+      final label = i < labels.length ? labels[i] : 'Category ${i + 1}';
       final color = colors[i % colors.length];
 
       sections.add(
@@ -310,11 +414,11 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
           value: value,
           color: color,
           title: '${value.toInt()}',
-          radius: 80,
+          radius: 70,
           titleStyle: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: 14,
+            fontSize: 12,
           ),
         ),
       );
@@ -330,7 +434,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                 height: 12,
                 decoration: BoxDecoration(
                   color: color,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(3),
                 ),
               ),
               const SizedBox(width: 8),
@@ -350,12 +454,12 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
     return Row(
       children: [
         SizedBox(
-          height: 200,
-          width: 200,
+          height: 180,
+          width: 180,
           child: PieChart(
             PieChartData(
               sections: sections,
-              centerSpaceRadius: 40,
+              centerSpaceRadius: 35,
               sectionsSpace: 2,
             ),
           ),
@@ -363,7 +467,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
         const SizedBox(width: 16),
         Expanded(
           child: Wrap(
-            spacing: 16,
+            spacing: 12,
             runSpacing: 4,
             children: legendItems,
           ),
@@ -373,19 +477,29 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
   }
 
   Widget _buildRevenueChart() {
-    final revenueData = _chartData?['revenue'] as List<dynamic>? ?? [];
+    // Get revenue data from API response
+    // API returns: { labels: [...], datasets: [{ label, data, ... }] }
+    final revenueData = _chartData?['revenue'] as Map<String, dynamic>?;
 
-    if (revenueData.isEmpty) {
+    if (revenueData == null) {
+      return _buildNoDataState('No revenue data available');
+    }
+
+    final labels = (revenueData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
+    final datasets = revenueData['datasets'] as List<dynamic>?;
+    final dataPoints = (datasets?.isNotEmpty == true) 
+        ? (datasets![0]['data'] as List<dynamic>?)?.cast<num>() ?? []
+        : <num>[];
+
+    if (dataPoints.isEmpty) {
       return _buildNoDataState('No revenue data available');
     }
 
     final groups = <BarChartGroupData>[];
-    final labels = <String>[];
     double maxValue = 0;
 
-    for (int i = 0; i < revenueData.length; i++) {
-      final item = revenueData[i];
-      final value = (item['amount'] ?? item['value'] ?? 0).toDouble();
+    for (int i = 0; i < dataPoints.length; i++) {
+      final value = dataPoints[i].toDouble();
       if (value > maxValue) maxValue = value;
       
       groups.add(
@@ -394,26 +508,29 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
           barRods: [
             BarChartRodData(
               toY: value,
-              color: Colors.green,
-              width: 20,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [Colors.green.shade400, Colors.green.shade600],
+              ),
+              width: 18,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
             ),
           ],
         ),
       );
-      labels.add(item['month'] ?? item['label'] ?? 'Month ${i + 1}');
     }
 
     return SizedBox(
-      height: 250,
+      height: 220,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: maxValue * 1.2,
+          maxY: maxValue > 0 ? maxValue * 1.2 : 100,
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
-            horizontalInterval: maxValue / 5,
+            horizontalInterval: maxValue > 0 ? maxValue / 5 : 20,
             getDrawingHorizontalLine: (value) => FlLine(
               color: Colors.grey.shade200,
               strokeWidth: 1,
@@ -426,7 +543,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                 reservedSize: 50,
                 getTitlesWidget: (value, meta) => Text(
                   '\$${value.toInt()}',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 11),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
                 ),
               ),
             ),
@@ -439,7 +556,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                   if (index >= 0 && index < labels.length) {
                     return Text(
                       labels[index].substring(0, labels[index].length > 3 ? 3 : labels[index].length),
-                      style: TextStyle(color: Colors.grey[600], fontSize: 10),
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
                     );
                   }
                   return const Text('');
@@ -458,16 +575,23 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
 
   Widget _buildNoDataState(String message) {
     return Container(
-      height: 200,
+      height: 180,
       alignment: Alignment.center,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.show_chart, size: 48, color: Colors.grey[400]),
-          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.show_chart, size: 40, color: Colors.grey.shade400),
+          ),
+          const SizedBox(height: 12),
           Text(
             message,
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           ),
         ],
       ),

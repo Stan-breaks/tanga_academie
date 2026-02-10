@@ -16,6 +16,7 @@ Future<void> saveUser(Map<String, dynamic> user) async {
   await box.put("isVerified", user['isVerified']);
   await box.put("isActive", user['isActive']);
   await box.put("role", user['role']);
+  await box.put("bio", user['bio']);
   await box.close();
 }
 

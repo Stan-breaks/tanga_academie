@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:tanga_acadamie/api_config.dart';
+import 'package:tanga_acadamie/core/utils/chat.dart';
+import 'package:tanga_acadamie/screens/shared/chat_page.dart';
 import 'package:tanga_acadamie/screens/shared/custom_appbar.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 
@@ -19,6 +21,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
   List<User> _filteredUsers = [];
   bool _isLoading = true;
   String? _error;
+  String? _currentUserId;
   String _selectedRole = 'all';
   final TextEditingController _searchController = TextEditingController();
 
@@ -42,6 +45,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
   }
 
   Future<void> _initialize() async {
+    _currentUserId = await getCurrentUserId();
     await _getAllUsers();
   }
 
@@ -96,11 +100,13 @@ class _AdminUsersListState extends State<AdminUsersList> {
     setState(() {
       _filteredUsers = _users.where((user) {
         // Role filter
-        final matchesRole = _selectedRole == 'all' || user.role == _selectedRole;
-        
+        final matchesRole =
+            _selectedRole == 'all' || user.role == _selectedRole;
+
         // Search filter
         final searchQuery = _searchController.text.toLowerCase();
-        final matchesSearch = searchQuery.isEmpty ||
+        final matchesSearch =
+            searchQuery.isEmpty ||
             user.firstName.toLowerCase().contains(searchQuery) ||
             user.lastName.toLowerCase().contains(searchQuery) ||
             user.email.toLowerCase().contains(searchQuery);
@@ -124,10 +130,10 @@ class _AdminUsersListState extends State<AdminUsersList> {
         children: [
           // Header with search
           _buildHeader(),
-          
+
           // Role filter pills
           _buildRoleFilters(),
-          
+
           // User list
           Expanded(
             child: RefreshIndicator(
@@ -136,8 +142,8 @@ class _AdminUsersListState extends State<AdminUsersList> {
               child: _isLoading
                   ? _buildLoadingState()
                   : _error != null
-                      ? _buildErrorState()
-                      : _buildUserList(),
+                  ? _buildErrorState()
+                  : _buildUserList(),
             ),
           ),
         ],
@@ -170,7 +176,11 @@ class _AdminUsersListState extends State<AdminUsersList> {
                   color: Colors.blueGrey.withAlpha(25),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.people, color: Colors.blueGrey, size: 24),
+                child: const Icon(
+                  Icons.people,
+                  color: Colors.blueGrey,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -197,7 +207,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Search bar
           Container(
             decoration: BoxDecoration(
@@ -222,7 +232,10 @@ class _AdminUsersListState extends State<AdminUsersList> {
                       )
                     : null,
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
               ),
             ),
           ),
@@ -245,7 +258,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
           children: _roleFilters.map((filter) {
             final isSelected = _selectedRole == filter['id'];
             final count = _getRoleCount(filter['id']!);
-            
+
             return Padding(
               padding: const EdgeInsets.only(right: 10),
               child: InkWell(
@@ -257,12 +270,17 @@ class _AdminUsersListState extends State<AdminUsersList> {
                 },
                 borderRadius: BorderRadius.circular(25),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected ? Colors.blueGrey : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(25),
                     border: Border.all(
-                      color: isSelected ? Colors.blueGrey : Colors.grey.shade300,
+                      color: isSelected
+                          ? Colors.blueGrey
+                          : Colors.grey.shade300,
                     ),
                   ),
                   child: Row(
@@ -273,14 +291,21 @@ class _AdminUsersListState extends State<AdminUsersList> {
                       Text(
                         filter['label']!,
                         style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.grey.shade700,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.grey.shade700,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
                           fontSize: 13,
                         ),
                       ),
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: isSelected
                               ? Colors.white.withAlpha(50)
@@ -290,7 +315,9 @@ class _AdminUsersListState extends State<AdminUsersList> {
                         child: Text(
                           '$count',
                           style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.grey.shade700,
+                            color: isSelected
+                                ? Colors.white
+                                : Colors.grey.shade700,
                             fontWeight: FontWeight.bold,
                             fontSize: 11,
                           ),
@@ -310,7 +337,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
   Widget _getRoleIcon(String role, bool isSelected) {
     Color color = isSelected ? Colors.white : Colors.grey.shade600;
     IconData icon;
-    
+
     switch (role) {
       case 'student':
         icon = Icons.school;
@@ -327,7 +354,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
       default:
         icon = Icons.people;
     }
-    
+
     return Icon(icon, size: 16, color: color);
   }
 
@@ -336,10 +363,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
-            color: Colors.blueGrey,
-            strokeWidth: 3,
-          ),
+          CircularProgressIndicator(color: Colors.blueGrey, strokeWidth: 3),
           SizedBox(height: 20),
           Text(
             'Loading users...',
@@ -406,7 +430,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
   Widget _buildUserCard(User user) {
     final fullName = '${user.firstName} ${user.lastName}'.trim();
     final roleColor = _getRoleColor(user.role);
-    
+
     String formattedDate = '';
     if (user.createdAt.isNotEmpty) {
       try {
@@ -456,7 +480,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
                       : null,
                 ),
                 const SizedBox(width: 14),
-                
+
                 // User info
                 Expanded(
                   child: Column(
@@ -472,7 +496,11 @@ class _AdminUsersListState extends State<AdminUsersList> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.email_outlined, size: 14, color: Colors.grey.shade500),
+                          Icon(
+                            Icons.email_outlined,
+                            size: 14,
+                            color: Colors.grey.shade500,
+                          ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
@@ -491,7 +519,10 @@ class _AdminUsersListState extends State<AdminUsersList> {
                         children: [
                           // Role badge
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: roleColor.withAlpha(25),
                               borderRadius: BorderRadius.circular(8),
@@ -499,7 +530,11 @@ class _AdminUsersListState extends State<AdminUsersList> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(_getRoleIconData(user.role), size: 12, color: roleColor),
+                                Icon(
+                                  _getRoleIconData(user.role),
+                                  size: 12,
+                                  color: roleColor,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   user.role.toUpperCase(),
@@ -514,7 +549,11 @@ class _AdminUsersListState extends State<AdminUsersList> {
                           ),
                           if (formattedDate.isNotEmpty) ...[
                             const SizedBox(width: 10),
-                            Icon(Icons.calendar_today, size: 12, color: Colors.grey.shade500),
+                            Icon(
+                              Icons.calendar_today,
+                              size: 12,
+                              color: Colors.grey.shade500,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               formattedDate,
@@ -529,7 +568,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
                     ],
                   ),
                 ),
-                
+
                 // Arrow
                 Icon(Icons.chevron_right, color: Colors.grey.shade400),
               ],
@@ -581,7 +620,11 @@ class _AdminUsersListState extends State<AdminUsersList> {
               color: Colors.grey.shade100,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.person_off_outlined, size: 56, color: Colors.grey.shade400),
+            child: Icon(
+              Icons.person_off_outlined,
+              size: 56,
+              color: Colors.grey.shade400,
+            ),
           ),
           const SizedBox(height: 20),
           Text(
@@ -600,7 +643,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
   void _showUserDetails(User user) {
     final fullName = '${user.firstName} ${user.lastName}'.trim();
     final roleColor = _getRoleColor(user.role);
-    
+
     String formattedDate = '';
     if (user.createdAt.isNotEmpty) {
       try {
@@ -632,7 +675,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Avatar
             CircleAvatar(
               radius: 50,
@@ -652,17 +695,14 @@ class _AdminUsersListState extends State<AdminUsersList> {
                   : null,
             ),
             const SizedBox(height: 16),
-            
+
             // Name
             Text(
               fullName.isEmpty ? 'Unknown User' : fullName,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            
+
             // Role badge
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -687,7 +727,9 @@ class _AdminUsersListState extends State<AdminUsersList> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
+            _buildDetailRow(Icons.person_outlined, 'Bio', user.bio),
+            const SizedBox(height: 12),
             // Details
             _buildDetailRow(Icons.email_outlined, 'Email', user.email),
             const SizedBox(height: 12),
@@ -695,42 +737,35 @@ class _AdminUsersListState extends State<AdminUsersList> {
               _buildDetailRow(Icons.calendar_today, 'Joined', formattedDate),
               const SizedBox(height: 12),
             ],
-            
+
             const SizedBox(height: 16),
-            
-            // Actions
+
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {
-                      // TODO: Implement message user
-                      Navigator.pop(context);
+                    onPressed: () async {
+                      final result = await startChat(participantId: user.id);
+                      if (result.isSuccess) {
+                        final chatData = result.data;
+                        final chatId = chatData['_id'] ?? chatData['chatId'];
+                        if (!context.mounted) return;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatPage(
+                              chatId: chatId,
+                              userId: _currentUserId!,
+                            ),
+                          ),
+                        );
+                      }
                     },
                     icon: const Icon(Icons.message),
                     label: const Text('Message'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.blueGrey,
                       side: const BorderSide(color: Colors.blueGrey),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: Implement view profile
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.person),
-                    label: const Text('Profile'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueGrey,
-                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -794,6 +829,7 @@ class User {
   final String email;
   final String role;
   final String profile;
+  final String bio;
   final String createdAt;
 
   User({
@@ -803,6 +839,7 @@ class User {
     required this.email,
     required this.role,
     required this.profile,
+    required this.bio,
     required this.createdAt,
   });
 
@@ -814,6 +851,7 @@ class User {
       email: json['email'] ?? '',
       role: json['role'] ?? '',
       profile: json['profile'] ?? '',
+      bio: json['bio'] ?? 'No bio yet',
       createdAt: json['createdAt'] ?? '',
     );
   }

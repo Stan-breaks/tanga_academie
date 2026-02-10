@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:tanga_acadamie/api_config.dart';
+import 'package:tanga_acadamie/core/utils/chat.dart';
+import 'package:tanga_acadamie/models/models.dart';
 import 'package:tanga_acadamie/screens/shared/chat_page.dart';
-import 'package:tanga_acadamie/storage_service.dart';
 
 class AdminChatList extends StatefulWidget {
   const AdminChatList({super.key});
@@ -28,138 +26,60 @@ class _AdminChatListState extends State<AdminChatList> {
   }
 
   Future<void> _initialize() async {
-    await _getCurrentUserId();
+    _currentUserId = await getCurrentUserId();
     await Future.wait([_fetchUserChats(), _fetchAllUsers()]);
   }
 
-  Future<void> _getCurrentUserId() async {
-    try {
-      final token = await getToken();
-      if (token != null) {
-        final parts = token.split('.');
-        if (parts.length == 3) {
-          final payload = json.decode(
-            utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
-          );
-          _currentUserId = payload['id'] ?? payload['userId'];
-        }
-      }
-    } catch (e) {
-      debugPrint('Error getting user ID: $e');
-    }
-  }
-
   Future<void> _fetchUserChats() async {
-    try {
-      final token = await getToken();
-      if (token == null) {
-        setState(() {
-          _error = 'Not authenticated';
-          _isLoading = false;
-        });
-        return;
-      }
-
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/chats/user-chats'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          _chats = (data['data'] as List)
-              .map((chat) => ChatItem.fromJson(chat, _currentUserId))
-              .toList();
-          _isLoading = false;
-          _error = null;
-        });
-      } else {
-        setState(() {
-          _error = 'Failed to load chats';
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error fetching chats: $e');
+    final result = await fetchUserChats();
+    if (result.isSuccess) {
       setState(() {
-        _error = 'Error loading chats';
+        _chats = (result.data as List)
+            .map((chat) => ChatItem.fromJson(chat, _currentUserId))
+            .toList();
+        _isLoading = false;
+        _error = null;
+      });
+    } else {
+      setState(() {
+        _error = result.error;
         _isLoading = false;
       });
     }
   }
 
   Future<void> _fetchAllUsers() async {
-    try {
-      final token = await getToken();
-      if (token == null) return;
-
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/chats/admin/contacts'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final users = data['data'] as List? ?? data as List? ?? [];
-        setState(() {
-          _users = users
-              .where((user) => user['_id'] != _currentUserId)
-              .map((user) => UserContact.fromJson(user))
-              .toList();
-        });
-      }
-    } catch (e) {
-      debugPrint('Error fetching users: $e');
+    final result = await fetchAdminContacts();
+    if (result.isSuccess) {
+      setState(() {
+        _users = (result.data as List)
+            .where((user) => user['_id'] != _currentUserId)
+            .map((user) => UserContact.fromJson(user))
+            .toList();
+      });
     }
   }
 
-  Future<void> _startChat(String userId) async {
-    try {
-      final token = await getToken();
-      if (token == null) return;
+  Future<void> _startNewChat(String userId) async {
+    final result = await startChat(participantId: userId);
+    if (result.isSuccess) {
+      final chatData = result.data;
+      final chatId = chatData['_id'] ?? chatData['chatId'];
 
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/chats'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({'participantId': userId}),
-      );
+      setState(() {
+        _showUserList = false;
+      });
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final chatData = data['data'];
-        final chatId = chatData['_id'] ?? chatData['chatId'];
-
-        setState(() {
-          _showUserList = false;
-        });
-
-        if (chatId != null && _currentUserId != null && mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  ChatPage(chatId: chatId, userId: _currentUserId!),
-            ),
-          ).then((_) {
-            _fetchUserChats();
-          });
-        }
-      } else {
-        _showErrorSnackbar('Failed to start chat');
+      if (chatId != null && _currentUserId != null && mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatPage(chatId: chatId, userId: _currentUserId!),
+          ),
+        ).then((_) => _fetchUserChats());
       }
-    } catch (e) {
-      debugPrint('Error starting chat: $e');
-      _showErrorSnackbar('Error starting chat');
+    } else {
+      _showErrorSnackbar(result.error ?? 'Failed to start chat');
     }
   }
 
@@ -179,12 +99,9 @@ class _AdminChatListState extends State<AdminChatList> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            ChatPage(chatId: chat.id, userId: _currentUserId!),
+        builder: (context) => ChatPage(chatId: chat.id, userId: _currentUserId!),
       ),
-    ).then((_) {
-      _fetchUserChats();
-    });
+    ).then((_) => _fetchUserChats());
   }
 
   @override
@@ -249,7 +166,7 @@ class _AdminChatListState extends State<AdminChatList> {
         if (_showUserList) ...[_buildUsersList(), const SizedBox(height: 16)],
 
         // Error Message
-        if (_error != null)
+        if (_error != null) ...[
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -270,7 +187,8 @@ class _AdminChatListState extends State<AdminChatList> {
               ],
             ),
           ),
-        if (_error != null) const SizedBox(height: 16),
+          const SizedBox(height: 16),
+        ],
 
         // Section Header
         _buildSectionHeader(),
@@ -341,25 +259,16 @@ class _AdminChatListState extends State<AdminChatList> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.people_outline,
-                          size: 48,
-                          color: Colors.grey.shade400,
-                        ),
+                        Icon(Icons.people_outline, size: 48, color: Colors.grey.shade400),
                         const SizedBox(height: 12),
-                        Text(
-                          'No users available',
-                          style: TextStyle(color: Colors.grey.shade600),
-                        ),
+                        Text('No users available', style: TextStyle(color: Colors.grey.shade600)),
                       ],
                     ),
                   )
                 : ListView.separated(
                     itemCount: _users.length,
-                    separatorBuilder: (context, index) => const Divider(),
-                    itemBuilder: (context, index) {
-                      return _buildUserItem(_users[index]);
-                    },
+                    separatorBuilder: (_, __) => const Divider(),
+                    itemBuilder: (context, index) => _buildUserItem(_users[index]),
                   ),
           ),
         ],
@@ -368,8 +277,10 @@ class _AdminChatListState extends State<AdminChatList> {
   }
 
   Widget _buildUserItem(UserContact user) {
+    final roleColor = _getRoleColor(user.role);
+    
     return InkWell(
-      onTap: () => _startChat(user.id),
+      onTap: () => _startNewChat(user.id),
       borderRadius: BorderRadius.circular(10),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
@@ -377,18 +288,12 @@ class _AdminChatListState extends State<AdminChatList> {
           children: [
             CircleAvatar(
               radius: 22,
-              backgroundColor: _getRoleColor(user.role).withAlpha(25),
-              backgroundImage: user.profile.isNotEmpty
-                  ? NetworkImage(user.profile)
-                  : null,
+              backgroundColor: roleColor.withAlpha(25),
+              backgroundImage: user.profile.isNotEmpty ? NetworkImage(user.profile) : null,
               child: user.profile.isEmpty
                   ? Text(
-                      user.name[0].toUpperCase(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: _getRoleColor(user.role),
-                      ),
+                      user.initial,
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: roleColor),
                     )
                   : null,
             ),
@@ -397,32 +302,19 @@ class _AdminChatListState extends State<AdminChatList> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    user.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                    ),
-                  ),
+                  Text(user.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
                   const SizedBox(height: 4),
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: _getRoleColor(user.role).withAlpha(25),
+                          color: roleColor.withAlpha(25),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           user.role.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: _getRoleColor(user.role),
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(fontSize: 10, color: roleColor, fontWeight: FontWeight.bold),
                         ),
                       ),
                       if (user.email.isNotEmpty) ...[
@@ -430,10 +322,7 @@ class _AdminChatListState extends State<AdminChatList> {
                         Expanded(
                           child: Text(
                             user.email,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                            ),
+                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -450,11 +339,7 @@ class _AdminChatListState extends State<AdminChatList> {
                 color: Colors.blueGrey.withAlpha(25),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
-                Icons.chat_bubble_outline,
-                size: 20,
-                color: Colors.blueGrey,
-              ),
+              child: const Icon(Icons.chat_bubble_outline, size: 20, color: Colors.blueGrey),
             ),
           ],
         ),
@@ -486,11 +371,8 @@ class _AdminChatListState extends State<AdminChatList> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: _chats.length,
-        separatorBuilder: (context, index) =>
-            Divider(height: 1, indent: 72, color: Colors.grey.shade200),
-        itemBuilder: (context, index) {
-          return _buildChatItem(_chats[index]);
-        },
+        separatorBuilder: (_, __) => Divider(height: 1, indent: 72, color: Colors.grey.shade200),
+        itemBuilder: (context, index) => _buildChatItem(_chats[index]),
       ),
     );
   }
@@ -506,14 +388,15 @@ class _AdminChatListState extends State<AdminChatList> {
             CircleAvatar(
               radius: 26,
               backgroundColor: Colors.blueGrey.withAlpha(25),
-              child: Text(
-                chat.otherUserInitial,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueGrey,
-                ),
-              ),
+              backgroundImage: chat.recipientAvatar != null && chat.recipientAvatar!.isNotEmpty
+                  ? NetworkImage('${ApiConfig.baseUrl}${chat.recipientAvatar}')
+                  : null,
+              child: chat.recipientAvatar == null || chat.recipientAvatar!.isEmpty
+                  ? Text(
+                      chat.recipientInitial,
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                    )
+                  : null,
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -524,11 +407,9 @@ class _AdminChatListState extends State<AdminChatList> {
                     children: [
                       Expanded(
                         child: Text(
-                          chat.otherUserName,
+                          chat.recipientName,
                           style: TextStyle(
-                            fontWeight: chat.unreadCount > 0
-                                ? FontWeight.bold
-                                : FontWeight.w600,
+                            fontWeight: chat.unreadCount > 0 ? FontWeight.bold : FontWeight.w600,
                             fontSize: 16,
                           ),
                           maxLines: 1,
@@ -539,9 +420,7 @@ class _AdminChatListState extends State<AdminChatList> {
                         chat.formattedTime,
                         style: TextStyle(
                           fontSize: 12,
-                          color: chat.unreadCount > 0
-                              ? Colors.blueGrey
-                              : Colors.grey.shade500,
+                          color: chat.unreadCount > 0 ? Colors.blueGrey : Colors.grey.shade500,
                         ),
                       ),
                     ],
@@ -555,12 +434,8 @@ class _AdminChatListState extends State<AdminChatList> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: chat.unreadCount > 0
-                                ? Colors.black87
-                                : Colors.grey.shade600,
-                            fontWeight: chat.unreadCount > 0
-                                ? FontWeight.w500
-                                : FontWeight.normal,
+                            color: chat.unreadCount > 0 ? Colors.black87 : Colors.grey.shade600,
+                            fontWeight: chat.unreadCount > 0 ? FontWeight.w500 : FontWeight.normal,
                             fontSize: 14,
                           ),
                         ),
@@ -568,21 +443,14 @@ class _AdminChatListState extends State<AdminChatList> {
                       if (chat.unreadCount > 0)
                         Container(
                           margin: const EdgeInsets.only(left: 8),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: Colors.blueGrey,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             '${chat.unreadCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                         ),
                     ],
@@ -613,20 +481,12 @@ class _AdminChatListState extends State<AdminChatList> {
               color: Colors.grey.shade100,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.chat_bubble_outline,
-              size: 48,
-              color: Colors.grey.shade400,
-            ),
+            child: Icon(Icons.chat_bubble_outline, size: 48, color: Colors.grey.shade400),
           ),
           const SizedBox(height: 20),
           Text(
             'No conversations yet',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
           ),
           const SizedBox(height: 8),
           Text(
@@ -636,103 +496,6 @@ class _AdminChatListState extends State<AdminChatList> {
           ),
         ],
       ),
-    );
-  }
-}
-
-// Models
-class ChatItem {
-  final String id;
-  final String otherUserName;
-  final String otherUserInitial;
-  final String lastMessage;
-  final DateTime lastMessageTime;
-  final int unreadCount;
-
-  ChatItem({
-    required this.id,
-    required this.otherUserName,
-    required this.otherUserInitial,
-    required this.lastMessage,
-    required this.lastMessageTime,
-    required this.unreadCount,
-  });
-
-  factory ChatItem.fromJson(Map<String, dynamic> json, String? currentUserId) {
-    final otherParticipants = json['otherParticipants'] as List;
-    final otherParticipant = otherParticipants[0];
-    final name =
-        otherParticipant['name'] ??
-        '${otherParticipant['firstName'] ?? ''} ${otherParticipant['lastName'] ?? ''}'
-            .trim();
-
-    final lastMsg = json['lastMessage'];
-    final lastMessageContent = lastMsg?['content'] ?? 'No messages yet';
-    final lastMessageTime = lastMsg?['timestamp'] != null
-        ? DateTime.parse(lastMsg['timestamp'])
-        : DateTime.now();
-
-    return ChatItem(
-      id: json['_id'] ?? json['chatId'] ?? '',
-      otherUserName: name.isEmpty ? 'Unknown User' : name,
-      otherUserInitial: name.isNotEmpty ? name[0].toUpperCase() : '?',
-      lastMessage: lastMessageContent,
-      lastMessageTime: lastMessageTime,
-      unreadCount: json['unreadCount'] ?? 0,
-    );
-  }
-
-  String get formattedTime {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-    final messageDate = DateTime(
-      lastMessageTime.year,
-      lastMessageTime.month,
-      lastMessageTime.day,
-    );
-
-    if (messageDate == today) {
-      return DateFormat('HH:mm').format(lastMessageTime);
-    } else if (messageDate == yesterday) {
-      return 'Yesterday';
-    } else if (now.difference(messageDate).inDays < 7) {
-      return DateFormat('EEEE').format(lastMessageTime);
-    } else {
-      return DateFormat('MMM d').format(lastMessageTime);
-    }
-  }
-}
-
-class UserContact {
-  final String id;
-  final String name;
-  final String profile;
-  final String email;
-  final String role;
-
-  UserContact({
-    required this.id,
-    required this.name,
-    required this.profile,
-    required this.email,
-    required this.role,
-  });
-
-  factory UserContact.fromJson(Map<String, dynamic> json) {
-    final firstName = json['firstName']?.toString() ?? '';
-    final lastName = json['lastName']?.toString() ?? '';
-    final name = '$firstName $lastName'.trim();
-    final profilePath = json['profile']?.toString();
-
-    return UserContact(
-      id: json['_id']?.toString() ?? '',
-      name: name.isEmpty ? 'Unknown User' : name,
-      profile: profilePath != null && profilePath.isNotEmpty
-          ? '${ApiConfig.baseUrl}$profilePath'
-          : '',
-      email: json['email']?.toString() ?? '',
-      role: json['role']?.toString() ?? 'user',
     );
   }
 }

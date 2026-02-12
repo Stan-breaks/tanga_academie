@@ -137,7 +137,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
           // User list
           Expanded(
             child: RefreshIndicator(
-              color: Colors.blueGrey,
+              color: Colors.blueAccent,
               onRefresh: _getAllUsers,
               child: _isLoading
                   ? _buildLoadingState()
@@ -173,12 +173,12 @@ class _AdminUsersListState extends State<AdminUsersList> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.blueGrey.withAlpha(25),
+                  color: Colors.blueAccent.withAlpha(25),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.people,
-                  color: Colors.blueGrey,
+                  color: Colors.blueAccent,
                   size: 24,
                 ),
               ),
@@ -275,11 +275,11 @@ class _AdminUsersListState extends State<AdminUsersList> {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.blueGrey : Colors.grey.shade100,
+                    color: isSelected ? Colors.blueAccent : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(25),
                     border: Border.all(
                       color: isSelected
-                          ? Colors.blueGrey
+                          ? Colors.blueAccent
                           : Colors.grey.shade300,
                     ),
                   ),
@@ -363,7 +363,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: Colors.blueGrey, strokeWidth: 3),
+          CircularProgressIndicator(color: Colors.blueAccent, strokeWidth: 3),
           SizedBox(height: 20),
           Text(
             'Loading users...',
@@ -403,7 +403,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueGrey,
+                backgroundColor: Colors.blueAccent,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -764,8 +764,8 @@ class _AdminUsersListState extends State<AdminUsersList> {
                     icon: const Icon(Icons.message),
                     label: const Text('Message'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.blueGrey,
-                      side: const BorderSide(color: Colors.blueGrey),
+                      foregroundColor: Colors.blueAccent,
+                      side: const BorderSide(color: Colors.blueAccent),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -791,7 +791,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.blueGrey, size: 20),
+          Icon(icon, color: Colors.blueAccent, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

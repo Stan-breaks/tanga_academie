@@ -1,0 +1,1023 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:tanga_acadamie/api_config.dart';
+import 'package:tanga_acadamie/storage_service.dart';
+
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  // ── Profile Section ──
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _skillController = TextEditingController();
+  final _bioController = TextEditingController();
+
+  String _userId = '';
+  String _email = '';
+  String? _profileImageUrl;
+  File? _pickedImage;
+  bool _isLoadingProfile = true;
+  bool _isSavingProfile = false;
+
+  // ── Password Section ──
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final List<TextEditingController> _codeControllers = List.generate(
+    6,
+    (index) => TextEditingController(),
+  );
+  final List<FocusNode> _focusNodes = List.generate(
+    6,
+    (index) => FocusNode(),
+  );
+
+  bool _isSendingCode = false;
+  bool _isResettingPassword = false;
+  bool _isPasswordObscure = true;
+  bool _isConfirmPasswordObscure = true;
+  bool _codeSent = false;
+  bool _passwordChanged = false;
+
+  // Field length limits (matching backend)
+  static const _limits = {
+    'firstName': 50,
+    'lastName': 50,
+    'username': 30,
+    'skill': 100,
+    'bio': 200,
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _usernameController.dispose();
+    _phoneController.dispose();
+    _skillController.dispose();
+    _bioController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    for (var c in _codeControllers) {
+      c.dispose();
+    }
+    for (var n in _focusNodes) {
+      n.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _loadUserData() async {
+    final user = await getUser();
+    setState(() {
+      _userId = (user['userId'] ?? '').toString();
+      _email = (user['email'] ?? '').toString();
+      _firstNameController.text = (user['firstName'] ?? '').toString();
+      _lastNameController.text = (user['lastName'] ?? '').toString();
+      _usernameController.text = (user['username'] ?? '').toString();
+      _phoneController.text = (user['phoneNumber'] ?? '').toString();
+      _skillController.text = (user['skill'] ?? '').toString();
+      _bioController.text = (user['bio'] ?? '').toString();
+
+      final profile = user['profile'];
+      if (profile != null && profile.toString().isNotEmpty) {
+        _profileImageUrl = ApiConfig.getImageUrl(profile.toString());
+      }
+      _isLoadingProfile = false;
+    });
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 85,
+    );
+    if (picked != null) {
+      setState(() {
+        _pickedImage = File(picked.path);
+      });
+    }
+  }
+
+  Future<void> _saveProfile() async {
+    setState(() => _isSavingProfile = true);
+
+    try {
+      final token = await getToken();
+      if (token == null) throw Exception('Not authenticated');
+
+      final apiUrl = ApiConfig.baseUrl;
+      final uri = Uri.parse('$apiUrl/api/users/$_userId');
+
+      final request = http.MultipartRequest('PUT', uri);
+      request.headers['Authorization'] = 'Bearer $token';
+
+      request.fields['firstName'] = _firstNameController.text.trim();
+      request.fields['lastName'] = _lastNameController.text.trim();
+      request.fields['username'] = _usernameController.text.trim();
+      request.fields['phoneNumber'] = _phoneController.text.trim();
+      request.fields['skill'] = _skillController.text.trim();
+      request.fields['bio'] = _bioController.text.trim();
+
+      if (_pickedImage != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath('profileImage', _pickedImage!.path),
+        );
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final updatedUser = jsonDecode(response.body);
+        await saveUser(updatedUser);
+
+        // Refresh local state
+        if (updatedUser['profile'] != null) {
+          setState(() {
+            _profileImageUrl =
+                ApiConfig.getImageUrl(updatedUser['profile'].toString());
+            _pickedImage = null;
+          });
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 12),
+                Text('Profil mis à jour avec succès!'),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['message'] ?? 'Erreur de mise à jour');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isSavingProfile = false);
+    }
+  }
+
+  // ── Password Change Methods ──
+
+  Future<void> _sendVerificationCode() async {
+    if (_email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email non trouvé. Veuillez vous reconnecter.')),
+      );
+      return;
+    }
+
+    setState(() => _isSendingCode = true);
+
+    try {
+      final apiUrl = dotenv.env['API_URL'];
+      if (apiUrl == null) throw Exception('API_URL not found');
+
+      final response = await http.post(
+        Uri.parse('$apiUrl/api/auth/forgotPasswordCode'),
+        body: jsonEncode({'email': _email}),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        setState(() => _codeSent = true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Code envoyé à $_email'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['message'] ?? 'Erreur');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) setState(() => _isSendingCode = false);
+    }
+  }
+
+  Future<void> _resetPassword() async {
+    final code = _codeControllers.map((c) => c.text).join();
+    final newPassword = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (code.length != 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Veuillez entrer le code complet (6 chiffres)')),
+      );
+      return;
+    }
+
+    if (newPassword.isEmpty || confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Veuillez remplir tous les champs')),
+      );
+      return;
+    }
+
+    if (newPassword != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Les mots de passe ne correspondent pas')),
+      );
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Le mot de passe doit contenir au moins 6 caractères')),
+      );
+      return;
+    }
+
+    setState(() => _isResettingPassword = true);
+
+    try {
+      final apiUrl = dotenv.env['API_URL'];
+      if (apiUrl == null) throw Exception('API_URL not found');
+
+      final response = await http.post(
+        Uri.parse('$apiUrl/api/auth/resetPassword'),
+        body: jsonEncode({
+          'email': _email,
+          'code': code,
+          'newPassword': newPassword,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _passwordChanged = true;
+          _codeSent = false;
+        });
+        // Clear fields
+        _passwordController.clear();
+        _confirmPasswordController.clear();
+        for (var c in _codeControllers) {
+          c.clear();
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 12),
+                Text('Mot de passe réinitialisé avec succès!'),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['message'] ?? 'Code invalide');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) setState(() => _isResettingPassword = false);
+    }
+  }
+
+  void _onCodeChanged(String value, int index) {
+    if (value.isNotEmpty && index < 5) {
+      _focusNodes[index + 1].requestFocus();
+    }
+  }
+
+  void _onBackspace(String value, int index) {
+    if (value.isEmpty && index > 0) {
+      _focusNodes[index - 1].requestFocus();
+    }
+  }
+
+  // ── Build ──
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade50,
+      appBar: AppBar(
+        title: const Text(
+          'Paramètres',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
+      ),
+      body: _isLoadingProfile
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(
+                    color: Colors.blueAccent,
+                    strokeWidth: 3,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Chargement...',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ══════════════════════════════════════
+                  // SECTION 1: PROFILE
+                  // ══════════════════════════════════════
+                  _buildSectionHeader(
+                    'Modifier le profil',
+                    Icons.person_rounded,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildProfileSection(),
+                  const SizedBox(height: 32),
+
+                  // ══════════════════════════════════════
+                  // SECTION 2: PASSWORD
+                  // ══════════════════════════════════════
+                  _buildSectionHeader(
+                    'Changer le mot de passe',
+                    Icons.lock_rounded,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildPasswordSection(),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+    );
+  }
+
+  // ── Section Header ──
+
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.blueAccent.withAlpha(25),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: Colors.blueAccent, size: 22),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // PROFILE SECTION
+  // ══════════════════════════════════════════════════════════
+
+  Widget _buildProfileSection() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        children: [
+          // Profile Image
+          _buildProfileImagePicker(),
+          const SizedBox(height: 24),
+
+          // Form Fields (2-column grid for name fields)
+          Row(
+            children: [
+              Expanded(
+                child: _buildTextField(
+                  controller: _firstNameController,
+                  label: 'Prénom',
+                  icon: Icons.person_outline,
+                  maxLength: _limits['firstName'],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildTextField(
+                  controller: _lastNameController,
+                  label: 'Nom',
+                  icon: Icons.person_outline,
+                  maxLength: _limits['lastName'],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          _buildTextField(
+            controller: _usernameController,
+            label: "Nom d'utilisateur",
+            icon: Icons.alternate_email,
+            maxLength: _limits['username'],
+          ),
+          const SizedBox(height: 16),
+
+          _buildTextField(
+            controller: _phoneController,
+            label: 'Numéro de téléphone',
+            icon: Icons.phone_outlined,
+            keyboardType: TextInputType.phone,
+          ),
+          const SizedBox(height: 16),
+
+          _buildTextField(
+            controller: _skillController,
+            label: 'Compétence / Profession',
+            icon: Icons.work_outline,
+            maxLength: _limits['skill'],
+          ),
+          const SizedBox(height: 16),
+
+          // Bio (multiline)
+          _buildTextField(
+            controller: _bioController,
+            label: 'Biographie',
+            icon: Icons.edit_note,
+            maxLength: _limits['bio'],
+            maxLines: 4,
+            showCounter: true,
+          ),
+          const SizedBox(height: 24),
+
+          // Save Button
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: _isSavingProfile ? null : _saveProfile,
+              icon: _isSavingProfile
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Icon(Icons.save_rounded, size: 20),
+              label: Text(
+                _isSavingProfile
+                    ? 'Enregistrement...'
+                    : 'Mettre à jour le profil',
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueAccent,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: Colors.blueAccent.withAlpha(150),
+                disabledForegroundColor: Colors.white70,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileImagePicker() {
+    final hasImage = _pickedImage != null ||
+        (_profileImageUrl != null && _profileImageUrl!.isNotEmpty);
+
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: _pickImage,
+          child: Stack(
+            children: [
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.blueAccent.withAlpha(25),
+                  border: Border.all(
+                    color: Colors.blueAccent.withAlpha(50),
+                    width: 3,
+                  ),
+                  image: _pickedImage != null
+                      ? DecorationImage(
+                          image: FileImage(_pickedImage!),
+                          fit: BoxFit.cover,
+                        )
+                      : (_profileImageUrl != null &&
+                              _profileImageUrl!.isNotEmpty)
+                          ? DecorationImage(
+                              image: NetworkImage(_profileImageUrl!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                ),
+                child: !hasImage
+                    ? const Icon(
+                        Icons.person,
+                        size: 44,
+                        color: Colors.blueAccent,
+                      )
+                    : null,
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Appuyez pour changer l'image",
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int? maxLength,
+    int maxLines = 1,
+    bool showCounter = false,
+    TextInputType? keyboardType,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: controller,
+          maxLength: showCounter ? maxLength : null,
+          maxLines: maxLines,
+          keyboardType: keyboardType,
+          style: const TextStyle(fontSize: 14),
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 14,
+            ),
+            prefixIcon: Icon(icon, size: 20, color: Colors.blueAccent),
+            filled: true,
+            fillColor: Colors.grey.shade50,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+            counterText: showCounter ? null : '',
+          ),
+          inputFormatters: maxLength != null && !showCounter
+              ? [LengthLimitingTextInputFormatter(maxLength)]
+              : null,
+        ),
+      ],
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // PASSWORD SECTION
+  // ══════════════════════════════════════════════════════════
+
+  Widget _buildPasswordSection() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Success state
+          if (_passwordChanged && !_codeSent) ...[
+            _buildPasswordSuccessState(),
+          ]
+          // Initial state: show "Send Code" button
+          else if (!_codeSent) ...[
+            _buildSendCodeState(),
+          ]
+          // Code sent: show code + password fields
+          else ...[
+            _buildResetPasswordState(),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSendCodeState() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Info text
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.blueAccent.withAlpha(15),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.blueAccent.withAlpha(40)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.info_outline, color: Colors.blueAccent, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade700,
+                      height: 1.4,
+                    ),
+                    children: [
+                      const TextSpan(
+                        text: 'Un code de vérification sera envoyé à ',
+                      ),
+                      TextSpan(
+                        text: _email,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueAccent,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Send Code Button
+        SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: ElevatedButton.icon(
+            onPressed: _isSendingCode ? null : _sendVerificationCode,
+            icon: _isSendingCode
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Icon(Icons.email_outlined, size: 20),
+            label: Text(
+              _isSendingCode ? 'Envoi en cours...' : 'Envoyer le code',
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: Colors.blueAccent.withAlpha(150),
+              disabledForegroundColor: Colors.white70,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              elevation: 0,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResetPasswordState() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Code sent info
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.green.withAlpha(15),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.green.withAlpha(40)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.green, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Code envoyé à $_email',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Verification Code Label
+        const Text(
+          'Code de vérification',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // 6-digit Code Input
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(6, (index) {
+            return SizedBox(
+              width: 45,
+              child: TextField(
+                controller: _codeControllers[index],
+                focusNode: _focusNodes[index],
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                maxLength: 1,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                decoration: InputDecoration(
+                  counterText: '',
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Colors.blueAccent,
+                      width: 2,
+                    ),
+                  ),
+                ),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onChanged: (value) => _onCodeChanged(value, index),
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 20),
+
+        // New Password
+        _buildTextField(
+          controller: _passwordController,
+          label: 'Nouveau mot de passe',
+          icon: Icons.lock_outline,
+        ),
+        const SizedBox(height: 16),
+
+        // Confirm Password
+        _buildTextField(
+          controller: _confirmPasswordController,
+          label: 'Confirmer le mot de passe',
+          icon: Icons.lock_outline,
+        ),
+        const SizedBox(height: 24),
+
+        // Reset Button
+        SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: ElevatedButton.icon(
+            onPressed: _isResettingPassword ? null : _resetPassword,
+            icon: _isResettingPassword
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Icon(Icons.lock_reset, size: 20),
+            label: Text(
+              _isResettingPassword
+                  ? 'Réinitialisation...'
+                  : 'Réinitialiser le mot de passe',
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: Colors.blueAccent.withAlpha(150),
+              disabledForegroundColor: Colors.white70,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              elevation: 0,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Resend Code
+        Center(
+          child: TextButton(
+            onPressed: _isSendingCode ? null : _sendVerificationCode,
+            child: const Text(
+              'Renvoyer le code',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.blueAccent,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordSuccessState() {
+    return Column(
+      children: [
+        const SizedBox(height: 12),
+        Center(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.green.withAlpha(25),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.check_circle_outline,
+              color: Colors.green,
+              size: 48,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Mot de passe modifié!',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Votre mot de passe a été modifié avec succès.',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey.shade600,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 20),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _passwordChanged = false;
+              _codeSent = false;
+            });
+          },
+          child: const Text(
+            'Changer à nouveau',
+            style: TextStyle(
+              color: Colors.blueAccent,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+}

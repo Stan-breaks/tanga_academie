@@ -132,7 +132,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: RefreshIndicator(
-        color: Colors.blueGrey,
+        color: Colors.blueAccent,
         onRefresh: () async {
           await Future.wait([
             _fetchUserChats(),
@@ -150,7 +150,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(color: Colors.blueGrey, strokeWidth: 3),
+          const CircularProgressIndicator(color: Colors.blueAccent, strokeWidth: 3),
           const SizedBox(height: 20),
           Text('Loading messages...', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
         ],
@@ -254,10 +254,10 @@ class _InstructorChatListState extends State<InstructorChatList> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.blueGrey.withAlpha(25),
+            color: Colors.blueAccent.withAlpha(25),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.chat, color: Colors.blueGrey, size: 22),
+          child: const Icon(Icons.chat, color: Colors.blueAccent, size: 22),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -340,10 +340,10 @@ class _InstructorChatListState extends State<InstructorChatList> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.blueGrey.withAlpha(25),
+                  color: Colors.blueAccent.withAlpha(25),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.book, size: 18, color: Colors.blueGrey),
+                child: const Icon(Icons.book, size: 18, color: Colors.blueAccent),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -529,12 +529,12 @@ class _InstructorChatListState extends State<InstructorChatList> {
           children: [
             CircleAvatar(
               radius: 26,
-              backgroundColor: Colors.blueGrey.withAlpha(25),
+              backgroundColor: Colors.blueAccent.withAlpha(25),
               backgroundImage: chat.recipientAvatar != null && chat.recipientAvatar!.isNotEmpty
                   ? NetworkImage('${ApiConfig.baseUrl}${chat.recipientAvatar}')
                   : null,
               child: chat.recipientAvatar == null || chat.recipientAvatar!.isEmpty
-                  ? Text(chat.recipientInitial, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blueGrey))
+                  ? Text(chat.recipientInitial, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blueAccent))
                   : null,
             ),
             const SizedBox(width: 14),
@@ -554,7 +554,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
                       ),
                       Text(
                         chat.formattedTime,
-                        style: TextStyle(fontSize: 12, color: chat.unreadCount > 0 ? Colors.blueGrey : Colors.grey.shade500),
+                        style: TextStyle(fontSize: 12, color: chat.unreadCount > 0 ? Colors.blueAccent : Colors.grey.shade500),
                       ),
                     ],
                   ),
@@ -577,7 +577,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
                         Container(
                           margin: const EdgeInsets.only(left: 8),
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: Colors.blueGrey, borderRadius: BorderRadius.circular(12)),
+                          decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(12)),
                           child: Text('${chat.unreadCount}', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                         ),
                     ],

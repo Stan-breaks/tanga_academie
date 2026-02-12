@@ -104,7 +104,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
           // Content
           Expanded(
             child: RefreshIndicator(
-              color: Colors.blueGrey,
+              color: Colors.blueAccent,
               onRefresh: _fetchCourses,
               child: _isLoading
                   ? _buildLoadingState()
@@ -145,10 +145,10 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.blueGrey : Colors.grey.shade100,
+                    color: isSelected ? Colors.blueAccent : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(25),
                     border: Border.all(
-                      color: isSelected ? Colors.blueGrey : Colors.grey.shade300,
+                      color: isSelected ? Colors.blueAccent : Colors.grey.shade300,
                     ),
                   ),
                   child: Row(
@@ -223,7 +223,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(
-            color: Colors.blueGrey,
+            color: Colors.blueAccent,
             strokeWidth: 3,
           ),
           SizedBox(height: 20),
@@ -265,7 +265,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueGrey,
+                backgroundColor: Colors.blueAccent,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -378,7 +378,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
       default:
         message = 'No courses found';
         icon = Icons.library_books_outlined;
-        color = Colors.blueGrey;
+        color = Colors.blueAccent;
     }
 
     return Center(

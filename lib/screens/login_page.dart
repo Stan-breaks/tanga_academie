@@ -49,10 +49,7 @@ class _LoginPageState extends State<LoginPage> {
       final response = await post(
         Uri.parse('$apiUrl/api/auth/login'),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "emailOrUsername": email,
-          "password": password,
-        }),
+        body: jsonEncode({"emailOrUsername": email, "password": password}),
       );
 
       if (!mounted) return;
@@ -66,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
         await saveToken(token);
 
         if (!mounted) return;
-        
+
         if (user['isVerified']) {
           Navigator.pushReplacement(
             context,
@@ -77,9 +74,7 @@ class _LoginPageState extends State<LoginPage> {
         } else {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (_) => VerificationPage(email: email),
-            ),
+            MaterialPageRoute(builder: (_) => VerificationPage(email: email)),
           );
         }
       } else {
@@ -115,11 +110,7 @@ class _LoginPageState extends State<LoginPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Colors.blueAccent.shade100,
-              Colors.white,
-              Colors.white,
-            ],
+            colors: [Colors.white, Colors.white,Colors.white],
             stops: const [0.0, 0.3, 1.0],
           ),
         ),
@@ -129,15 +120,15 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               children: [
                 const SizedBox(height: 40),
-                
+
                 // Logo Section
                 _buildLogoSection(),
                 const SizedBox(height: 40),
-                
+
                 // Login Card
                 _buildLoginCard(),
                 const SizedBox(height: 24),
-                
+
                 // Sign Up Link
                 _buildSignUpLink(),
                 const SizedBox(height: 40),
@@ -153,36 +144,14 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       children: [
         // Logo Container
-        Container(
-          width: 100,
-          height: 100,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.blueAccent.shade200,
-                Colors.blueAccent.shade700,
-              ],
-            ),
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.blueAccent.withAlpha(60),
-                blurRadius: 30,
-                offset: const Offset(0, 15),
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.school_rounded,
-            size: 50,
-            color: Colors.white,
+        SizedBox(
+          width: 300,
+          height: 200,
+          child: ClipRect(
+            child: Image.asset('public/logo.jpeg', fit: BoxFit.contain),
           ),
         ),
-        const SizedBox(height: 24),
-        
-        // Title
+
         const Text(
           'Tanga Academie',
           style: TextStyle(
@@ -192,15 +161,11 @@ class _LoginPageState extends State<LoginPage> {
             letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 8),
-        
+        const SizedBox(height: 24),
         // Subtitle
         Text(
           'Sign in to continue your learning journey',
-          style: TextStyle(
-            fontSize: 15,
-            color: Colors.grey.shade600,
-          ),
+          style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
         ),
       ],
     );
@@ -235,13 +200,10 @@ class _LoginPageState extends State<LoginPage> {
           const SizedBox(height: 8),
           Text(
             'Enter your credentials to access your account',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
           const SizedBox(height: 28),
-          
+
           // Email Field
           _buildInputField(
             controller: _emailController,
@@ -250,7 +212,7 @@ class _LoginPageState extends State<LoginPage> {
             keyboardType: TextInputType.emailAddress,
           ),
           const SizedBox(height: 16),
-          
+
           // Password Field
           _buildInputField(
             controller: _passwordController,
@@ -259,7 +221,7 @@ class _LoginPageState extends State<LoginPage> {
             isPassword: true,
           ),
           const SizedBox(height: 12),
-          
+
           // Forgot Password
           Align(
             alignment: Alignment.centerRight,
@@ -276,15 +238,12 @@ class _LoginPageState extends State<LoginPage> {
               ),
               child: const Text(
                 'Forgot Password?',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
               ),
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Login Button
           _buildLoginButton(),
         ],
@@ -312,10 +271,7 @@ class _LoginPageState extends State<LoginPage> {
         style: const TextStyle(fontSize: 16),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(
-            color: Colors.grey.shade600,
-            fontSize: 15,
-          ),
+          labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 15),
           prefixIcon: Icon(icon, color: Colors.blueAccent, size: 22),
           suffixIcon: isPassword
               ? IconButton(
@@ -330,7 +286,10 @@ class _LoginPageState extends State<LoginPage> {
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 18,
+          ),
           floatingLabelBehavior: FloatingLabelBehavior.auto,
         ),
       ),
@@ -389,17 +348,14 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 'or',
-                style: TextStyle(
-                  color: Colors.grey.shade500,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
               ),
             ),
             Expanded(child: Divider(color: Colors.grey.shade300)),
           ],
         ),
         const SizedBox(height: 20),
-        
+
         // Sign Up Button
         OutlinedButton(
           onPressed: () {
@@ -423,16 +379,13 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(width: 10),
               Text(
                 'Create New Account',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ],
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // Skip for now
         TextButton(
           onPressed: () {
@@ -445,10 +398,7 @@ class _LoginPageState extends State<LoginPage> {
           },
           child: Text(
             'Continue as Guest',
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           ),
         ),
       ],

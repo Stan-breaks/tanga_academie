@@ -47,7 +47,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
       appBar: const CustomAppbar(isLoggedIn: true),
       backgroundColor: Colors.grey.shade50,
       body: RefreshIndicator(
-        color: Colors.blueGrey,
+        color: Colors.blueAccent,
         onRefresh: _fetchChartData,
         child: _isLoading
             ? _buildLoadingState()
@@ -64,7 +64,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(
-            color: Colors.blueGrey,
+            color: Colors.blueAccent,
             strokeWidth: 3,
           ),
           SizedBox(height: 20),
@@ -106,7 +106,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueGrey,
+                backgroundColor: Colors.blueAccent,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -128,7 +128,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
         _buildChartCard(
           title: 'Monthly Enrollment Trends',
           icon: Icons.trending_up,
-          color: Colors.blueGrey,
+          color: Colors.blueAccent,
           child: _buildEnrollmentChart(),
         ),
         const SizedBox(height: 20),
@@ -161,12 +161,12 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blueGrey.shade600, Colors.blueGrey.shade800],
+          colors: [Colors.blueAccent.shade400, Colors.blueAccent.shade700],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.blueGrey.withAlpha(60),
+            color: Colors.blueAccent.withAlpha(60),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -357,12 +357,12 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
             LineChartBarData(
               spots: spots,
               isCurved: true,
-              color: Colors.blueGrey,
+              color: Colors.blueAccent,
               barWidth: 3,
               dotData: const FlDotData(show: true),
               belowBarData: BarAreaData(
                 show: true,
-                color: Colors.blueGrey.withAlpha(30),
+                color: Colors.blueAccent.withAlpha(30),
               ),
             ),
           ],
@@ -391,7 +391,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
     }
 
     final colors = [
-      Colors.blueGrey,
+      Colors.blueAccent,
       Colors.purple,
       Colors.orange,
       Colors.green,

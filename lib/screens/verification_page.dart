@@ -57,13 +57,13 @@ class _VerificationPageState extends State<VerificationPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blueGrey.withAlpha(26),
+                  color: Colors.blueAccent.withAlpha(26),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.email_outlined,
                   size: 50,
-                  color: Colors.blueGrey,
+                  color: Colors.blueAccent,
                 ),
               ),
               const SizedBox(height: 20),
@@ -89,7 +89,7 @@ class _VerificationPageState extends State<VerificationPage> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.blueGrey,
+                  color: Colors.blueAccent,
                 ),
               ),
               const SizedBox(height: 30),
@@ -110,7 +110,7 @@ class _VerificationPageState extends State<VerificationPage> {
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.blueGrey,
+                    backgroundColor: Colors.blueAccent,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),

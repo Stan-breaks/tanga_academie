@@ -71,7 +71,11 @@ class _ExplorePageState extends State<ExplorePage>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+                  Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: Colors.red.shade300,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'Something went wrong',
@@ -113,7 +117,7 @@ class _ExplorePageState extends State<ExplorePage>
             );
           } else {
             final courses = snapshot.data!['data'] as List;
-            
+
             if (!_animationController.isCompleted) {
               _animationController.forward();
             }
@@ -158,18 +162,24 @@ class _ExplorePageState extends State<ExplorePage>
                   slivers: [
                     // Header Section
                     SliverToBoxAdapter(
-                      child: _buildHeader(),
+                      child: SizedBox(
+                        width: 500,
+                        height: 100,
+                        child: ClipRect(
+                          child: Image.asset(
+                            'public/banner1.png',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
                     ),
+                    SliverToBoxAdapter(child: _buildHeader()),
 
                     // Search Bar
-                    SliverToBoxAdapter(
-                      child: _buildSearchBar(),
-                    ),
+                    SliverToBoxAdapter(child: _buildSearchBar()),
 
                     // Category Filter
-                    SliverToBoxAdapter(
-                      child: _buildCategoryFilter(),
-                    ),
+                    SliverToBoxAdapter(child: _buildCategoryFilter()),
 
                     // Course Count
                     SliverToBoxAdapter(
@@ -180,35 +190,33 @@ class _ExplorePageState extends State<ExplorePage>
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
                       sliver: filteredCourses.isEmpty
-                          ? SliverToBoxAdapter(
-                              child: _buildEmptyState(),
-                            )
+                          ? SliverToBoxAdapter(child: _buildEmptyState())
                           : SliverGrid(
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 0.95,
-                                crossAxisSpacing: 14,
-                                mainAxisSpacing: 14,
-                              ),
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  final course = filteredCourses[index];
-                                  return CourseCard(
-                                    course: course,
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) =>
-                                              CourseDetailsPage(course: course),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                                childCount: filteredCourses.length,
-                              ),
+                                    crossAxisCount: 2,
+                                    childAspectRatio: 0.95,
+                                    crossAxisSpacing: 14,
+                                    mainAxisSpacing: 14,
+                                  ),
+                              delegate: SliverChildBuilderDelegate((
+                                context,
+                                index,
+                              ) {
+                                final course = filteredCourses[index];
+                                return CourseCard(
+                                  course: course,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            CourseDetailsPage(course: course),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }, childCount: filteredCourses.length),
                             ),
                     ),
                   ],
@@ -240,11 +248,7 @@ class _ExplorePageState extends State<ExplorePage>
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
-                  Icons.explore,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                child: const Icon(Icons.explore, color: Colors.white, size: 24),
               ),
               const SizedBox(width: 14),
               const Expanded(
@@ -262,10 +266,7 @@ class _ExplorePageState extends State<ExplorePage>
                     SizedBox(height: 2),
                     Text(
                       'Find your next learning journey',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
-                      ),
+                      style: TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -302,16 +303,10 @@ class _ExplorePageState extends State<ExplorePage>
           decoration: InputDecoration(
             hintText: 'Search courses...',
             hintStyle: TextStyle(color: Colors.grey.shade500),
-            prefixIcon: Icon(
-              Icons.search,
-              color: Colors.grey.shade500,
-            ),
+            prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
             suffixIcon: searchQuery.isNotEmpty
                 ? IconButton(
-                    icon: Icon(
-                      Icons.clear,
-                      color: Colors.grey.shade500,
-                    ),
+                    icon: Icon(Icons.clear, color: Colors.grey.shade500),
                     onPressed: () {
                       setState(() {
                         searchController.clear();
@@ -387,8 +382,9 @@ class _ExplorePageState extends State<ExplorePage>
                     category,
                     style: TextStyle(
                       color: isSelected ? Colors.white : Colors.grey.shade700,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
                       fontSize: 14,
                     ),
                   ),
@@ -409,10 +405,7 @@ class _ExplorePageState extends State<ExplorePage>
         children: [
           RichText(
             text: TextSpan(
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.grey.shade700,
-              ),
+              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
               children: [
                 TextSpan(
                   text: '$count ',
@@ -421,9 +414,7 @@ class _ExplorePageState extends State<ExplorePage>
                     color: Colors.blueAccent,
                   ),
                 ),
-                TextSpan(
-                  text: count == 1 ? 'course found' : 'courses found',
-                ),
+                TextSpan(text: count == 1 ? 'course found' : 'courses found'),
               ],
             ),
           ),
@@ -490,10 +481,7 @@ class _ExplorePageState extends State<ExplorePage>
                 ? 'Try a different search term'
                 : 'No courses in this category yet',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
           const SizedBox(height: 24),
           if (searchQuery.isNotEmpty || selectedCategory != 'All')

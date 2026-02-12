@@ -12,12 +12,54 @@ class InstructorDashboard extends StatelessWidget {
       future: getInstructorDash(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+          return Scaffold(
+            backgroundColor: Colors.grey.shade50,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(
+                    color: Colors.blueAccent,
+                    strokeWidth: 3,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Loading your dashboard...',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
           );
         } else if (snapshot.hasError) {
           return Scaffold(
-            body: Center(child: Text('Error: ${snapshot.error}')),
+            backgroundColor: Colors.grey.shade50,
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Something went wrong',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${snapshot.error}',
+                      style: TextStyle(color: Colors.grey.shade600),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           );
         } else {
           final data = snapshot.data!;
@@ -26,30 +68,18 @@ class InstructorDashboard extends StatelessWidget {
           final List recentAssignments = data['recentAssignments'] ?? [];
 
           return Scaffold(
+            backgroundColor: Colors.grey.shade50,
             body: RefreshIndicator(
+              color: Colors.blueAccent,
               onRefresh: () async {
                 // Trigger a rebuild by returning a future
                 await Future.delayed(const Duration(milliseconds: 500));
               },
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 children: [
-                  // Welcome Header
-                  Text(
-                    "Hi, ${data['username'] ?? 'Instructor'} 👋",
-                    style: const TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Welcome to your instructor dashboard",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
+                  // Welcome Section
+                  _buildWelcomeSection(data['username'] ?? 'Instructor'),
                   const SizedBox(height: 24),
 
                   // Stats Grid
@@ -120,39 +150,14 @@ class InstructorDashboard extends StatelessWidget {
                   const SizedBox(height: 32),
 
                   // Quick Actions Section
-                  const Text(
-                    'Quick Actions',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  _buildSectionHeader('Quick Actions', Icons.flash_on),
                   const SizedBox(height: 16),
                   _buildQuickActions(context),
                   const SizedBox(height: 32),
 
                   // Recent Courses Section
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Recent Courses',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (recentCourses.isNotEmpty)
-                        TextButton(
-                          onPressed: () {
-                            // Navigate to all courses
-                            Navigator.pushNamed(context, '/instructor-courses');
-                          },
-                          child: const Text('View All'),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
+                  _buildSectionHeader('Recent Courses', Icons.library_books),
+                  const SizedBox(height: 16),
                   if (recentCourses.isEmpty)
                     _buildEmptyState(
                       'No courses yet',
@@ -164,14 +169,8 @@ class InstructorDashboard extends StatelessWidget {
                   const SizedBox(height: 32),
 
                   // Recent Assignment Activity Section
-                  const Text(
-                    'Assignment Activity',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
+                  _buildSectionHeader('Assignment Activity', Icons.assignment),
+                  const SizedBox(height: 16),
                   if (recentAssignments.isEmpty)
                     _buildEmptyState(
                       'No assignments yet',
@@ -186,6 +185,132 @@ class InstructorDashboard extends StatelessWidget {
           );
         }
       },
+    );
+  }
+
+  Widget _buildWelcomeSection(String username) {
+    final hour = DateTime.now().hour;
+    String greeting;
+    IconData greetingIcon;
+
+    if (hour < 12) {
+      greeting = 'Good morning';
+      greetingIcon = Icons.wb_sunny_outlined;
+    } else if (hour < 17) {
+      greeting = 'Good afternoon';
+      greetingIcon = Icons.wb_sunny;
+    } else {
+      greeting = 'Good evening';
+      greetingIcon = Icons.nights_stay_outlined;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.blueAccent.shade400, Colors.blue.shade700],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blueAccent.withAlpha(80),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(greetingIcon, color: Colors.white70, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      greeting,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  username,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(40),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    '\u{1F393} Instructor Dashboard',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(40),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Icon(
+              Icons.school,
+              color: Colors.white,
+              size: 36,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.blueAccent.withAlpha(25),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: Colors.blueAccent, size: 22),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 

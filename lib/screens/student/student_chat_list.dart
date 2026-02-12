@@ -154,49 +154,29 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        title: const Text(
-          'Messages',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.black87),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              _showInstructorList ? Icons.close : Icons.edit_square,
-              color: Colors.blueAccent,
-            ),
-            onPressed: () {
-              setState(() {
-                _showInstructorList = !_showInstructorList;
-              });
-            },
-            tooltip: 'New Message',
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
       body: RefreshIndicator(
         color: Colors.blueAccent,
         onRefresh: () async {
           await Future.wait([_fetchUserChats(), _fetchInstructorContacts()]);
         },
         child: _isLoading
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(color: Colors.blueAccent, strokeWidth: 3),
-                    const SizedBox(height: 20),
-                    Text('Loading messages...', style: TextStyle(color: Colors.grey.shade600)),
-                  ],
-                ),
-              )
+            ? _buildLoadingState()
             : !_isAuthenticated
                 ? _buildNotLoggedInState()
                 : _buildBody(),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(color: Colors.blueAccent, strokeWidth: 3),
+          const SizedBox(height: 20),
+          Text('Loading messages...', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+        ],
       ),
     );
   }
@@ -236,108 +216,122 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
   Widget _buildBody() {
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: SingleChildScrollView(
+      child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Instructor List (Expandable)
-            AnimatedSize(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              child: _showInstructorList ? _buildInstructorList() : const SizedBox(),
+        padding: const EdgeInsets.all(16),
+        children: [
+          // New Message Button
+          ElevatedButton.icon(
+            onPressed: () {
+              setState(() {
+                _showInstructorList = !_showInstructorList;
+              });
+            },
+            icon: Icon(_showInstructorList ? Icons.close : Icons.edit_square, size: 18),
+            label: Text(
+              _showInstructorList ? 'Hide Instructors' : 'New Message',
+              style: const TextStyle(fontSize: 12),
             ),
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+              backgroundColor: Colors.blueAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+            ),
+          ),
+          const SizedBox(height: 16),
 
-            // Error Message
-            if (_error != null)
-              Container(
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.red.shade200),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.error_outline, color: Colors.red.shade400),
-                    const SizedBox(width: 12),
-                    Expanded(child: Text(_error!, style: TextStyle(color: Colors.red.shade700))),
-                  ],
-                ),
+          // Instructor List (Expandable)
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            child: _showInstructorList ? _buildInstructorList() : const SizedBox(),
+          ),
+
+          // Error Message
+          if (_error != null) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.red.withAlpha(25),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.red.withAlpha(76)),
               ),
-
-            // Recent Chats Section
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
               child: Row(
                 children: [
-                  Text(
-                    'Conversations',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade600,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const Spacer(),
-                  if (_chats.isNotEmpty)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.blueAccent.withAlpha(25),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${_chats.length}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blueAccent,
-                        ),
-                      ),
-                    ),
+                  Icon(Icons.error_outline, color: Colors.red.shade400),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(_error!, style: TextStyle(color: Colors.red.shade700))),
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+          ],
 
-            // Chat List
-            _chats.isEmpty
-                ? _buildEmptyState()
-                : Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(8),
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _chats.length,
-                        separatorBuilder: (_, __) => Divider(
-                          height: 1,
-                          indent: 80,
-                          endIndent: 16,
-                          color: Colors.grey.shade200,
-                        ),
-                        itemBuilder: (context, index) => _buildChatItem(_chats[index]),
+          // Section Header
+          _buildSectionHeader(),
+          const SizedBox(height: 16),
+
+          // Chat List
+          _chats.isEmpty
+              ? _buildEmptyState()
+              : Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _chats.length,
+                      separatorBuilder: (_, __) => Divider(
+                        height: 1,
+                        indent: 72,
+                        color: Colors.grey.shade200,
                       ),
+                      itemBuilder: (context, index) => _buildChatItem(_chats[index]),
                     ),
                   ),
-            const SizedBox(height: 32),
-          ],
-        ),
+                ),
+          const SizedBox(height: 32),
+        ],
       ),
+    );
+  }
+
+  Widget _buildSectionHeader() {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.blueAccent.withAlpha(25),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Icons.chat, color: Colors.blueAccent, size: 22),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Recent Conversations',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+              if (_chats.isNotEmpty)
+                Text(
+                  '${_chats.length} ${_chats.length == 1 ? 'chat' : 'chats'}',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

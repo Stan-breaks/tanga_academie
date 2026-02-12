@@ -109,7 +109,7 @@ class _AdminChatListState extends State<AdminChatList> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: RefreshIndicator(
-        color: Colors.blueGrey,
+        color: Colors.blueAccent,
         onRefresh: () async {
           await Future.wait([_fetchUserChats(), _fetchAllUsers()]);
         },
@@ -124,7 +124,7 @@ class _AdminChatListState extends State<AdminChatList> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(
-            color: Colors.blueGrey,
+            color: Colors.blueAccent,
             strokeWidth: 3,
           ),
           const SizedBox(height: 20),
@@ -152,7 +152,7 @@ class _AdminChatListState extends State<AdminChatList> {
           label: Text(_showUserList ? 'Hide Users' : 'New Conversation'),
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(double.infinity, 52),
-            backgroundColor: Colors.blueGrey,
+            backgroundColor: Colors.blueAccent,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
@@ -206,10 +206,10 @@ class _AdminChatListState extends State<AdminChatList> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.blueGrey.withAlpha(25),
+            color: Colors.blueAccent.withAlpha(25),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.chat, color: Colors.blueGrey, size: 22),
+          child: const Icon(Icons.chat, color: Colors.blueAccent, size: 22),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -336,10 +336,10 @@ class _AdminChatListState extends State<AdminChatList> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.blueGrey.withAlpha(25),
+                color: Colors.blueAccent.withAlpha(25),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.chat_bubble_outline, size: 20, color: Colors.blueGrey),
+              child: const Icon(Icons.chat_bubble_outline, size: 20, color: Colors.blueAccent),
             ),
           ],
         ),
@@ -387,14 +387,14 @@ class _AdminChatListState extends State<AdminChatList> {
           children: [
             CircleAvatar(
               radius: 26,
-              backgroundColor: Colors.blueGrey.withAlpha(25),
+              backgroundColor: Colors.blueAccent.withAlpha(25),
               backgroundImage: chat.recipientAvatar != null && chat.recipientAvatar!.isNotEmpty
                   ? NetworkImage('${ApiConfig.baseUrl}${chat.recipientAvatar}')
                   : null,
               child: chat.recipientAvatar == null || chat.recipientAvatar!.isEmpty
                   ? Text(
                       chat.recipientInitial,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blueAccent),
                     )
                   : null,
             ),
@@ -420,7 +420,7 @@ class _AdminChatListState extends State<AdminChatList> {
                         chat.formattedTime,
                         style: TextStyle(
                           fontSize: 12,
-                          color: chat.unreadCount > 0 ? Colors.blueGrey : Colors.grey.shade500,
+                          color: chat.unreadCount > 0 ? Colors.blueAccent : Colors.grey.shade500,
                         ),
                       ),
                     ],
@@ -445,7 +445,7 @@ class _AdminChatListState extends State<AdminChatList> {
                           margin: const EdgeInsets.only(left: 8),
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.blueGrey,
+                            color: Colors.blueAccent,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(

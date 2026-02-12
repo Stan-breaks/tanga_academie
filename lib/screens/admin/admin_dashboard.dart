@@ -94,7 +94,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const CircularProgressIndicator(
-              color: Colors.blueGrey,
+              color: Colors.blueAccent,
               strokeWidth: 3,
             ),
             const SizedBox(height: 20),
@@ -139,7 +139,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueGrey,
+                  backgroundColor: Colors.blueAccent,
                   foregroundColor: Colors.white,
                 ),
               ),
@@ -156,7 +156,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: RefreshIndicator(
-        color: Colors.blueGrey,
+        color: Colors.blueAccent,
         onRefresh: _fetchDashboardData,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -234,12 +234,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blueGrey.shade400, Colors.blue.shade700],
+          colors: [Colors.blueAccent.shade400, Colors.blue.shade700],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.blueGrey.withAlpha(80),
+            color: Colors.blueAccent.withAlpha(80),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -350,7 +350,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           title: 'Total Courses',
           value: '${statsMap['totalCourses'] ?? 0}',
           icon: Icons.library_books,
-          gradientColors: [Colors.blueGrey.shade200, Colors.blueGrey.shade700],
+          gradientColors: [Colors.blueAccent.shade200, Colors.blueAccent.shade700],
         ),
         StatCard(
           title: 'Active Courses',
@@ -397,10 +397,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.blueGrey.withAlpha(25),
+            color: Colors.blueAccent.withAlpha(25),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: Colors.blueGrey, size: 22),
+          child: Icon(icon, color: Colors.blueAccent, size: 22),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -432,7 +432,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       _QuickActionItem(
         title: 'Manage Courses',
         icon: Icons.library_books,
-        color: Colors.blueGrey,
+        color: Colors.blueAccent,
         onTap: () {
           Navigator.push(
             context,
@@ -591,14 +591,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
         backgroundImage: profile != null && profile.isNotEmpty
             ? NetworkImage('${ApiConfig.baseUrl}$profile')
             : null,
-        backgroundColor: Colors.blueGrey.shade100,
+        backgroundColor: Colors.blueAccent.shade100,
         child: profile == null || profile.isEmpty
             ? Text(
                 name.isNotEmpty ? name[0].toUpperCase() : '?',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: Colors.blueGrey,
+                  color: Colors.blueAccent,
                 ),
               )
             : null,
@@ -732,7 +732,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey,
+                    color: Colors.blueAccent,
                   ),
                 ),
               )

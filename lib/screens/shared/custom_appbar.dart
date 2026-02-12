@@ -18,7 +18,8 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF1E88E5), // Blue 600
+              Color(0xFFFFFFFF),
+              Color(0xFFFFFFFF),
               Color(0xFF42A5F5), // Blue 400
             ],
             begin: Alignment.topLeft,
@@ -28,18 +29,14 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
       ),
       title: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withAlpha(30),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withAlpha(40),
-                width: 1,
-              ),
+          SizedBox(
+            width: 50,
+            height: 70,
+            child: ClipRect(
+              child: Image.asset('public/logo.jpeg', fit: BoxFit.contain),
             ),
-            child: const Icon(Icons.school, color: Colors.white, size: 22),
           ),
+
           const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,7 +45,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
               const Text(
                 'Tanga Academie',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.3,
@@ -57,7 +54,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
               Text(
                 'Learn • Grow • Succeed',
                 style: TextStyle(
-                  color: Colors.white.withAlpha(200),
+                  color: Colors.black.withAlpha(200),
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.5,
@@ -78,12 +75,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                       Colors.red.shade600.withAlpha(200),
                     ],
                   )
-                : const LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.white,
-                    ],
-                  ),
+                : const LinearGradient(colors: [Colors.white, Colors.white]),
             borderRadius: BorderRadius.circular(25),
             boxShadow: [
               BoxShadow(
@@ -115,7 +107,10 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                 }
               },
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

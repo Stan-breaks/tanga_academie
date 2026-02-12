@@ -245,13 +245,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.blueGrey.withAlpha(26),
+                    color: Colors.blueAccent.withAlpha(26),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     _codeSent ? Icons.lock_reset : Icons.email_outlined,
                     size: 60,
-                    color: Colors.blueGrey,
+                    color: Colors.blueAccent,
                   ),
                 ),
               ),
@@ -305,7 +305,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   onPressed: _isLoading ? null : _sendVerificationCode,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.blueGrey,
+                    backgroundColor: Colors.blueAccent,
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey[300],
                     shape: RoundedRectangleBorder(
@@ -364,7 +364,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
-                              color: Colors.blueGrey,
+                              color: Colors.blueAccent,
                               width: 2,
                             ),
                           ),
@@ -436,7 +436,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   onPressed: _isLoading ? null : _resetPassword,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.blueGrey,
+                    backgroundColor: Colors.blueAccent,
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey[300],
                     shape: RoundedRectangleBorder(
@@ -470,7 +470,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: Colors.blueGrey,
+                      color: Colors.blueAccent,
                     ),
                   ),
                 ),
@@ -496,7 +496,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.blueGrey,
+                        color: Colors.blueAccent,
                       ),
                     ),
                   ),

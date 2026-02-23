@@ -25,10 +25,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   bool _isLoading = true;
   bool _isConnected = false;
   String _otherUserName = 'Chat';
+  String? _profile;
   bool _isTyping = false;
+  bool _isOtherTyping = false;
   String? _token;
   Timer? _reconnectTimer;
   Timer? _typingResetTimer;
+  Timer? _otherTypingResetTimer;
   bool _shouldReconnect = true;
 
   @override
@@ -75,7 +78,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             .setReconnectionAttempts(10)
             .setReconnectionDelay(1000)
             .setReconnectionDelayMax(5000)
-            .setExtraHeaders({'authorization': 'Bearer $_token'})
+            .setAuth({'token': _token})
             .build(),
       );
 
@@ -85,11 +88,8 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           setState(() => _isConnected = true);
         }
 
-        // Authenticate and join chat
-        socket!.emit('authenticate', {'userId': widget.userId, 'token': _token});
         socket!.emit('join_chat', widget.chatId);
-        
-        // Cancel any pending reconnect timers
+
         _reconnectTimer?.cancel();
       });
 
@@ -98,8 +98,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         if (mounted) {
           setState(() => _isConnected = false);
         }
-        
-        // Schedule reconnection attempt
+
         if (_shouldReconnect) {
           _scheduleReconnect();
         }
@@ -110,7 +109,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         if (mounted) {
           setState(() => _isConnected = false);
         }
-        
+
         // Schedule reconnection attempt
         if (_shouldReconnect) {
           _scheduleReconnect();
@@ -123,34 +122,23 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
       // Listen for new messages - this is the key for real-time updates
       socket!.on('new_message', _handleNewMessage);
-      socket!.on('receive_message', _handleNewMessage);
-      socket!.on('message', _handleNewMessage);
 
-      // Listen for typing events
       socket!.on('user_typing', (data) {
         if (data['userId'] != widget.userId && mounted) {
-          setState(() => _isTyping = true);
-          
-          // Auto-reset typing indicator after 3 seconds
-          _typingResetTimer?.cancel();
-          _typingResetTimer = Timer(const Duration(seconds: 3), () {
-            if (mounted) {
-              setState(() => _isTyping = false);
-            }
-          });
+          if (data['typing']) {
+            setState(() => _isTyping = true);
+          } else {
+            _typingResetTimer?.cancel();
+            _typingResetTimer = Timer(const Duration(seconds: 3), () {
+              if (mounted) {
+                setState(() => _isTyping = false);
+              }
+            });
+          }
         }
       });
 
-      socket!.on('user_stopped_typing', (data) {
-        if (data['userId'] != widget.userId && mounted) {
-          setState(() => _isTyping = false);
-          _typingResetTimer?.cancel();
-        }
-      });
-
-      // Connect the socket
       socket!.connect();
-      
     } catch (e) {
       debugPrint('Socket initialization error: $e');
     }
@@ -158,32 +146,33 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   void _handleNewMessage(dynamic data) {
     if (!mounted) return;
-    
-    debugPrint('Received new message: $data');
-    
-    final senderId = data['senderId'] ?? data['sender']?['_id'] ?? data['sender'];
 
-    // Skip our own messages (we add them locally when sending)
+    debugPrint('Received new message: $data');
+
+    final messageData = data['message'] ?? data;
+
+    final senderId = messageData['sender']?['_id'];
+
     if (senderId == widget.userId) {
       return;
     }
 
-    final newMessage = Message.fromJson(data);
+    final newMessage = Message.fromJson(messageData);
 
-    // Check for duplicates
     final exists = _messages.any(
       (msg) =>
           (msg.id == newMessage.id && msg.id.isNotEmpty) ||
           (msg.senderId == senderId &&
-           msg.content == newMessage.content &&
-           msg.timestamp.difference(newMessage.timestamp).inSeconds.abs() < 5),
+              msg.content == newMessage.content &&
+              msg.timestamp.difference(newMessage.timestamp).inSeconds.abs() <
+                  5),
     );
 
     if (!exists) {
       setState(() {
         _messages.add(newMessage);
         _messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-        _isTyping = false; // Stop typing indicator when message received
+        _isTyping = false;
       });
       _scrollToBottom();
     }
@@ -250,6 +239,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                     otherParticipant['name'] ??
                     '${otherParticipant['firstName'] ?? ''} ${otherParticipant['lastName'] ?? ''}'
                         .trim();
+                _profile = otherParticipant['profile'] != ''
+                    ? '${ApiConfig.baseUrl}${otherParticipant["profile"]}'
+                    : null;
               }
             }
 
@@ -276,7 +268,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     final messageText = _messageController.text.trim();
     _messageController.clear();
 
-    // Optimistically add the message to the UI immediately
     final tempMessage = Message(
       id: 'temp-${DateTime.now().millisecondsSinceEpoch}',
       senderId: widget.userId,
@@ -291,12 +282,8 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     });
     _scrollToBottom();
 
-    // Stop typing indicator
     if (_isConnected && socket != null) {
-      socket!.emit('typing_stop', {
-        'chatId': widget.chatId,
-        'userId': widget.userId,
-      });
+      socket!.emit('typing_stop', widget.chatId);
     }
 
     try {
@@ -311,8 +298,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = json.decode(response.body);
-
-        // Update temp message with real ID
         if (mounted) {
           setState(() {
             final index = _messages.indexWhere((m) => m.id == tempMessage.id);
@@ -325,16 +310,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 readBy: [],
               );
             }
-          });
-        }
-
-        // Emit socket event for real-time delivery to other user
-        if (_isConnected && socket != null) {
-          socket!.emit('send_message', {
-            'chatId': widget.chatId,
-            'content': messageText,
-            'senderId': widget.userId,
-            'attachments': [],
           });
         }
       } else {
@@ -355,9 +330,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         setState(() {
           _messages.removeWhere((m) => m.id == tempMessage.id);
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error sending message')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Error sending message')));
       }
     }
   }
@@ -374,34 +349,20 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     });
   }
 
-  Timer? _typingDebounceTimer;
-
   void _onTypingChanged(String text) {
     if (!_isConnected || socket == null) return;
-    
-    _typingDebounceTimer?.cancel();
-    
-    if (text.isNotEmpty) {
-      socket!.emit('typing_start', {
-        'chatId': widget.chatId,
-        'userId': widget.userId,
-      });
-      
-      // Stop typing after 2 seconds of no input
-      _typingDebounceTimer = Timer(const Duration(seconds: 2), () {
-        if (_isConnected && socket != null) {
-          socket!.emit('typing_stop', {
-            'chatId': widget.chatId,
-            'userId': widget.userId,
-          });
-        }
-      });
-    } else {
-      socket!.emit('typing_stop', {
-        'chatId': widget.chatId,
-        'userId': widget.userId,
-      });
+    _otherTypingResetTimer?.cancel();
+    if (!_isOtherTyping) {
+      setState(() => _isOtherTyping = true);
+      socket!.emit('typing_start', widget.chatId);
     }
+
+    _otherTypingResetTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) {
+        setState(() => _isOtherTyping = false);
+      }
+      socket!.emit('typing_stop', widget.chatId);
+    });
   }
 
   @override
@@ -410,15 +371,12 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     _shouldReconnect = false;
     _reconnectTimer?.cancel();
     _typingResetTimer?.cancel();
-    _typingDebounceTimer?.cancel();
-    
+    _otherTypingResetTimer?.cancel();
+
     if (socket != null) {
       try {
         socket!.emit('leave_chat', widget.chatId);
-        socket!.emit('typing_stop', {
-          'chatId': widget.chatId,
-          'userId': widget.userId,
-        });
+        socket!.emit('typing_stop', widget.chatId);
         socket!.disconnect();
         socket!.dispose();
       } catch (e) {
@@ -452,6 +410,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
               child: CircleAvatar(
                 radius: 18,
                 backgroundColor: Colors.transparent,
+                backgroundImage: _profile != null
+                    ? NetworkImage(_profile!)
+                    : null,
                 child: Text(
                   _otherUserName.isNotEmpty
                       ? _otherUserName[0].toUpperCase()
@@ -484,7 +445,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                         width: 6,
                         height: 6,
                         decoration: BoxDecoration(
-                          color: _isConnected ? Colors.green : Colors.orange,
+                          color: _isConnected ? null : Colors.orange,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -492,11 +453,11 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                       Text(
                         _isTyping
                             ? 'typing...'
-                            : (_isConnected ? 'Online' : 'Connecting...'),
+                            : (_isConnected ? '' : 'Connecting...'),
                         style: TextStyle(
                           fontSize: 11,
-                          color: _isTyping 
-                              ? Colors.blueAccent 
+                          color: _isTyping
+                              ? Colors.blueAccent
                               : (_isConnected ? Colors.green : Colors.orange),
                           fontStyle: _isTyping
                               ? FontStyle.italic
@@ -563,7 +524,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const CircularProgressIndicator(color: Colors.blueAccent),
+                        const CircularProgressIndicator(
+                          color: Colors.blueAccent,
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           'Loading messages...',
@@ -618,7 +581,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                       if (_isTyping && index == _messages.length) {
                         return _buildTypingIndicator();
                       }
-                      
+
                       final message = _messages[index];
                       final isMe = message.senderId == widget.userId;
                       final showDate =
@@ -737,7 +700,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                   width: 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade500.withAlpha((100 + (value * 155)).toInt()),
+                    color: Colors.grey.shade500.withAlpha(
+                      (100 + (value * 155)).toInt(),
+                    ),
                     shape: BoxShape.circle,
                   ),
                 );
@@ -751,7 +716,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   Widget _buildMessageBubble(Message message, bool isMe) {
     final isPending = message.id.startsWith('temp-');
-    
+
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -871,20 +836,9 @@ class Message {
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
-    String senderId;
-    if (json['sender'] is String) {
-      senderId = json['sender'];
-    } else if (json['sender'] is Map) {
-      senderId = json['sender']['_id'] ?? '';
-    } else if (json['senderId'] != null) {
-      senderId = json['senderId'];
-    } else {
-      senderId = '';
-    }
-
     return Message(
       id: json['_id'] ?? json['id'] ?? '',
-      senderId: senderId,
+      senderId: json['sender']['_id'] ?? '',
       content: json['content'] ?? '',
       timestamp: DateTime.parse(
         json['timestamp'] ??

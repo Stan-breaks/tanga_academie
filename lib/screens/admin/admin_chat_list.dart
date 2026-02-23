@@ -267,7 +267,7 @@ class _AdminChatListState extends State<AdminChatList> {
                   )
                 : ListView.separated(
                     itemCount: _users.length,
-                    separatorBuilder: (_, __) => const Divider(),
+                    separatorBuilder: (_, _) => const Divider(),
                     itemBuilder: (context, index) => _buildUserItem(_users[index]),
                   ),
           ),

@@ -7,6 +7,7 @@ import 'package:tanga_acadamie/screens/admin/admin_courses_page.dart';
 import 'package:tanga_acadamie/screens/admin/admin_users_list.dart';
 import 'package:tanga_acadamie/screens/shared/_stat_card.dart';
 import 'package:tanga_acadamie/screens/shared/course_card.dart';
+import 'package:tanga_acadamie/screens/shared/settings_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 
 class AdminDashboard extends StatefulWidget {
@@ -350,7 +351,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
           title: 'Total Courses',
           value: '${statsMap['totalCourses'] ?? 0}',
           icon: Icons.library_books,
-          gradientColors: [Colors.blueAccent.shade200, Colors.blueAccent.shade700],
+          gradientColors: [
+            Colors.blueAccent.shade200,
+            Colors.blueAccent.shade700,
+          ],
         ),
         StatCard(
           title: 'Active Courses',
@@ -467,7 +471,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
         icon: Icons.settings,
         color: Colors.orange,
         onTap: () {
-          // Navigate to settings when implemented
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SettingsPage()),
+          );
         },
       ),
     ];
@@ -566,7 +573,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: _topInstructors.length > 5 ? 5 : _topInstructors.length,
-        separatorBuilder: (_, __) =>
+        separatorBuilder: (_, _) =>
             Divider(color: Colors.grey.shade200, height: 1),
         itemBuilder: (context, index) {
           final instructor = _topInstructors[index];
@@ -624,7 +631,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
         ],
       ),
-      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
     );
   }
 

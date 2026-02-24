@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class ChatPage extends StatefulWidget {
   final String chatId;
@@ -452,8 +453,8 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                       const SizedBox(width: 6),
                       Text(
                         _isTyping
-                            ? 'typing...'
-                            : (_isConnected ? '' : 'Connecting...'),
+                            ? (isFr ? 'en train d\'écrire...' : 'typing...')
+                            : (_isConnected ? '' : (isFr ? 'Connexion...' : 'Connecting...')),
                         style: TextStyle(
                           fontSize: 11,
                           color: _isTyping
@@ -476,7 +477,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             IconButton(
               icon: const Icon(Icons.refresh, color: Colors.orange),
               onPressed: _reconnectSocket,
-              tooltip: 'Reconnect',
+              tooltip: isFr ? 'Reconnecter' : 'Reconnect',
             ),
           IconButton(
             icon: const Icon(Icons.more_vert),
@@ -509,7 +510,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'Connecting to chat...',
+                    isFr ? 'Connexion au chat...' : 'Connecting to chat...',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.orange.shade800,
@@ -529,7 +530,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Loading messages...',
+                          isFr ? 'Chargement des messages...' : 'Loading messages...',
                           style: TextStyle(color: Colors.grey.shade600),
                         ),
                       ],
@@ -554,7 +555,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No messages yet',
+                          isFr ? 'Aucun message' : 'No messages yet',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -563,7 +564,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Start the conversation!',
+                          isFr ? 'Démarrez la conversation !' : 'Start the conversation!',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey.shade500,
@@ -634,10 +635,10 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                       ),
                       child: TextField(
                         controller: _messageController,
-                        decoration: const InputDecoration(
-                          hintText: 'Type a message...',
+                        decoration: InputDecoration(
+                          hintText: isFr ? 'Écrivez un message...' : 'Type a message...',
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
+                          contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 10,
                           ),
@@ -805,9 +806,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     final messageDate = DateTime(date.year, date.month, date.day);
 
     if (messageDate == today) {
-      return 'Today';
+      return isFr ? 'Aujourd\'hui' : 'Today';
     } else if (messageDate == yesterday) {
-      return 'Yesterday';
+      return isFr ? 'Hier' : 'Yesterday';
     } else {
       return DateFormat('MMM d, yyyy').format(date);
     }

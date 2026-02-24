@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/theme/app_colors.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class EditCoursePage extends StatefulWidget {
   final Map<String, dynamic> course;
@@ -268,7 +269,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
     // Validate chapters
     if (_chapters.isEmpty) {
       setState(() {
-        _errorMessage = 'At least one chapter with lessons is required';
+        _errorMessage = isFr ? 'Au moins un chapitre avec des leçons est requis' : 'At least one chapter with lessons is required';
       });
       return;
     }
@@ -276,20 +277,20 @@ class _EditCoursePageState extends State<EditCoursePage> {
     for (var chapter in _chapters) {
       if (chapter.titleController.text.isEmpty) {
         setState(() {
-          _errorMessage = 'All chapters must have a title';
+          _errorMessage = isFr ? 'Tous les chapitres doivent avoir un titre' : 'All chapters must have a title';
         });
         return;
       }
       if (chapter.lessons.isEmpty) {
         setState(() {
-          _errorMessage = 'Each chapter must have at least one lesson';
+          _errorMessage = isFr ? 'Chaque chapitre doit avoir au moins une leçon' : 'Each chapter must have at least one lesson';
         });
         return;
       }
       for (var lesson in chapter.lessons) {
         if (lesson.titleController.text.isEmpty) {
           setState(() {
-            _errorMessage = 'All lessons must have a title';
+            _errorMessage = isFr ? 'Toutes les leçons doivent avoir un titre' : 'All lessons must have a title';
           });
           return;
         }
@@ -411,8 +412,8 @@ class _EditCoursePageState extends State<EditCoursePage> {
       if (response.statusCode == 200) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Course updated successfully!'),
+            SnackBar(
+              content: Text(isFr ? 'Cours mis à jour avec succès !' : 'Course updated successfully!'),
               backgroundColor: AppColors.success,
             ),
           );
@@ -466,9 +467,9 @@ class _EditCoursePageState extends State<EditCoursePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Edit Course',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          isFr ? 'Modifier le cours' : 'Edit Course',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -579,7 +580,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
   }
 
   Widget _buildStepIndicator() {
-    final steps = ['Basic Info', 'Chapters', 'Files', 'Review'];
+    final steps = isFr ? ['Infos', 'Chapitres', 'Fichiers', 'Aperçu'] : ['Basic Info', 'Chapters', 'Files', 'Review'];
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -666,17 +667,17 @@ class _EditCoursePageState extends State<EditCoursePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Course Details', Icons.edit_note),
+          _buildSectionHeader(isFr ? 'Détails du cours' : 'Course Details', Icons.edit_note),
           const SizedBox(height: 16),
           
           _buildInputField(
             controller: _titleController,
-            label: 'Course Title',
-            hint: 'Enter a descriptive course title',
+            label: isFr ? 'Titre du cours' : 'Course Title',
+            hint: isFr ? 'Entrez un titre descriptif' : 'Enter a descriptive course title',
             icon: Icons.title,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Title is required';
+                return isFr ? 'Le titre est requis' : 'Title is required';
               }
               return null;
             },
@@ -685,7 +686,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
           // Category Dropdown
           _buildDropdownField(
-            label: 'Category',
+            label: isFr ? 'Catégorie' : 'Category',
             value: _selectedCategory,
             items: _categories,
             icon: Icons.category,
@@ -699,7 +700,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
           // Offer Type Dropdown
           _buildDropdownField(
-            label: 'Offer Type',
+            label: isFr ? 'Type d\'offre' : 'Offer Type',
             value: _selectedOfferType,
             items: _offerTypes,
             icon: Icons.local_offer,
@@ -717,13 +718,13 @@ class _EditCoursePageState extends State<EditCoursePage> {
               Expanded(
                 child: _buildInputField(
                   controller: _priceController,
-                  label: 'Price',
-                  hint: 'Course price',
+                  label: isFr ? 'Prix' : 'Price',
+                  hint: isFr ? 'Prix du cours' : 'Course price',
                   icon: Icons.attach_money,
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Price is required';
+                      return isFr ? 'Le prix est requis' : 'Price is required';
                     }
                     if (double.tryParse(value) == null) {
                       return 'Enter a valid price';
@@ -736,8 +737,8 @@ class _EditCoursePageState extends State<EditCoursePage> {
               Expanded(
                 child: _buildInputField(
                   controller: _discountedPriceController,
-                  label: 'Discounted Price',
-                  hint: 'Optional',
+                  label: isFr ? 'Prix réduit' : 'Discounted Price',
+                  hint: isFr ? 'Optionnel' : 'Optional',
                   icon: Icons.discount,
                   keyboardType: TextInputType.number,
                   validator: (value) {
@@ -756,7 +757,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
           // Language Dropdown
           _buildDropdownField(
-            label: 'Language',
+            label: isFr ? 'Langue' : 'Language',
             value: _selectedLanguage,
             items: _languages,
             icon: Icons.language,
@@ -770,7 +771,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
           // Start Date Picker
           _buildDatePickerField(
-            label: 'Start Date',
+            label: isFr ? 'Date de début' : 'Start Date',
             value: _startDate,
             icon: Icons.calendar_today,
             onTap: () async {
@@ -1575,7 +1576,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
               child: OutlinedButton.icon(
                 onPressed: _previousStep,
                 icon: const Icon(Icons.arrow_back),
-                label: const Text('Previous'),
+                label: Text(isFr ? 'Précédent' : 'Previous'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   side: const BorderSide(color: AppColors.primary),
@@ -1592,7 +1593,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
                 ? ElevatedButton.icon(
                     onPressed: _nextStep,
                     icon: const Icon(Icons.arrow_forward),
-                    label: const Text('Next'),
+                    label: Text(isFr ? 'Suivant' : 'Next'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       backgroundColor: AppColors.primary,
@@ -1614,7 +1615,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
                             ),
                           )
                         : const Icon(Icons.save),
-                    label: Text(_isLoading ? 'Saving...' : 'Save Changes'),
+                    label: Text(isFr ? (_isLoading ? 'Enregistrement...' : 'Enregistrer') : (_isLoading ? 'Saving...' : 'Save Changes')),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       backgroundColor: AppColors.success,

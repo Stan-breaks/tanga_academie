@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class VerificationPage extends StatefulWidget {
   final String email;
@@ -68,9 +69,9 @@ class _VerificationPageState extends State<VerificationPage> {
               ),
               const SizedBox(height: 20),
               // Title
-              const Text(
-                "Vérification",
-                style: TextStyle(
+              Text(
+                isFr ? 'Vérification' : 'Verification',
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
@@ -78,7 +79,7 @@ class _VerificationPageState extends State<VerificationPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                "Collez le jeton ici",
+                isFr ? 'Collez le jeton ici' : 'Paste the token here',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
@@ -95,8 +96,8 @@ class _VerificationPageState extends State<VerificationPage> {
               const SizedBox(height: 30),
               TextField(
                 controller: _tokenController,
-                decoration: const InputDecoration(
-                  labelText: "Token",
+                decoration: InputDecoration(
+                  labelText: isFr ? 'Jeton' : 'Token',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.token),
                 ),
@@ -120,7 +121,7 @@ class _VerificationPageState extends State<VerificationPage> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  child: const Text("Vérifier"),
+                  child: Text(isFr ? 'Vérifier' : 'Verify'),
                 ),
               ),
               const SizedBox(height: 20),

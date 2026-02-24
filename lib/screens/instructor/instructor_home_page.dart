@@ -3,6 +3,7 @@ import 'package:tanga_acadamie/screens/instructor/instructor_chat_list.dart';
 import 'package:tanga_acadamie/screens/instructor/instructor_dashboard.dart';
 import 'package:tanga_acadamie/screens/shared/custom_appbar.dart';
 import 'package:tanga_acadamie/screens/shared/profile_page.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class InstructorHomePage extends StatefulWidget {
   final bool isLoggedIn;
@@ -63,9 +64,9 @@ class _InstructorHomeState extends State<InstructorHomePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(0, Icons.book_outlined, Icons.book, 'Dashboard'),
-                _buildNavItem(1, Icons.chat_bubble_outline, Icons.chat_bubble, 'Messages'),
-                _buildNavItem(2, Icons.person_outline, Icons.person, 'Profile'),
+                _buildNavItem(0, Icons.book_outlined, Icons.book, isFr ? 'Tableau de bord' : 'Dashboard'),
+                _buildNavItem(1, Icons.chat_bubble_outline, Icons.chat_bubble, isFr ? 'Messages' : 'Messages'),
+                _buildNavItem(2, Icons.person_outline, Icons.person, isFr ? 'Profil' : 'Profile'),
               ],
             ),
           ),

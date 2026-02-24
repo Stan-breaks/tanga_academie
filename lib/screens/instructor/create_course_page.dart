@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/theme/app_colors.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class CreateCoursePage extends StatefulWidget {
   const CreateCoursePage({super.key});
@@ -196,7 +197,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     // Validate at least one chapter with lessons
     if (_chapters.isEmpty) {
       setState(() {
-        _errorMessage = 'At least one chapter with lessons is required';
+        _errorMessage = isFr ? 'Au moins un chapitre avec des leçons est requis' : 'At least one chapter with lessons is required';
       });
       return;
     }
@@ -204,20 +205,20 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     for (var chapter in _chapters) {
       if (chapter.titleController.text.isEmpty) {
         setState(() {
-          _errorMessage = 'All chapters must have a title';
+          _errorMessage = isFr ? 'Tous les chapitres doivent avoir un titre' : 'All chapters must have a title';
         });
         return;
       }
       if (chapter.lessons.isEmpty) {
         setState(() {
-          _errorMessage = 'Each chapter must have at least one lesson';
+          _errorMessage = isFr ? 'Chaque chapitre doit avoir au moins une leçon' : 'Each chapter must have at least one lesson';
         });
         return;
       }
       for (var lesson in chapter.lessons) {
         if (lesson.titleController.text.isEmpty) {
           setState(() {
-            _errorMessage = 'All lessons must have a title';
+            _errorMessage = isFr ? 'Toutes les leçons doivent avoir un titre' : 'All lessons must have a title';
           });
           return;
         }
@@ -335,7 +336,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Course created successfully!'),
+              content: Text(isFr ? 'Cours créé avec succès !' : 'Course created successfully!'),
               backgroundColor: AppColors.success,
             ),
           );
@@ -389,9 +390,9 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Create Course',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          isFr ? 'Créer un cours' : 'Create Course',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -452,7 +453,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
   }
 
   Widget _buildStepIndicator() {
-    final steps = ['Basic Info', 'Chapters', 'Files', 'Review'];
+    final steps = isFr ? ['Infos', 'Chapitres', 'Fichiers', 'Aperçu'] : ['Basic Info', 'Chapters', 'Files', 'Review'];
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -539,18 +540,18 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Course Details', Icons.info_outline),
+          _buildSectionHeader(isFr ? 'Détails du cours' : 'Course Details', Icons.info_outline),
           const SizedBox(height: 16),
           
           // Title Field
           _buildInputField(
             controller: _titleController,
-            label: 'Course Title',
-            hint: 'Enter a descriptive course title',
+            label: isFr ? 'Titre du cours' : 'Course Title',
+            hint: isFr ? 'Entrez un titre descriptif' : 'Enter a descriptive course title',
             icon: Icons.title,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Title is required';
+                return isFr ? 'Le titre est requis' : 'Title is required';
               }
               return null;
             },
@@ -559,7 +560,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
           // Category Dropdown
           _buildDropdownField(
-            label: 'Category',
+            label: isFr ? 'Catégorie' : 'Category',
             value: _selectedCategory,
             items: _categories,
             icon: Icons.category,
@@ -573,7 +574,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
           // Offer Type Dropdown
           _buildDropdownField(
-            label: 'Offer Type',
+            label: isFr ? 'Type d\'offre' : 'Offer Type',
             value: _selectedOfferType,
             items: _offerTypes,
             icon: Icons.local_offer,
@@ -591,13 +592,13 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
               Expanded(
                 child: _buildInputField(
                   controller: _priceController,
-                  label: 'Price',
-                  hint: 'Course price',
+                  label: isFr ? 'Prix' : 'Price',
+                  hint: isFr ? 'Prix du cours' : 'Course price',
                   icon: Icons.attach_money,
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Price is required';
+                      return isFr ? 'Le prix est requis' : 'Price is required';
                     }
                     if (double.tryParse(value) == null) {
                       return 'Enter a valid price';
@@ -610,8 +611,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
               Expanded(
                 child: _buildInputField(
                   controller: _discountedPriceController,
-                  label: 'Discounted Price',
-                  hint: 'Optional',
+                  label: isFr ? 'Prix réduit' : 'Discounted Price',
+                  hint: isFr ? 'Optionnel' : 'Optional',
                   icon: Icons.discount,
                   keyboardType: TextInputType.number,
                   validator: (value) {
@@ -630,7 +631,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
           // Language Dropdown
           _buildDropdownField(
-            label: 'Language',
+            label: isFr ? 'Langue' : 'Language',
             value: _selectedLanguage,
             items: _languages,
             icon: Icons.language,
@@ -644,7 +645,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
           // Start Date Picker
           _buildDatePickerField(
-            label: 'Start Date',
+            label: isFr ? 'Date de début' : 'Start Date',
             value: _startDate,
             icon: Icons.calendar_today,
             onTap: () async {
@@ -676,13 +677,13 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           // Description Field
           _buildInputField(
             controller: _descriptionController,
-            label: 'Description',
-            hint: 'Describe your course in detail (max 5000 characters)',
+            label: isFr ? 'Description' : 'Description',
+            hint: isFr ? 'Décrivez votre cours en détail (max 5000 caractères)' : 'Describe your course in detail (max 5000 characters)',
             icon: Icons.description,
             maxLines: 5,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Description is required';
+                return isFr ? 'La description est requise' : 'Description is required';
               }
               return null;
             },
@@ -692,8 +693,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           // Requirements Field
           _buildInputField(
             controller: _requirementsController,
-            label: 'Requirements',
-            hint: 'What should students know before taking this course?',
+            label: isFr ? 'Prérequis' : 'Requirements',
+            hint: isFr ? 'Que doivent savoir les étudiants avant de suivre ce cours ?' : 'What should students know before taking this course?',
             icon: Icons.checklist,
             maxLines: 3,
           ),
@@ -702,8 +703,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           // Benefits Field
           _buildInputField(
             controller: _benefitsController,
-            label: 'What Students Will Learn',
-            hint: 'List the key benefits and learning outcomes',
+            label: isFr ? 'Ce que les étudiants apprendront' : 'What Students Will Learn',
+            hint: isFr ? 'Listez les bénéfices et objectifs d\'apprentissage' : 'List the key benefits and learning outcomes',
             icon: Icons.emoji_events,
             maxLines: 3,
           ),
@@ -712,8 +713,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           // Tags Field
           _buildInputField(
             controller: _tagsController,
-            label: 'Tags (comma-separated)',
-            hint: 'e.g., programming, web development, flutter',
+            label: isFr ? 'Étiquettes (séparées par des virgules)' : 'Tags (comma-separated)',
+            hint: isFr ? 'ex: programmation, développement web, flutter' : 'e.g., programming, web development, flutter',
             icon: Icons.tag,
           ),
         ],
@@ -727,10 +728,10 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Course Structure', Icons.menu_book),
+          _buildSectionHeader(isFr ? 'Structure du cours' : 'Course Structure', Icons.menu_book),
           const SizedBox(height: 8),
           Text(
-            'Organize your course into chapters and lessons',
+            isFr ? 'Organisez votre cours en chapitres et leçons' : 'Organize your course into chapters and lessons',
             style: TextStyle(
               color: AppColors.textLight,
               fontSize: 14,
@@ -753,7 +754,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           // Add Chapter Button
           _buildAddButton(
             onPressed: _addChapter,
-            label: 'Add Chapter',
+            label: isFr ? 'Ajouter un chapitre' : 'Add Chapter',
             icon: Icons.add_box,
           ),
         ],
@@ -837,8 +838,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                   // Chapter Title Input
                   _buildInputField(
                     controller: chapter.titleController,
-                    label: 'Chapter Title',
-                    hint: 'Enter chapter title',
+                    label: isFr ? 'Titre du chapitre' : 'Chapter Title',
+            hint: isFr ? 'Entrez le titre du chapitre' : 'Enter chapter title',
                     icon: Icons.bookmark,
                     onChanged: (value) => setState(() {}),
                   ),
@@ -858,7 +859,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Lock until quiz pass',
+                            isFr ? 'Verrouiller jusqu\'au quiz réussi' : 'Lock until quiz pass',
                             style: TextStyle(
                               color: AppColors.textDark,
                               fontWeight: FontWeight.w500,
@@ -885,7 +886,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                       Icon(Icons.play_lesson, color: AppColors.textDark, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        'Lessons',
+                        isFr ? 'Leçons' : 'Lessons',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: AppColors.textDark,
@@ -910,7 +911,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                   // Add Lesson Button
                   _buildAddButton(
                     onPressed: () => _addLesson(chapterIndex),
-                    label: 'Add Lesson',
+                    label: isFr ? 'Ajouter une leçon' : 'Add Lesson',
                     icon: Icons.add_circle_outline,
                     compact: true,
                   ),
@@ -972,8 +973,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           // Lesson Title
           _buildInputField(
             controller: lesson.titleController,
-            label: 'Lesson Title',
-            hint: 'Enter lesson title',
+            label: isFr ? 'Titre de la leçon' : 'Lesson Title',
+            hint: isFr ? 'Entrez le titre de la leçon' : 'Enter lesson title',
             icon: Icons.edit,
           ),
           const SizedBox(height: 12),
@@ -981,8 +982,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
           // Video Upload
           _buildFilePickerButton(
             label: lesson.videoFile != null
-                ? 'Video Selected ✓'
-                : 'Upload Lesson Video',
+                ? (isFr ? 'Vidéo sélectionnée ✓' : 'Video Selected ✓')
+                : (isFr ? 'Télécharger la vidéo' : 'Upload Lesson Video'),
             icon: Icons.video_library,
             onPressed: () => _pickLessonVideo(chapterIndex, lessonIndex),
             isSelected: lesson.videoFile != null,
@@ -994,8 +995,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
             _buildVideoPreview(lesson.videoFile!),
             const SizedBox(height: 12),
             _buildInputField(
-              label: 'Video Duration (seconds)',
-              hint: 'Enter video duration',
+              label: isFr ? 'Durée de la vidéo (secondes)' : 'Video Duration (seconds)',
+              hint: isFr ? 'Entrez la durée' : 'Enter video duration',
               icon: Icons.timer,
               keyboardType: TextInputType.number,
               onChanged: (value) {
@@ -1014,13 +1015,13 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Course Files', Icons.folder_open),
+          _buildSectionHeader(isFr ? 'Fichiers du cours' : 'Course Files', Icons.folder_open),
           const SizedBox(height: 16),
 
           // Banner Image Section
           _buildFileSectionCard(
-            title: 'Banner Image',
-            description: 'The main image for your course',
+            title: isFr ? 'Image de bannière' : 'Banner Image',
+            description: isFr ? 'L\'image principale de votre cours' : 'The main image for your course',
             icon: Icons.image,
             child: Column(
               children: [
@@ -1039,8 +1040,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                   ),
                 _buildFilePickerButton(
                   label: _bannerImage != null
-                      ? 'Change Image'
-                      : 'Select Banner Image',
+                      ? (isFr ? 'Changer l\'image' : 'Change Image')
+                      : (isFr ? 'Sélectionner une image' : 'Select Banner Image'),
                   icon: Icons.upload,
                   onPressed: _pickBannerImage,
                   isSelected: _bannerImage != null,
@@ -1052,13 +1053,13 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
           // Certificate File Section
           _buildFileSectionCard(
-            title: 'Certificate Template',
-            description: 'Upload a certificate template for course completion',
+            title: isFr ? 'Modèle de certificat' : 'Certificate Template',
+            description: isFr ? 'Téléchargez un modèle de certificat' : 'Upload a certificate template for course completion',
             icon: Icons.workspace_premium,
             child: _buildFilePickerButton(
               label: _certificateFile != null
-                  ? 'Certificate Selected ✓'
-                  : 'Upload Certificate',
+                  ? (isFr ? 'Certificat sélectionné ✓' : 'Certificate Selected ✓')
+                  : (isFr ? 'Télécharger le certificat' : 'Upload Certificate'),
               icon: Icons.upload_file,
               onPressed: _pickCertificateFile,
               isSelected: _certificateFile != null,
@@ -1068,8 +1069,8 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
           // PDF Files Section
           _buildFileSectionCard(
-            title: 'Course Materials (PDFs)',
-            description: 'Add supplementary PDF materials',
+            title: isFr ? 'Matériels de cours (PDFs)' : 'Course Materials (PDFs)',
+            description: isFr ? 'Ajoutez des matériels PDF supplémentaires' : 'Add supplementary PDF materials',
             icon: Icons.picture_as_pdf,
             child: Column(
               children: [
@@ -1114,7 +1115,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                     ),
                   ),
                 _buildFilePickerButton(
-                  label: 'Add PDF File',
+                  label: isFr ? 'Ajouter un fichier PDF' : 'Add PDF File',
                   icon: Icons.add_circle_outline,
                   onPressed: _pickPdfFiles,
                 ),
@@ -1132,7 +1133,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Review', Icons.preview),
+          _buildSectionHeader(isFr ? 'Aperçu' : 'Review', Icons.preview),
           const SizedBox(height: 16),
 
           // Summary Card
@@ -1153,24 +1154,24 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildReviewItem('Title', _titleController.text),
-                _buildReviewItem('Price', 'TZS ${_priceController.text}'),
-                _buildReviewItem('Chapters', '${_chapters.length}'),
+                _buildReviewItem(isFr ? 'Titre' : 'Title', _titleController.text),
+                _buildReviewItem(isFr ? 'Prix' : 'Price', 'TZS ${_priceController.text}'),
+                _buildReviewItem(isFr ? 'Chapitres' : 'Chapters', '${_chapters.length}'),
                 _buildReviewItem(
-                  'Total Lessons', 
+                  isFr ? 'Total leçons' : 'Total Lessons', 
                   '${_chapters.fold(0, (sum, c) => sum + c.lessons.length)}',
                 ),
                 _buildReviewItem(
-                  'Banner Image', 
-                  _bannerImage != null ? '✓ Uploaded' : '✗ Not uploaded',
+                  isFr ? 'Image de bannière' : 'Banner Image', 
+                  _bannerImage != null ? (isFr ? '✓ Téléchargé' : '✓ Uploaded') : (isFr ? '✗ Non téléchargé' : '✗ Not uploaded'),
                 ),
                 _buildReviewItem(
-                  'Certificate', 
-                  _certificateFile != null ? '✓ Uploaded' : '✗ Not uploaded',
+                  isFr ? 'Certificat' : 'Certificate', 
+                  _certificateFile != null ? (isFr ? '✓ Téléchargé' : '✓ Uploaded') : (isFr ? '✗ Non téléchargé' : '✗ Not uploaded'),
                 ),
                 _buildReviewItem(
-                  'PDF Materials', 
-                  '${_pdfFiles.length} files',
+                  isFr ? 'Matériels PDF' : 'PDF Materials', 
+                  '${_pdfFiles.length} ${isFr ? 'fichiers' : 'files'}',
                 ),
               ],
             ),
@@ -1179,7 +1180,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
           // Chapters Summary
           Text(
-            'Course Structure',
+            isFr ? 'Structure du cours' : 'Course Structure',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -1332,7 +1333,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
               child: OutlinedButton.icon(
                 onPressed: _previousStep,
                 icon: const Icon(Icons.arrow_back),
-                label: const Text('Previous'),
+                label: Text(isFr ? 'Précédent' : 'Previous'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   side: const BorderSide(color: AppColors.primary),
@@ -1349,7 +1350,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                 ? ElevatedButton.icon(
                     onPressed: _nextStep,
                     icon: const Icon(Icons.arrow_forward),
-                    label: const Text('Next'),
+                    label: Text(isFr ? 'Suivant' : 'Next'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       backgroundColor: AppColors.primary,
@@ -1371,7 +1372,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                             ),
                           )
                         : const Icon(Icons.check_circle),
-                    label: Text(_isLoading ? 'Creating...' : 'Create Course'),
+                    label: Text(isFr ? (_isLoading ? 'Création...' : 'Créer le cours') : (_isLoading ? 'Creating...' : 'Create Course')),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       backgroundColor: AppColors.success,
@@ -1530,7 +1531,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
             Text(
               value != null
                   ? '${value.day}/${value.month}/${value.year}'
-                  : 'Select a date',
+                  : (isFr ? 'Sélectionnez une date' : 'Select a date'),
               style: TextStyle(
                 fontSize: 16,
                 color: value != null ? AppColors.textDark : AppColors.textLight,
@@ -1681,9 +1682,9 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Video Selected',
-                  style: TextStyle(
+                Text(
+                  isFr ? 'Vidéo sélectionnée' : 'Video Selected',
+                  style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     color: AppColors.primary,
                     fontSize: 14,

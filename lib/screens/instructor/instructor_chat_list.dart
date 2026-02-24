@@ -3,6 +3,7 @@ import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/core/utils/chat.dart';
 import 'package:tanga_acadamie/models/models.dart';
 import 'package:tanga_acadamie/screens/shared/chat_page.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class InstructorChatList extends StatefulWidget {
   const InstructorChatList({super.key});
@@ -152,7 +153,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
         children: [
           const CircularProgressIndicator(color: Colors.blueAccent, strokeWidth: 3),
           const SizedBox(height: 20),
-          Text('Loading messages...', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+          Text(isFr ? 'Chargement des messages...' : 'Loading messages...', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
         ],
       ),
     );
@@ -167,7 +168,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
           children: [
             Expanded(child: _buildActionButton(
               icon: _showStudentList ? Icons.close : Icons.school,
-              label: _showStudentList ? 'Hide Students' : 'Message Students',
+              label: _showStudentList ? (isFr ? 'Masquer' : 'Hide Students') : (isFr ? 'Message étudiants' : 'Message Students'),
               color: Colors.green,
               onPressed: () {
                 setState(() {
@@ -179,7 +180,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
             const SizedBox(width: 12),
             Expanded(child: _buildActionButton(
               icon: _showAdminList ? Icons.close : Icons.admin_panel_settings,
-              label: _showAdminList ? 'Hide Admins' : 'Message Admin',
+              label: _showAdminList ? (isFr ? 'Masquer' : 'Hide Admins') : (isFr ? 'Message admin' : 'Message Admin'),
               color: Colors.purple,
               onPressed: () {
                 setState(() {
@@ -264,9 +265,9 @@ class _InstructorChatListState extends State<InstructorChatList> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Recent Conversations',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+              Text(
+                isFr ? 'Conversations récentes' : 'Recent Conversations',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
               ),
               if (_chats.isNotEmpty)
                 Text(
@@ -296,7 +297,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
             children: [
               const Icon(Icons.school, color: Colors.green, size: 20),
               const SizedBox(width: 8),
-              const Text('Select a student to message', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(isFr ? 'Sélectionnez un étudiant' : 'Select a student to message', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 16),
@@ -308,7 +309,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
                       children: [
                         Icon(Icons.people_outline, size: 48, color: Colors.grey.shade400),
                         const SizedBox(height: 12),
-                        Text('No students enrolled yet', style: TextStyle(color: Colors.grey.shade600)),
+                        Text(isFr ? 'Aucun étudiant inscrit' : 'No students enrolled yet', style: TextStyle(color: Colors.grey.shade600)),
                       ],
                     ),
                   )
@@ -361,7 +362,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '${courseWithStudents.students.length} student${courseWithStudents.students.length == 1 ? '' : 's'}',
+                  '${courseWithStudents.students.length} ${isFr ? 'étudiant${courseWithStudents.students.length == 1 ? "" : "s"}' : 'student${courseWithStudents.students.length == 1 ? "" : "s"}'}',
                   style: const TextStyle(fontSize: 11, color: Colors.green, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -434,7 +435,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
             children: [
               const Icon(Icons.admin_panel_settings, color: Colors.purple, size: 20),
               const SizedBox(width: 8),
-              const Text('Contact Administration', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(isFr ? 'Contacter l\'administration' : 'Contact Administration', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 16),
@@ -446,7 +447,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
                       children: [
                         Icon(Icons.admin_panel_settings_outlined, size: 48, color: Colors.grey.shade400),
                         const SizedBox(height: 12),
-                        Text('No admins available', style: TextStyle(color: Colors.grey.shade600)),
+                        Text(isFr ? 'Aucun admin disponible' : 'No admins available', style: TextStyle(color: Colors.grey.shade600)),
                       ],
                     ),
                   )
@@ -608,10 +609,10 @@ class _InstructorChatListState extends State<InstructorChatList> {
             child: Icon(Icons.chat_bubble_outline, size: 48, color: Colors.grey.shade400),
           ),
           const SizedBox(height: 20),
-          Text('No conversations yet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
+          Text(isFr ? 'Aucune conversation' : 'No conversations yet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
           const SizedBox(height: 8),
           Text(
-            'Start a conversation with students or admins using the buttons above',
+            isFr ? 'Démarrez une conversation avec les étudiants ou les admins' : 'Start a conversation with students or admins using the buttons above',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
           ),

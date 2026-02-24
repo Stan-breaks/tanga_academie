@@ -5,12 +5,17 @@ import 'package:tanga_acadamie/screens/home_page.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/screens/instructor/create_course_page.dart';
 import 'package:tanga_acadamie/screens/instructor/instructor_courses_page.dart';
+import 'package:tanga_acadamie/screens/instructor/instructor_assignment_page.dart';
+import 'package:tanga_acadamie/screens/instructor/instructor_quiz_page.dart';
+import 'package:tanga_acadamie/screens/instructor/instructor_student_progress_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await dotenv.load(fileName: ".env");
+  await initLanguage();
 
   final token = await getToken();
   final user = await getUser();
@@ -46,6 +51,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/create-course': (context) => const CreateCoursePage(),
         '/instructor-courses': (context) => const InstructorCoursesPage(),
+        '/instructor-assignments': (context) => const InstructorAssignmentPage(),
+        '/instructor-quiz': (context) => const InstructorQuizPage(),
+        '/instructor-student-progress': (context) => const InstructorStudentProgressPage(),
         '/login': (context) => const LoginPage(),
       },
     );

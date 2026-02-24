@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class CourseCard extends StatelessWidget {
   final Map<String, dynamic> course;
@@ -172,7 +173,7 @@ class CourseCard extends StatelessWidget {
                     
                     // Title
                     Text(
-                      course['title'] ?? 'Untitled Course',
+                      course['title'] ?? (isFr ? 'Cours sans titre' : 'Untitled Course'),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

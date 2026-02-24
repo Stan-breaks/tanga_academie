@@ -8,6 +8,7 @@ import 'package:tanga_acadamie/screens/home_page.dart';
 import 'package:tanga_acadamie/screens/signup_page.dart';
 import 'package:tanga_acadamie/screens/verification_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -34,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
     final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      _showError('Please fill in all fields');
+      _showError(isFr ? 'Veuillez remplir tous les champs' : 'Please fill in all fields');
       return;
     }
 
@@ -79,10 +80,10 @@ class _LoginPageState extends State<LoginPage> {
         }
       } else {
         final errorData = jsonDecode(response.body);
-        _showError(errorData['message'] ?? 'Login failed. Please try again.');
+        _showError(errorData['message'] ?? (isFr ? 'Échec de connexion. Veuillez réessayer.' : 'Login failed. Please try again.'));
       }
     } catch (e) {
-      _showError('An error occurred. Please try again.');
+      _showError(isFr ? 'Une erreur est survenue. Veuillez réessayer.' : 'An error occurred. Please try again.');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -164,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
         const SizedBox(height: 24),
         // Subtitle
         Text(
-          'Sign in to continue your learning journey',
+          isFr ? 'Connectez-vous pour continuer votre apprentissage' : 'Sign in to continue your learning journey',
           style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
         ),
       ],
@@ -189,8 +190,8 @@ class _LoginPageState extends State<LoginPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Welcome Text
-          const Text(
-            'Welcome back!',
+          Text(
+            isFr ? 'Bon retour !' : 'Welcome back!',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -199,7 +200,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Enter your credentials to access your account',
+            isFr ? 'Entrez vos identifiants pour accéder à votre compte' : 'Enter your credentials to access your account',
             style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
           const SizedBox(height: 28),
@@ -207,7 +208,7 @@ class _LoginPageState extends State<LoginPage> {
           // Email Field
           _buildInputField(
             controller: _emailController,
-            label: 'Email or Username',
+            label: isFr ? 'E-mail ou nom d\'utilisateur' : 'Email or Username',
             icon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
           ),
@@ -216,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
           // Password Field
           _buildInputField(
             controller: _passwordController,
-            label: 'Password',
+            label: isFr ? 'Mot de passe' : 'Password',
             icon: Icons.lock_outline,
             isPassword: true,
           ),
@@ -236,9 +237,9 @@ class _LoginPageState extends State<LoginPage> {
                 foregroundColor: Colors.blueAccent,
                 padding: EdgeInsets.zero,
               ),
-              child: const Text(
-                'Forgot Password?',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              child: Text(
+                isFr ? 'Mot de passe oublié ?' : 'Forgot Password?',
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
               ),
             ),
           ),
@@ -319,13 +320,13 @@ class _LoginPageState extends State<LoginPage> {
                   strokeWidth: 2.5,
                 ),
               )
-            : const Row(
+            : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.login_rounded, size: 22),
-                  SizedBox(width: 10),
+                  const Icon(Icons.login_rounded, size: 22),
+                  const SizedBox(width: 10),
                   Text(
-                    'Sign In',
+                    isFr ? 'Se connecter' : 'Sign In',
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w600,
@@ -347,7 +348,7 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                'or',
+                isFr ? 'ou' : 'or',
                 style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
               ),
             ),
@@ -372,13 +373,13 @@ class _LoginPageState extends State<LoginPage> {
               borderRadius: BorderRadius.circular(14),
             ),
           ),
-          child: const Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.person_add_outlined, size: 22),
-              SizedBox(width: 10),
+              const Icon(Icons.person_add_outlined, size: 22),
+              const SizedBox(width: 10),
               Text(
-                'Create New Account',
+                isFr ? 'Créer un nouveau compte' : 'Create New Account',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ],
@@ -397,7 +398,7 @@ class _LoginPageState extends State<LoginPage> {
             );
           },
           child: Text(
-            'Continue as Guest',
+            isFr ? 'Continuer en tant qu\'invité' : 'Continue as Guest',
             style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/screens/shared/custom_appbar.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class AdminAnalyticsPage extends StatefulWidget {
   const AdminAnalyticsPage({super.key});
@@ -44,7 +45,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppbar(isLoggedIn: true),
+      appBar: AppBar(),
       backgroundColor: Colors.grey.shade50,
       body: RefreshIndicator(
         color: Colors.blueAccent,
@@ -59,18 +60,18 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
   }
 
   Widget _buildLoadingState() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
+          const CircularProgressIndicator(
             color: Colors.blueAccent,
             strokeWidth: 3,
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
-            'Loading analytics...',
-            style: TextStyle(color: Colors.grey, fontSize: 14),
+            isFr ? 'Chargement des analytiques...' : 'Loading analytics...',
+            style: const TextStyle(color: Colors.grey, fontSize: 14),
           ),
         ],
       ),
@@ -87,7 +88,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
             Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
             const SizedBox(height: 16),
             Text(
-              'Error loading analytics',
+              isFr ? 'Erreur de chargement des analytiques' : 'Error loading analytics',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -104,7 +105,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
             ElevatedButton.icon(
               onPressed: _fetchChartData,
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text(isFr ? 'Réessayer' : 'Retry'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blueAccent,
                 foregroundColor: Colors.white,
@@ -126,7 +127,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
 
         // Enrollment Trends Chart
         _buildChartCard(
-          title: 'Monthly Enrollment Trends',
+          title: isFr ? 'Tendances d\'inscription mensuelles' : 'Monthly Enrollment Trends',
           icon: Icons.trending_up,
           color: Colors.blueAccent,
           child: _buildEnrollmentChart(),
@@ -135,7 +136,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
 
         // Course Distribution Chart
         _buildChartCard(
-          title: 'Course Category Distribution',
+          title: isFr ? 'Distribution des catégories de cours' : 'Course Category Distribution',
           icon: Icons.pie_chart,
           color: Colors.purple,
           child: _buildDistributionChart(),
@@ -144,7 +145,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
 
         // Revenue Chart
         _buildChartCard(
-          title: 'Monthly Platform Revenue',
+          title: isFr ? 'Revenus mensuels de la plateforme' : 'Monthly Platform Revenue',
           icon: Icons.bar_chart,
           color: Colors.green,
           child: _buildRevenueChart(),
@@ -183,7 +184,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                     const Icon(Icons.analytics, color: Colors.white70, size: 20),
                     const SizedBox(width: 8),
                     Text(
-                      'Platform Analytics',
+                      isFr ? 'Analytiques de la plateforme' : 'Platform Analytics',
                       style: TextStyle(
                         color: Colors.white.withAlpha(200),
                         fontSize: 14,
@@ -193,9 +194,9 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Performance & Trends',
-                  style: TextStyle(
+                Text(
+                  isFr ? 'Performance et tendances' : 'Performance & Trends',
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -204,7 +205,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Track your platform growth and user engagement',
+                  isFr ? 'Suivez la croissance et l\'engagement' : 'Track your platform growth and user engagement',
                   style: TextStyle(
                     color: Colors.white.withAlpha(180),
                     fontSize: 13,
@@ -290,7 +291,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
     final enrollmentData = _chartData?['enrollment'] as Map<String, dynamic>?;
 
     if (enrollmentData == null) {
-      return _buildNoDataState('No enrollment data available');
+      return _buildNoDataState(isFr ? 'Aucune donnée d\'inscription' : 'No enrollment data available');
     }
 
     final labels = (enrollmentData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
@@ -300,7 +301,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
         : <num>[];
 
     if (dataPoints.isEmpty) {
-      return _buildNoDataState('No enrollment data available');
+      return _buildNoDataState(isFr ? 'Aucune donnée d\'inscription' : 'No enrollment data available');
     }
 
     final spots = <FlSpot>[];
@@ -377,7 +378,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
     final distributionData = _chartData?['distribution'] as Map<String, dynamic>?;
 
     if (distributionData == null) {
-      return _buildNoDataState('No distribution data available');
+      return _buildNoDataState(isFr ? 'Aucune donnée de distribution' : 'No distribution data available');
     }
 
     final labels = (distributionData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
@@ -387,7 +388,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
         : <num>[];
 
     if (dataPoints.isEmpty || labels.isEmpty) {
-      return _buildNoDataState('No distribution data available');
+      return _buildNoDataState(isFr ? 'Aucune donnée de distribution' : 'No distribution data available');
     }
 
     final colors = [
@@ -482,7 +483,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
     final revenueData = _chartData?['revenue'] as Map<String, dynamic>?;
 
     if (revenueData == null) {
-      return _buildNoDataState('No revenue data available');
+      return _buildNoDataState(isFr ? 'Aucune donnée de revenus' : 'No revenue data available');
     }
 
     final labels = (revenueData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
@@ -492,7 +493,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
         : <num>[];
 
     if (dataPoints.isEmpty) {
-      return _buildNoDataState('No revenue data available');
+      return _buildNoDataState(isFr ? 'Aucune donnée de revenus' : 'No revenue data available');
     }
 
     final groups = <BarChartGroupData>[];

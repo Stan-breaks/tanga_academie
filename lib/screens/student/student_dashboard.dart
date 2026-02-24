@@ -6,6 +6,7 @@ import 'package:tanga_acadamie/screens/signup_page.dart';
 import 'package:tanga_acadamie/screens/student/course_learn_page.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class StudentDashboard extends StatelessWidget {
   const StudentDashboard({super.key});
@@ -56,7 +57,7 @@ class StudentDashboard extends StatelessWidget {
                   // Continue Learning Section
                   _buildSectionHeader(
                     context,
-                    'Continue Learning',
+                    isFr ? 'Continuer l\'apprentissage' : 'Continue Learning',
                     Icons.play_circle_fill,
                     activeCourses.length,
                   ),
@@ -67,7 +68,7 @@ class StudentDashboard extends StatelessWidget {
                   // Announcements Section
                   _buildSectionHeader(
                     context,
-                    'Course Announcements',
+                    isFr ? 'Annonces de cours' : 'Course Announcements',
                     Icons.campaign,
                     announcements.length,
                   ),
@@ -95,7 +96,7 @@ class StudentDashboard extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Loading your dashboard...',
+              isFr ? 'Chargement du tableau de bord...' : 'Loading your dashboard...',
               style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
             ),
           ],
@@ -116,7 +117,7 @@ class StudentDashboard extends StatelessWidget {
               Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
               const SizedBox(height: 16),
               Text(
-                'Something went wrong',
+                isFr ? 'Quelque chose a mal tourné' : 'Something went wrong',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -176,9 +177,9 @@ class StudentDashboard extends StatelessWidget {
               const SizedBox(height: 32),
 
               // Welcome Text
-              const Text(
-                'Welcome to Tanga Academie',
-                style: TextStyle(
+              Text(
+                isFr ? 'Bienvenue à Tanga Academie' : 'Welcome to Tanga Academie',
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -189,7 +190,7 @@ class StudentDashboard extends StatelessWidget {
 
               // Subtitle
               Text(
-                'Your personalized learning dashboard awaits! Sign in to access your enrolled courses, track your progress, and continue your learning journey.',
+                isFr ? 'Votre tableau de bord personnalisé vous attend ! Connectez-vous pour accéder à vos cours et suivre vos progrès.' : 'Your personalized learning dashboard awaits! Sign in to access your enrolled courses, track your progress, and continue your learning journey.',
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.grey.shade600,
@@ -205,8 +206,8 @@ class StudentDashboard extends StatelessWidget {
                   Expanded(
                     child: _buildFeatureCard(
                       Icons.library_books_rounded,
-                      'My Courses',
-                      'Access enrolled courses',
+                      isFr ? 'Mes cours' : 'My Courses',
+                      isFr ? 'Accéder aux cours inscrits' : 'Access enrolled courses',
                       Colors.blue,
                     ),
                   ),
@@ -214,8 +215,8 @@ class StudentDashboard extends StatelessWidget {
                   Expanded(
                     child: _buildFeatureCard(
                       Icons.trending_up_rounded,
-                      'Progress',
-                      'Track your learning',
+                      isFr ? 'Progrès' : 'Progress',
+                      isFr ? 'Suivre votre apprentissage' : 'Track your learning',
                       Colors.green,
                     ),
                   ),
@@ -227,8 +228,8 @@ class StudentDashboard extends StatelessWidget {
                   Expanded(
                     child: _buildFeatureCard(
                       Icons.workspace_premium_rounded,
-                      'Certificates',
-                      'Earn achievements',
+                      isFr ? 'Certificats' : 'Certificates',
+                      isFr ? 'Gagner des récompenses' : 'Earn achievements',
                       Colors.orange,
                     ),
                   ),
@@ -236,8 +237,8 @@ class StudentDashboard extends StatelessWidget {
                   Expanded(
                     child: _buildFeatureCard(
                       Icons.chat_rounded,
-                      'Connect',
-                      'Chat with instructors',
+                      isFr ? 'Contacter' : 'Connect',
+                      isFr ? 'Discuter avec les instructeurs' : 'Chat with instructors',
                       Colors.purple,
                     ),
                   ),
@@ -264,13 +265,13 @@ class StudentDashboard extends StatelessWidget {
                     ),
                     elevation: 0,
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.login_rounded, size: 20),
-                      SizedBox(width: 10),
+                      const Icon(Icons.login_rounded, size: 20),
+                      const SizedBox(width: 10),
                       Text(
-                        'Sign In to Continue',
+                        isFr ? 'Se connecter pour continuer' : 'Sign In to Continue',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -287,7 +288,7 @@ class StudentDashboard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Don't have an account? ",
+                    isFr ? 'Pas de compte ? ' : "Don't have an account? ",
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                   ),
                   GestureDetector(
@@ -297,9 +298,9 @@ class StudentDashboard extends StatelessWidget {
                         MaterialPageRoute(builder: (_) => const SignupPage()),
                       );
                     },
-                    child: const Text(
-                      'Sign Up',
-                      style: TextStyle(
+                    child: Text(
+                      isFr ? 'S\'inscrire' : 'Sign Up',
+                      style: const TextStyle(
                         color: Colors.blueAccent,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -371,13 +372,13 @@ class StudentDashboard extends StatelessWidget {
     IconData greetingIcon;
 
     if (hour < 12) {
-      greeting = 'Good morning';
+      greeting = isFr ? 'Bonjour' : 'Good morning';
       greetingIcon = Icons.wb_sunny_outlined;
     } else if (hour < 17) {
-      greeting = 'Good afternoon';
+      greeting = isFr ? 'Bon après-midi' : 'Good afternoon';
       greetingIcon = Icons.wb_sunny;
     } else {
-      greeting = 'Good evening';
+      greeting = isFr ? 'Bonsoir' : 'Good evening';
       greetingIcon = Icons.nights_stay_outlined;
     }
 
@@ -438,8 +439,8 @@ class StudentDashboard extends StatelessWidget {
                     color: Colors.white.withAlpha(40),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
-                    '🎓 Keep learning!',
+                  child: Text(
+                    isFr ? '🎓 Continuez à apprendre !' : '🎓 Keep learning!',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -474,7 +475,7 @@ class StudentDashboard extends StatelessWidget {
       crossAxisSpacing: 14,
       children: [
         StatCard(
-          title: 'Enrolled Courses',
+          title: isFr ? 'Cours inscrits' : 'Enrolled Courses',
           value: "${data['enrolledCourses']?['data']?['all']?.length ?? 0}",
           icon: Icons.library_books,
           gradientColors: [
@@ -483,20 +484,20 @@ class StudentDashboard extends StatelessWidget {
           ],
         ),
         StatCard(
-          title: 'Completed',
+          title: isFr ? 'Terminés' : 'Completed',
           value:
               "${data['enrolledCourses']?['data']?['completed']?.length ?? 0}",
           icon: Icons.check_circle,
           gradientColors: [Colors.green.shade400, Colors.green.shade700],
         ),
         StatCard(
-          title: 'In Progress',
+          title: isFr ? 'En cours' : 'In Progress',
           value: "${data['enrolledCourses']?['data']?['active']?.length ?? 0}",
           icon: Icons.trending_up,
           gradientColors: [Colors.orange.shade400, Colors.deepOrange.shade600],
         ),
         StatCard(
-          title: 'Investment',
+          title: isFr ? 'Investissement' : 'Investment',
           value: "${data['investment']?['data']?['totalInvestment'] ?? 0}",
           icon: Icons.payments,
           gradientColors: [Colors.purple.shade400, Colors.purple.shade800],
@@ -564,7 +565,7 @@ class StudentDashboard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No active courses',
+              isFr ? 'Aucun cours actif' : 'No active courses',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -573,7 +574,7 @@ class StudentDashboard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Start exploring courses to begin your learning journey!',
+              isFr ? 'Explorez des cours pour commencer votre apprentissage !' : 'Start exploring courses to begin your learning journey!',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
             ),
@@ -627,7 +628,7 @@ class StudentDashboard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No announcements yet',
+              isFr ? 'Aucune annonce' : 'No announcements yet',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -636,7 +637,7 @@ class StudentDashboard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Instructors will post updates here',
+              isFr ? 'Les instructeurs publieront des mises à jour ici' : 'Instructors will post updates here',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
             ),

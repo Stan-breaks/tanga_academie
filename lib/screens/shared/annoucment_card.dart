@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class AnnouncementCard extends StatelessWidget {
   final Map<String, dynamic> announcement;
@@ -194,13 +195,13 @@ class AnnouncementCard extends StatelessWidget {
       final difference = now.difference(dateTime);
 
       if (difference.inMinutes < 1) {
-        return 'Just now';
+        return isFr ? 'À l\'instant' : 'Just now';
       } else if (difference.inMinutes < 60) {
-        return '${difference.inMinutes}m ago';
+        return isFr ? 'Il y a ${difference.inMinutes}m' : '${difference.inMinutes}m ago';
       } else if (difference.inHours < 24) {
-        return '${difference.inHours}h ago';
+        return isFr ? 'Il y a ${difference.inHours}h' : '${difference.inHours}h ago';
       } else if (difference.inDays < 7) {
-        return '${difference.inDays}d ago';
+        return isFr ? 'Il y a ${difference.inDays}j' : '${difference.inDays}d ago';
       } else {
         return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
       }

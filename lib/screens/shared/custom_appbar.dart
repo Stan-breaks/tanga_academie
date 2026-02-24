@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/screens/home_page.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   final bool isLoggedIn;
@@ -52,7 +53,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
               Text(
-                'Learn • Grow • Succeed',
+                isFr ? 'Apprendre • Grandir • Réussir' : 'Learn • Grow • Succeed',
                 style: TextStyle(
                   color: Colors.black.withAlpha(200),
                   fontSize: 10,
@@ -121,7 +122,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      isLoggedIn ? 'Logout' : 'Login',
+                      isLoggedIn ? (isFr ? 'Déconnexion' : 'Logout') : (isFr ? 'Connexion' : 'Login'),
                       style: TextStyle(
                         color: isLoggedIn ? Colors.white : Colors.blueAccent,
                         fontSize: 14,

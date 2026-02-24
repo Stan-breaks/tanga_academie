@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -57,7 +58,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
     if (!_isValidEmail(email)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez entrer un email valide")),
+        SnackBar(content: Text(isFr ? 'Veuillez entrer un email valide' : 'Please enter a valid email')),
       );
       return;
     }
@@ -86,21 +87,21 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           _userEmail = email;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Code de vérification envoyé à votre email"),
+          SnackBar(
+            content: Text(isFr ? 'Code de vérification envoyé à votre email' : 'Verification code sent to your email'),
             backgroundColor: Colors.green,
           ),
         );
       } else {
         final error = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error['message'] ?? 'Erreur inconnue')),
+          SnackBar(content: Text(error['message'] ?? (isFr ? 'Erreur inconnue' : 'Unknown error'))),
         );
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erreur: ${e.toString()}")),
+        SnackBar(content: Text("${isFr ? 'Erreur' : 'Error'}: ${e.toString()}")),
       );
     } finally {
       if (mounted) {
@@ -118,29 +119,29 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
     if (code.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez entrer le code complet")),
+        SnackBar(content: Text(isFr ? 'Veuillez entrer le code complet' : 'Please enter the full code')),
       );
       return;
     }
 
     if (newPassword.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez remplir tous les champs")),
+        SnackBar(content: Text(isFr ? 'Veuillez remplir tous les champs' : 'Please fill in all fields')),
       );
       return;
     }
 
     if (newPassword != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Les mots de passe ne correspondent pas")),
+        SnackBar(content: Text(isFr ? 'Les mots de passe ne correspondent pas' : 'Passwords do not match')),
       );
       return;
     }
 
     if (newPassword.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Le mot de passe doit contenir au moins 6 caractères")),
+        SnackBar(
+            content: Text(isFr ? 'Le mot de passe doit contenir au moins 6 caractères' : 'Password must be at least 6 characters')),
       );
       return;
     }
@@ -169,8 +170,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Mot de passe réinitialisé avec succès!"),
+          SnackBar(
+            content: Text(isFr ? 'Mot de passe réinitialisé avec succès!' : 'Password reset successfully!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -185,13 +186,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       } else {
         final error = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error['message'] ?? 'Code invalide')),
+          SnackBar(content: Text(error['message'] ?? (isFr ? 'Code invalide' : 'Invalid code'))),
         );
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erreur: ${e.toString()}")),
+        SnackBar(content: Text("${isFr ? 'Erreur' : 'Error'}: ${e.toString()}")),
       );
     } finally {
       if (mounted) {
@@ -261,8 +262,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               // Title
               Text(
                 _codeSent
-                    ? "Réinitialiser le mot de passe"
-                    : "Mot de passe oublié?",
+                    ? (isFr ? 'Réinitialiser le mot de passe' : 'Reset Password')
+                    : (isFr ? 'Mot de passe oublié ?' : 'Forgot Password?'),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 28,
@@ -276,8 +277,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               // Description
               Text(
                 _codeSent
-                    ? "Entrez le code à 6 chiffres envoyé à $_userEmail et votre nouveau mot de passe"
-                    : "Pas de soucis! Entrez votre adresse email et nous vous enverrons un code de vérification.",
+                    ? (isFr ? 'Entrez le code à 6 chiffres envoyé à $_userEmail et votre nouveau mot de passe' : 'Enter the 6-digit code sent to $_userEmail and your new password')
+                    : (isFr ? 'Pas de soucis! Entrez votre adresse email et nous vous enverrons un code de vérification.' : 'No worries! Enter your email and we\'ll send you a verification code.'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
@@ -293,9 +294,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: "Email",
-                    hintText: "exemple@email.com",
+                    hintText: isFr ? 'exemple@email.com' : 'example@email.com',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.email),
                   ),
@@ -326,16 +327,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                 AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
-                      : const Text("Envoyer le code"),
+                      : Text(isFr ? 'Envoyer le code' : 'Send Code'),
                 ),
               ],
 
               // Code and Password Fields (only show if code sent)
               if (_codeSent) ...[
                 // Code Input
-                const Text(
-                  "Code de vérification",
-                  style: TextStyle(
+                Text(
+                  isFr ? 'Code de vérification' : 'Verification Code',
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
@@ -387,7 +388,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   controller: _passwordController,
                   obscureText: _isPasswordObscure,
                   decoration: InputDecoration(
-                    labelText: "Nouveau mot de passe",
+                    labelText: isFr ? 'Nouveau mot de passe' : 'New Password',
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.lock),
                     suffixIcon: IconButton(
@@ -411,7 +412,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   controller: _confirmPasswordController,
                   obscureText: _isConfirmPasswordObscure,
                   decoration: InputDecoration(
-                    labelText: "Confirmer le mot de passe",
+                    labelText: isFr ? 'Confirmer le mot de passe' : 'Confirm Password',
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.lock),
                     suffixIcon: IconButton(
@@ -457,7 +458,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                 AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
-                      : const Text("Réinitialiser le mot de passe"),
+                      : Text(isFr ? 'Réinitialiser le mot de passe' : 'Reset Password'),
                 ),
 
                 const SizedBox(height: 16),
@@ -465,9 +466,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 // Resend Code
                 TextButton(
                   onPressed: _isLoading ? null : _sendVerificationCode,
-                  child: const Text(
-                    "Renvoyer le code",
-                    style: TextStyle(
+                  child: Text(
+                    isFr ? 'Renvoyer le code' : 'Resend Code',
+                    style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: Colors.blueAccent,
@@ -491,9 +492,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                     ),
-                    child: const Text(
-                      "Retour à la connexion",
-                      style: TextStyle(
+                    child: Text(
+                      isFr ? 'Retour à la connexion' : 'Back to Login',
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: Colors.blueAccent,

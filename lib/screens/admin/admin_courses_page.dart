@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/screens/shared/course_card.dart';
 import 'package:tanga_acadamie/screens/shared/custom_appbar.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class AdminCoursesPage extends StatefulWidget {
   const AdminCoursesPage({super.key});
@@ -16,11 +17,11 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
   bool _isLoading = true;
   String? _error;
 
-  final List<Map<String, String>> _categories = [
-    {'id': 'all', 'label': 'All Courses'},
-    {'id': 'published', 'label': 'Published'},
-    {'id': 'pending', 'label': 'Pending'},
-    {'id': 'rejected', 'label': 'Rejected'},
+  List<Map<String, String>> get _categories => [
+    {'id': 'all', 'label': isFr ? 'Tous les cours' : 'All Courses'},
+    {'id': 'published', 'label': isFr ? 'Publiés' : 'Published'},
+    {'id': 'pending', 'label': isFr ? 'En attente' : 'Pending'},
+    {'id': 'rejected', 'label': isFr ? 'Rejetés' : 'Rejected'},
   ];
 
   @override
@@ -94,7 +95,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppbar(isLoggedIn: true),
+      appBar: AppBar(),
       backgroundColor: Colors.grey.shade50,
       body: Column(
         children: [
@@ -218,18 +219,18 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
   }
 
   Widget _buildLoadingState() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
+          const CircularProgressIndicator(
             color: Colors.blueAccent,
             strokeWidth: 3,
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
-            'Loading courses...',
-            style: TextStyle(color: Colors.grey, fontSize: 14),
+            isFr ? 'Chargement des cours...' : 'Loading courses...',
+            style: const TextStyle(color: Colors.grey, fontSize: 14),
           ),
         ],
       ),
@@ -246,7 +247,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
             Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
             const SizedBox(height: 16),
             Text(
-              'Error loading courses',
+              isFr ? 'Erreur de chargement des cours' : 'Error loading courses',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -263,7 +264,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
             ElevatedButton.icon(
               onPressed: _fetchCourses,
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text(isFr ? 'Réessayer' : 'Retry'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blueAccent,
                 foregroundColor: Colors.white,
@@ -361,22 +362,22 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
 
     switch (_selectedCategory) {
       case 'published':
-        message = 'No published courses';
+        message = isFr ? 'Aucun cours publié' : 'No published courses';
         icon = Icons.check_circle_outline;
         color = Colors.green;
         break;
       case 'pending':
-        message = 'No courses pending approval';
+        message = isFr ? 'Aucun cours en attente' : 'No courses pending approval';
         icon = Icons.pending_actions;
         color = Colors.orange;
         break;
       case 'rejected':
-        message = 'No rejected courses';
+        message = isFr ? 'Aucun cours rejeté' : 'No rejected courses';
         icon = Icons.cancel_outlined;
         color = Colors.red;
         break;
       default:
-        message = 'No courses found';
+        message = isFr ? 'Aucun cours trouvé' : 'No courses found';
         icon = Icons.library_books_outlined;
         color = Colors.blueAccent;
     }
@@ -451,9 +452,9 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
             // Current Status
             Row(
               children: [
-                const Text(
-                  'Current Status: ',
-                  style: TextStyle(color: Colors.grey),
+                Text(
+                  isFr ? 'Statut actuel : ' : 'Current Status: ',
+                  style: const TextStyle(color: Colors.grey),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -475,9 +476,9 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
             const SizedBox(height: 24),
             
             // Action Buttons
-            const Text(
-              'Change Status',
-              style: TextStyle(
+            Text(
+              isFr ? 'Changer le statut' : 'Change Status',
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: Colors.grey,
@@ -495,7 +496,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                         _confirmStatusChange(courseId, 'published', title);
                       },
                       icon: const Icon(Icons.check),
-                      label: const Text('Approve'),
+                      label: Text(isFr ? 'Approuver' : 'Approve'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
@@ -516,7 +517,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                         _confirmStatusChange(courseId, 'pending', title);
                       },
                       icon: const Icon(Icons.pending),
-                      label: const Text('Pending'),
+                      label: Text(isFr ? 'En attente' : 'Pending'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.orange,
                         side: const BorderSide(color: Colors.orange),
@@ -537,7 +538,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                         _confirmStatusChange(courseId, 'rejected', title);
                       },
                       icon: const Icon(Icons.close),
-                      label: const Text('Reject'),
+                      label: Text(isFr ? 'Rejeter' : 'Reject'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.red,
                         side: const BorderSide(color: Colors.red),
@@ -561,13 +562,17 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${newStatus == 'published' ? 'Approve' : newStatus == 'rejected' ? 'Reject' : 'Set to Pending'} Course'),
-        content: Text('Are you sure you want to change "$title" status to $newStatus?'),
+        title: Text(isFr
+            ? '${newStatus == 'published' ? 'Approuver' : newStatus == 'rejected' ? 'Rejeter' : 'Mettre en attente'} le cours'
+            : '${newStatus == 'published' ? 'Approve' : newStatus == 'rejected' ? 'Reject' : 'Set to Pending'} Course'),
+        content: Text(isFr
+            ? 'Êtes-vous sûr de vouloir changer le statut de "$title" ?'
+            : 'Are you sure you want to change "$title" status to $newStatus?'),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: Colors.grey.shade600)),
+            child: Text(isFr ? 'Annuler' : 'Cancel', style: TextStyle(color: Colors.grey.shade600)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -578,7 +583,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
               backgroundColor: _getStatusColor(newStatus),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Confirm'),
+            child: Text(isFr ? 'Confirmer' : 'Confirm'),
           ),
         ],
       ),

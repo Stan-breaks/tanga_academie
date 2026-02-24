@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/screens/shared/course_card.dart';
 import 'package:tanga_acadamie/screens/shared/course_details_page.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -60,7 +61,7 @@ class _ExplorePageState extends State<ExplorePage>
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Discovering courses...',
+                    isFr ? 'Découverte des cours...' : 'Discovering courses...',
                     style: TextStyle(color: Colors.grey.shade600),
                   ),
                 ],
@@ -78,7 +79,7 @@ class _ExplorePageState extends State<ExplorePage>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Something went wrong',
+                    isFr ? 'Quelque chose a mal tourné' : 'Something went wrong',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -99,7 +100,7 @@ class _ExplorePageState extends State<ExplorePage>
                       });
                     },
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Try Again'),
+                    label: Text(isFr ? 'Réessayer' : 'Try Again'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
                       foregroundColor: Colors.white,
@@ -251,7 +252,7 @@ class _ExplorePageState extends State<ExplorePage>
                 child: const Icon(Icons.explore, color: Colors.white, size: 24),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -265,7 +266,7 @@ class _ExplorePageState extends State<ExplorePage>
                     ),
                     SizedBox(height: 2),
                     Text(
-                      'Find your next learning journey',
+                      isFr ? 'Trouvez votre prochain cours' : 'Find your next learning journey',
                       style: TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                   ],
@@ -301,7 +302,7 @@ class _ExplorePageState extends State<ExplorePage>
             });
           },
           decoration: InputDecoration(
-            hintText: 'Search courses...',
+            hintText: isFr ? 'Rechercher des cours...' : 'Search courses...',
             hintStyle: TextStyle(color: Colors.grey.shade500),
             prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
             suffixIcon: searchQuery.isNotEmpty
@@ -414,7 +415,7 @@ class _ExplorePageState extends State<ExplorePage>
                     color: Colors.blueAccent,
                   ),
                 ),
-                TextSpan(text: count == 1 ? 'course found' : 'courses found'),
+                TextSpan(text: count == 1 ? (isFr ? 'cours trouvé' : 'course found') : (isFr ? 'cours trouvés' : 'courses found')),
               ],
             ),
           ),
@@ -467,9 +468,9 @@ class _ExplorePageState extends State<ExplorePage>
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'No courses found',
-            style: TextStyle(
+          Text(
+            isFr ? 'Aucun cours trouvé' : 'No courses found',
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
@@ -478,8 +479,8 @@ class _ExplorePageState extends State<ExplorePage>
           const SizedBox(height: 8),
           Text(
             searchQuery.isNotEmpty
-                ? 'Try a different search term'
-                : 'No courses in this category yet',
+                ? (isFr ? 'Essayez un autre terme de recherche' : 'Try a different search term')
+                : (isFr ? 'Aucun cours dans cette catégorie' : 'No courses in this category yet'),
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
@@ -494,7 +495,7 @@ class _ExplorePageState extends State<ExplorePage>
                 });
               },
               icon: const Icon(Icons.clear_all),
-              label: const Text('Clear Filters'),
+              label: Text(isFr ? 'Effacer les filtres' : 'Clear Filters'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.blueAccent,
                 side: const BorderSide(color: Colors.blueAccent),

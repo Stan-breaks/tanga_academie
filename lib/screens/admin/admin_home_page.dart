@@ -3,6 +3,7 @@ import 'package:tanga_acadamie/screens/admin/admin_dashboard.dart';
 import 'package:tanga_acadamie/screens/admin/admin_chat_list.dart';
 import 'package:tanga_acadamie/screens/shared/custom_appbar.dart';
 import 'package:tanga_acadamie/screens/shared/profile_page.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class AdminHomePage extends StatefulWidget {
   final bool isLoggedIn;
@@ -64,9 +65,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(0, Icons.dashboard_outlined, Icons.dashboard, 'Dashboard'),
-                _buildNavItem(1, Icons.chat_bubble_outline, Icons.chat_bubble, 'Messages'),
-                _buildNavItem(2, Icons.person_outline, Icons.person, 'Profile'),
+                _buildNavItem(0, Icons.dashboard_outlined, Icons.dashboard, isFr ? 'Tableau de bord' : 'Dashboard'),
+                _buildNavItem(1, Icons.chat_bubble_outline, Icons.chat_bubble, isFr ? 'Messages' : 'Messages'),
+                _buildNavItem(2, Icons.person_outline, Icons.person, isFr ? 'Profil' : 'Profile'),
               ],
             ),
           ),

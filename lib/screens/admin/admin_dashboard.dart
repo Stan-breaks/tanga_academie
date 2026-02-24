@@ -9,6 +9,7 @@ import 'package:tanga_acadamie/screens/shared/_stat_card.dart';
 import 'package:tanga_acadamie/screens/shared/course_card.dart';
 import 'package:tanga_acadamie/screens/shared/settings_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -100,7 +101,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Loading admin dashboard...',
+              isFr ? 'Chargement du tableau de bord admin...' : 'Loading admin dashboard...',
               style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
             ),
           ],
@@ -121,7 +122,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
               const SizedBox(height: 16),
               Text(
-                'Something went wrong',
+                isFr ? 'Quelque chose a mal tourné' : 'Something went wrong',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -138,7 +139,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ElevatedButton.icon(
                 onPressed: _fetchDashboardData,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(isFr ? 'Réessayer' : 'Retry'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blueAccent,
                   foregroundColor: Colors.white,
@@ -171,7 +172,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const SizedBox(height: 32),
 
             // Quick Actions Section
-            _buildSectionHeader(context, 'Quick Actions', Icons.flash_on, 0),
+            _buildSectionHeader(context, isFr ? 'Actions rapides' : 'Quick Actions', Icons.flash_on, 0),
             const SizedBox(height: 16),
             _buildQuickActions(),
             const SizedBox(height: 32),
@@ -179,7 +180,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             // Recent Courses Section
             _buildSectionHeader(
               context,
-              'Recent Courses',
+              isFr ? 'Cours récents' : 'Recent Courses',
               Icons.library_books,
               _recentCourses.length,
             ),
@@ -190,7 +191,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             // Popular Instructors Section
             _buildSectionHeader(
               context,
-              'Popular Instructors',
+              isFr ? 'Instructeurs populaires' : 'Popular Instructors',
               Icons.star,
               _topInstructors.length,
             ),
@@ -201,7 +202,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             // Notice Board Section
             _buildSectionHeader(
               context,
-              'Notice Board',
+              isFr ? 'Tableau d\'affichage' : 'Notice Board',
               Icons.notifications,
               _notices.length,
             ),
@@ -219,13 +220,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
     IconData greetingIcon;
 
     if (hour < 12) {
-      greeting = 'Good morning';
+      greeting = isFr ? 'Bonjour' : 'Good morning';
       greetingIcon = Icons.wb_sunny_outlined;
     } else if (hour < 17) {
-      greeting = 'Good afternoon';
+      greeting = isFr ? 'Bon après-midi' : 'Good afternoon';
       greetingIcon = Icons.wb_sunny;
     } else {
-      greeting = 'Good evening';
+      greeting = isFr ? 'Bonsoir' : 'Good evening';
       greetingIcon = Icons.nights_stay_outlined;
     }
 
@@ -286,8 +287,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     color: Colors.white.withAlpha(40),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
-                    '👑 Admin Dashboard',
+                  child: Text(
+                    isFr ? '👑 Tableau de bord admin' : '👑 Admin Dashboard',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -348,7 +349,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       crossAxisSpacing: 14,
       children: [
         StatCard(
-          title: 'Total Courses',
+          title: isFr ? 'Total des cours' : 'Total Courses',
           value: '${statsMap['totalCourses'] ?? 0}',
           icon: Icons.library_books,
           gradientColors: [
@@ -357,31 +358,31 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ],
         ),
         StatCard(
-          title: 'Active Courses',
+          title: isFr ? 'Cours actifs' : 'Active Courses',
           value: '${statsMap['activeCourses'] ?? 0}',
           icon: Icons.play_circle_fill,
           gradientColors: [Colors.green.shade400, Colors.green.shade700],
         ),
         StatCard(
-          title: 'Pending Courses',
+          title: isFr ? 'Cours en attente' : 'Pending Courses',
           value: '${statsMap['pendingCourses'] ?? 0}',
           icon: Icons.pending_actions,
           gradientColors: [Colors.orange.shade400, Colors.deepOrange.shade600],
         ),
         StatCard(
-          title: 'Total Students',
+          title: isFr ? 'Total des étudiants' : 'Total Students',
           value: '${statsMap['totalStudents'] ?? 0}',
           icon: Icons.people,
           gradientColors: [Colors.purple.shade400, Colors.purple.shade800],
         ),
         StatCard(
-          title: 'Total Instructors',
+          title: isFr ? 'Total des instructeurs' : 'Total Instructors',
           value: '${statsMap['totalInstructors'] ?? 0}',
           icon: Icons.school,
           gradientColors: [Colors.teal.shade400, Colors.teal.shade700],
         ),
         StatCard(
-          title: 'Platform Revenue',
+          title: isFr ? 'Revenus de la plateforme' : 'Platform Revenue',
           value: _formatMoney(statsMap['totalRevenue']),
           icon: Icons.payments,
           gradientColors: [Colors.amber.shade400, Colors.amber.shade700],
@@ -421,7 +422,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
               if (count > 0)
                 Text(
-                  '$count ${count == 1 ? 'item' : 'items'}',
+                  '$count ${count == 1 ? (isFr ? 'élément' : 'item') : (isFr ? 'éléments' : 'items')}',
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
             ],
@@ -434,7 +435,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget _buildQuickActions() {
     final actions = [
       _QuickActionItem(
-        title: 'Manage Courses',
+        title: isFr ? 'Gérer les cours' : 'Manage Courses',
         icon: Icons.library_books,
         color: Colors.blueAccent,
         onTap: () {
@@ -445,7 +446,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         },
       ),
       _QuickActionItem(
-        title: 'Analytics',
+        title: isFr ? 'Analytiques' : 'Analytics',
         icon: Icons.bar_chart,
         color: Colors.purple,
         onTap: () {
@@ -456,7 +457,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         },
       ),
       _QuickActionItem(
-        title: 'Users',
+        title: isFr ? 'Utilisateurs' : 'Users',
         icon: Icons.people,
         color: Colors.green,
         onTap: () {
@@ -467,7 +468,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         },
       ),
       _QuickActionItem(
-        title: 'Settings',
+        title: isFr ? 'Paramètres' : 'Settings',
         icon: Icons.settings,
         color: Colors.orange,
         onTap: () {
@@ -527,8 +528,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget _buildRecentCourses() {
     if (_recentCourses.isEmpty) {
       return _buildEmptyState(
-        'No courses yet',
-        'Courses will appear here as they are created',
+        isFr ? 'Aucun cours' : 'No courses yet',
+        isFr ? 'Les cours apparaîtront ici' : 'Courses will appear here as they are created',
         Icons.library_books_outlined,
       );
     }
@@ -557,8 +558,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget _buildPopularInstructors() {
     if (_topInstructors.isEmpty) {
       return _buildEmptyState(
-        'No instructors yet',
-        'Instructors will appear here once they create courses',
+        isFr ? 'Aucun instructeur' : 'No instructors yet',
+        isFr ? 'Les instructeurs apparaîtront ici' : 'Instructors will appear here once they create courses',
         Icons.school_outlined,
       );
     }
@@ -637,8 +638,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget _buildNoticeBoard() {
     if (_notices.isEmpty) {
       return _buildEmptyState(
-        'No notices',
-        'Important notices will appear here',
+        isFr ? 'Aucune notification' : 'No notices',
+        isFr ? 'Les notifications apparaîtront ici' : 'Important notices will appear here',
         Icons.notifications_none,
       );
     }
@@ -733,8 +734,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   color: Colors.blue.shade100,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  'NEW',
+                child: Text(
+                  isFr ? 'NOUVEAU' : 'NEW',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,

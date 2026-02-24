@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -367,9 +368,9 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text(
-          'Paramètres',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        title: Text(
+          isFr ? 'Paramètres' : 'Settings',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
@@ -387,7 +388,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Chargement...',
+                    isFr ? 'Chargement...' : 'Loading...',
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontSize: 14,
@@ -405,7 +406,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   // SECTION 1: PROFILE
                   // ══════════════════════════════════════
                   _buildSectionHeader(
-                    'Modifier le profil',
+                    isFr ? 'Modifier le profil' : 'Edit Profile',
                     Icons.person_rounded,
                   ),
                   const SizedBox(height: 16),
@@ -416,11 +417,22 @@ class _SettingsPageState extends State<SettingsPage> {
                   // SECTION 2: PASSWORD
                   // ══════════════════════════════════════
                   _buildSectionHeader(
-                    'Changer le mot de passe',
+                    isFr ? 'Changer le mot de passe' : 'Change Password',
                     Icons.lock_rounded,
                   ),
                   const SizedBox(height: 16),
                   _buildPasswordSection(),
+                  const SizedBox(height: 32),
+
+                  // ══════════════════════════════════════
+                  // SECTION 3: LANGUAGE
+                  // ══════════════════════════════════════
+                  _buildSectionHeader(
+                    isFr ? 'Langue' : 'Language',
+                    Icons.translate_rounded,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildLanguageSection(),
                   const SizedBox(height: 32),
                 ],
               ),
@@ -478,7 +490,7 @@ class _SettingsPageState extends State<SettingsPage> {
               Expanded(
                 child: _buildTextField(
                   controller: _firstNameController,
-                  label: 'Prénom',
+                  label: isFr ? 'Prénom' : 'First Name',
                   icon: Icons.person_outline,
                   maxLength: _limits['firstName'],
                 ),
@@ -487,7 +499,7 @@ class _SettingsPageState extends State<SettingsPage> {
               Expanded(
                 child: _buildTextField(
                   controller: _lastNameController,
-                  label: 'Nom',
+                  label: isFr ? 'Nom' : 'Last Name',
                   icon: Icons.person_outline,
                   maxLength: _limits['lastName'],
                 ),
@@ -498,7 +510,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
           _buildTextField(
             controller: _usernameController,
-            label: "Nom d'utilisateur",
+            label: isFr ? "Nom d'utilisateur" : 'Username',
             icon: Icons.alternate_email,
             maxLength: _limits['username'],
           ),
@@ -506,7 +518,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
           _buildTextField(
             controller: _phoneController,
-            label: 'Numéro de téléphone',
+            label: isFr ? 'Numéro de téléphone' : 'Phone Number',
             icon: Icons.phone_outlined,
             keyboardType: TextInputType.phone,
           ),
@@ -514,7 +526,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
           _buildTextField(
             controller: _skillController,
-            label: 'Compétence / Profession',
+            label: isFr ? 'Compétence / Profession' : 'Skill / Profession',
             icon: Icons.work_outline,
             maxLength: _limits['skill'],
           ),
@@ -523,7 +535,7 @@ class _SettingsPageState extends State<SettingsPage> {
           // Bio (multiline)
           _buildTextField(
             controller: _bioController,
-            label: 'Biographie',
+            label: isFr ? 'Biographie' : 'Biography',
             icon: Icons.edit_note,
             maxLength: _limits['bio'],
             maxLines: 4,
@@ -549,8 +561,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   : const Icon(Icons.save_rounded, size: 20),
               label: Text(
                 _isSavingProfile
-                    ? 'Enregistrement...'
-                    : 'Mettre à jour le profil',
+                    ? (isFr ? 'Enregistrement...' : 'Saving...')
+                    : (isFr ? 'Mettre à jour le profil' : 'Update Profile'),
                 style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
               ),
               style: ElevatedButton.styleFrom(
@@ -633,7 +645,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          "Appuyez pour changer l'image",
+          isFr ? "Appuyez pour changer l'image" : 'Tap to change image',
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey.shade600,
@@ -753,8 +765,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       height: 1.4,
                     ),
                     children: [
-                      const TextSpan(
-                        text: 'Un code de vérification sera envoyé à ',
+                      TextSpan(
+                        text: isFr ? 'Un code de vérification sera envoyé à ' : 'A verification code will be sent to ',
                       ),
                       TextSpan(
                         text: _email,
@@ -789,7 +801,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   )
                 : const Icon(Icons.email_outlined, size: 20),
             label: Text(
-              _isSendingCode ? 'Envoi en cours...' : 'Envoyer le code',
+              _isSendingCode ? (isFr ? 'Envoi en cours...' : 'Sending...') : (isFr ? 'Envoyer le code' : 'Send Code'),
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             ),
             style: ElevatedButton.styleFrom(
@@ -896,7 +908,7 @@ class _SettingsPageState extends State<SettingsPage> {
         // New Password
         _buildTextField(
           controller: _passwordController,
-          label: 'Nouveau mot de passe',
+          label: isFr ? 'Nouveau mot de passe' : 'New Password',
           icon: Icons.lock_outline,
         ),
         const SizedBox(height: 16),
@@ -904,7 +916,7 @@ class _SettingsPageState extends State<SettingsPage> {
         // Confirm Password
         _buildTextField(
           controller: _confirmPasswordController,
-          label: 'Confirmer le mot de passe',
+          label: isFr ? 'Confirmer le mot de passe' : 'Confirm Password',
           icon: Icons.lock_outline,
         ),
         const SizedBox(height: 24),
@@ -927,8 +939,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 : const Icon(Icons.lock_reset, size: 20),
             label: Text(
               _isResettingPassword
-                  ? 'Réinitialisation...'
-                  : 'Réinitialiser le mot de passe',
+                  ? (isFr ? 'Réinitialisation...' : 'Resetting...')
+                  : (isFr ? 'Réinitialiser le mot de passe' : 'Reset Password'),
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             ),
             style: ElevatedButton.styleFrom(
@@ -949,8 +961,8 @@ class _SettingsPageState extends State<SettingsPage> {
         Center(
           child: TextButton(
             onPressed: _isSendingCode ? null : _sendVerificationCode,
-            child: const Text(
-              'Renvoyer le code',
+            child: Text(
+              isFr ? 'Renvoyer le code' : 'Resend Code',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -982,21 +994,12 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
-          'Mot de passe modifié!',
-          style: TextStyle(
+        Text(
+          isFr ? 'Mot de passe réinitialisé avec succès !' : 'Password reset successfully!',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Votre mot de passe a été modifié avec succès.',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey.shade600,
           ),
           textAlign: TextAlign.center,
         ),
@@ -1008,9 +1011,9 @@ class _SettingsPageState extends State<SettingsPage> {
               _codeSent = false;
             });
           },
-          child: const Text(
-            'Changer à nouveau',
-            style: TextStyle(
+          child: Text(
+            isFr ? 'Changer à nouveau' : 'Change Again',
+            style: const TextStyle(
               color: Colors.blueAccent,
               fontWeight: FontWeight.w600,
             ),
@@ -1018,6 +1021,156 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         const SizedBox(height: 12),
       ],
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // LANGUAGE SECTION
+  // ══════════════════════════════════════════════════════════
+
+  Widget _buildLanguageSection() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Description
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.blueAccent.withAlpha(12),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.blueAccent.withAlpha(35)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.translate,
+                    color: Colors.blueAccent, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    isFr ? 'Choisissez votre langue préférée' : 'Choose your preferred language',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Language options
+          _buildLanguageOption(
+            flag: '🇬🇧',
+            label: 'English',
+            subtitle: 'English',
+            langCode: 'en',
+            isSelected: currentLanguage == 'en',
+          ),
+          const SizedBox(height: 10),
+          _buildLanguageOption(
+            flag: '🇫🇷',
+            label: 'Français',
+            subtitle: 'French',
+            langCode: 'fr',
+            isSelected: currentLanguage == 'fr',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLanguageOption({
+    required String flag,
+    required String label,
+    required String subtitle,
+    required String langCode,
+    required bool isSelected,
+  }) {
+    return InkWell(
+      onTap: () async {
+        await setLanguage(langCode);
+        if (mounted) setState(() {});
+      },
+      borderRadius: BorderRadius.circular(14),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.blueAccent.withAlpha(12)
+              : Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected
+                ? Colors.blueAccent
+                : Colors.grey.shade200,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Text(flag, style: const TextStyle(fontSize: 28)),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.w500,
+                      color: isSelected
+                          ? Colors.blueAccent
+                          : Colors.black87,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: isSelected
+                  ? Container(
+                      key: const ValueKey('selected'),
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.blueAccent,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.check,
+                          color: Colors.white, size: 16),
+                    )
+                  : Container(
+                      key: const ValueKey('unselected'),
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: Colors.grey.shade300, width: 2),
+                      ),
+                    ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

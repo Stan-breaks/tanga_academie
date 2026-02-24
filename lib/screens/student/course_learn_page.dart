@@ -8,6 +8,7 @@ import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/screens/home_page.dart';
 import 'package:tanga_acadamie/screens/student/lesson_video_player_page.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class CourseLearnPage extends StatefulWidget {
   final String courseId;
@@ -65,7 +66,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Loading course...',
+                    isFr ? 'Chargement du cours...' : 'Loading course...',
                     style: TextStyle(color: Colors.grey.shade600),
                   ),
                 ],
@@ -86,7 +87,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Error loading course',
+                    isFr ? 'Erreur de chargement du cours' : 'Error loading course',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -118,7 +119,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Course not found',
+                      isFr ? 'Cours introuvable' : 'Course not found',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -165,11 +166,11 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
                       ),
-                      tabs: const [
-                        Tab(text: 'Lessons'),
-                        Tab(text: 'Resources'),
-                        Tab(text: 'Tasks'),
-                        Tab(text: 'About'),
+                      tabs: [
+                        Tab(text: isFr ? 'Leçons' : 'Lessons'),
+                        Tab(text: isFr ? 'Ressources' : 'Resources'),
+                        Tab(text: isFr ? 'Tâches' : 'Tasks'),
+                        Tab(text: isFr ? 'À propos' : 'About'),
                       ],
                     ),
                   ),
@@ -313,7 +314,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               ),
               _buildInfoChip(
                 Icons.people_outline,
-                '${course['enrollmentCount'] ?? 0} enrolled',
+                '${course['enrollmentCount'] ?? 0} ${isFr ? 'inscrits' : 'enrolled'}',
                 Colors.orange,
               ),
             ],
@@ -393,9 +394,9 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Continue Learning',
-                style: TextStyle(
+              Text(
+                isFr ? 'Continuer l\'apprentissage' : 'Continue Learning',
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -428,14 +429,14 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                 ),
                 elevation: 0,
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.play_arrow, size: 20),
                   SizedBox(width: 8),
                   Text(
-                    'Resume',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    isFr ? 'Reprendre' : 'Resume',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -461,7 +462,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             ),
             const SizedBox(height: 16),
             Text(
-              'No lessons yet',
+              isFr ? 'Aucune leçon' : 'No lessons yet',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -470,7 +471,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             ),
             const SizedBox(height: 8),
             Text(
-              'Lessons will appear here soon',
+              isFr ? 'Les leçons apparaîtront bientôt' : 'Lessons will appear here soon',
               style: TextStyle(color: Colors.grey.shade500),
             ),
           ],
@@ -546,7 +547,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4),
           child: Text(
-            '${lessons.length} ${lessons.length == 1 ? 'lesson' : 'lessons'}',
+            '${lessons.length} ${isFr ? (lessons.length == 1 ? 'leçon' : 'leçons') : (lessons.length == 1 ? 'lesson' : 'lessons')}',
             style: TextStyle(
               color: Colors.grey.shade600,
               fontSize: 13,
@@ -699,7 +700,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             ),
             const SizedBox(height: 16),
             Text(
-              'No resources available',
+              isFr ? 'Aucune ressource disponible' : 'No resources available',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -708,7 +709,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             ),
             const SizedBox(height: 8),
             Text(
-              'Resources will be added by the instructor',
+              isFr ? 'Les ressources seront ajoutées par l\'instructeur' : 'Resources will be added by the instructor',
               style: TextStyle(color: Colors.grey.shade500),
             ),
           ],
@@ -720,12 +721,12 @@ class _CourseLearnPageState extends State<CourseLearnPage>
       padding: const EdgeInsets.all(16),
       children: [
         if (pdfFiles.isNotEmpty) ...[
-          _buildResourcesHeader('Course Materials', Icons.description),
+          _buildResourcesHeader(isFr ? 'Matériels de cours' : 'Course Materials', Icons.description),
           const SizedBox(height: 12),
           ...pdfFiles.map(
             (pdf) => _buildResourceCard(
               title: pdf['title'] ?? 'Document',
-              subtitle: 'PDF Document',
+              subtitle: isFr ? 'Document PDF' : 'PDF Document',
               icon: Icons.picture_as_pdf,
               color: Colors.red,
               onTap: () {
@@ -739,11 +740,11 @@ class _CourseLearnPageState extends State<CourseLearnPage>
         ],
         if (certificateFile != null) ...[
           const SizedBox(height: 24),
-          _buildResourcesHeader('Certificate', Icons.workspace_premium),
+          _buildResourcesHeader(isFr ? 'Certificat' : 'Certificate', Icons.workspace_premium),
           const SizedBox(height: 12),
           _buildResourceCard(
-            title: 'Course Certificate',
-            subtitle: 'Complete the course to unlock',
+            title: isFr ? 'Certificat du cours' : 'Course Certificate',
+            subtitle: isFr ? 'Terminez le cours pour débloquer' : 'Complete the course to unlock',
             icon: Icons.workspace_premium,
             color: Colors.amber,
             onTap: () {
@@ -878,7 +879,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             ),
             const SizedBox(height: 16),
             Text(
-              'No assignments yet',
+              isFr ? 'Aucun devoir' : 'No assignments yet',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -887,7 +888,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             ),
             const SizedBox(height: 8),
             Text(
-              'Assignments will appear here when added',
+              isFr ? 'Les devoirs seront ajoutés bientôt' : 'Assignments will appear here when added',
               style: TextStyle(color: Colors.grey.shade500),
             ),
           ],
@@ -942,7 +943,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Pending',
+                  isFr ? 'En attente' : 'Pending',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.orange.shade700,
@@ -965,12 +966,12 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildAboutSection('Description', course['description'], Icons.info_outline),
-        _buildAboutSection('What you\'ll learn', course['benefits'], Icons.lightbulb_outline),
-        _buildAboutSection('Requirements', course['requirements'], Icons.checklist),
+        _buildAboutSection(isFr ? 'Description' : 'Description', course['description'], Icons.info_outline),
+        _buildAboutSection(isFr ? 'Ce que vous apprendrez' : 'What you\'ll learn', course['benefits'], Icons.lightbulb_outline),
+        _buildAboutSection(isFr ? 'Prérequis' : 'Requirements', course['requirements'], Icons.checklist),
         if ((course['tags'] as List?)?.isNotEmpty ?? false) ...[
           const SizedBox(height: 24),
-          _buildResourcesHeader('Tags', Icons.local_offer),
+          _buildResourcesHeader(isFr ? 'Étiquettes' : 'Tags', Icons.local_offer),
           const SizedBox(height: 16),
           Wrap(
             spacing: 8,

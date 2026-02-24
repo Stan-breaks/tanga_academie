@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class LessonVideoPlayerPage extends StatefulWidget {
   final Map<String, dynamic> lesson;
@@ -158,7 +159,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Error playing video',
+                  isFr ? 'Erreur de lecture vidéo' : 'Error playing video',
                   style: TextStyle(color: Colors.grey.shade300, fontSize: 16),
                 ),
               ],
@@ -227,7 +228,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text('Video settings'),
+                    content: Text(isFr ? 'Paramètres vidéo' : 'Video settings'),
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -361,11 +362,11 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                       widget.onComplete?.call();
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
-                                          content: const Row(
+                                          content: Row(
                                             children: [
                                               Icon(Icons.check_circle, color: Colors.white),
                                               SizedBox(width: 12),
-                                              Text('Lesson completed!'),
+                                              Text(isFr ? 'Leçon terminée !' : 'Lesson completed!'),
                                             ],
                                           ),
                                           backgroundColor: Colors.green.shade600,
@@ -383,7 +384,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                 size: 22,
                               ),
                               label: Text(
-                                _isCompleted ? 'Completed' : 'Mark as Complete',
+                                isFr ? (_isCompleted ? 'Terminé' : 'Marquer comme terminé') : (_isCompleted ? 'Completed' : 'Mark as Complete'),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 15,
@@ -413,9 +414,9 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                   // Navigate to quiz
                                 },
                                 icon: const Icon(Icons.quiz, size: 22),
-                                label: const Text(
-                                  'Take Quiz',
-                                  style: TextStyle(
+                                label: Text(
+                                  isFr ? 'Passer le quiz' : 'Take Quiz',
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
                                   ),
@@ -450,7 +451,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                               child: OutlinedButton.icon(
                                 onPressed: widget.onPrevious,
                                 icon: const Icon(Icons.arrow_back, size: 20),
-                                label: const Text('Previous'),
+                                label: Text(isFr ? 'Précédent' : 'Previous'),
                                 style: OutlinedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(vertical: 14),
                                   side: BorderSide(color: Colors.grey.shade400),
@@ -467,7 +468,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                             Expanded(
                               child: ElevatedButton.icon(
                                 onPressed: widget.onNext,
-                                label: const Text('Next Lesson'),
+                                label: Text(isFr ? 'Leçon suivante' : 'Next Lesson'),
                                 icon: const Icon(Icons.arrow_forward, size: 20),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blueAccent,
@@ -528,7 +529,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Error loading video',
+                isFr ? 'Erreur de chargement vidéo' : 'Error loading video',
                 style: TextStyle(
                   color: Colors.grey.shade300,
                   fontSize: 16,
@@ -574,7 +575,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
               ),
               const SizedBox(height: 16),
               Text(
-                'No video available',
+                isFr ? 'Aucune vidéo disponible' : 'No video available',
                 style: TextStyle(
                   color: Colors.grey.shade400,
                   fontSize: 16,
@@ -583,7 +584,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
               ),
               const SizedBox(height: 4),
               Text(
-                'This lesson has text content only',
+                isFr ? 'Cette leçon contient uniquement du texte' : 'This lesson has text content only',
                 style: TextStyle(
                   color: Colors.grey.shade600,
                   fontSize: 13,

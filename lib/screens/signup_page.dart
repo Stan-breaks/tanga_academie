@@ -7,6 +7,7 @@ import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/screens/verification_page.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -50,12 +51,12 @@ class _SignupPageState extends State<SignupPage> {
 
     // Validation
     if (firstName.isEmpty || lastName.isEmpty || userName.isEmpty || email.isEmpty || password.isEmpty) {
-      _showError('Please fill in all required fields');
+      _showError(isFr ? 'Veuillez remplir tous les champs obligatoires' : 'Please fill in all required fields');
       return;
     }
 
     if (confirmPassword != password) {
-      _showError('Passwords do not match');
+      _showError(isFr ? 'Les mots de passe ne correspondent pas' : 'Passwords do not match');
       return;
     }
 
@@ -103,7 +104,7 @@ class _SignupPageState extends State<SignupPage> {
         _showError('Registration failed: ${decoded['errors'] ?? decoded['message'] ?? 'Unknown error'}');
       }
     } catch (e) {
-      _showError('An error occurred. Please try again.');
+      _showError(isFr ? 'Une erreur est survenue. Veuillez réessayer.' : 'An error occurred. Please try again.');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -208,9 +209,9 @@ class _SignupPageState extends State<SignupPage> {
         const SizedBox(height: 20),
         
         // Title
-        const Text(
-          'Create Account',
-          style: TextStyle(
+        Text(
+          isFr ? 'Créer un compte' : 'Create Account',
+          style: const TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
@@ -221,7 +222,7 @@ class _SignupPageState extends State<SignupPage> {
         
         // Subtitle
         Text(
-          'Join our learning community today',
+          isFr ? 'Rejoignez notre communauté d\'apprentissage' : 'Join our learning community today',
           style: TextStyle(
             fontSize: 15,
             color: Colors.grey.shade600,
@@ -258,7 +259,7 @@ class _SignupPageState extends State<SignupPage> {
               Expanded(
                 child: _buildInputField(
                   controller: _firstNameController,
-                  label: 'First Name',
+                  label: isFr ? 'Prénom' : 'First Name',
                   icon: Icons.person_outline,
                 ),
               ),
@@ -266,7 +267,7 @@ class _SignupPageState extends State<SignupPage> {
               Expanded(
                 child: _buildInputField(
                   controller: _lastNameController,
-                  label: 'Last Name',
+                  label: isFr ? 'Nom' : 'Last Name',
                   icon: Icons.person_outline,
                 ),
               ),
@@ -277,7 +278,7 @@ class _SignupPageState extends State<SignupPage> {
           // Username
           _buildInputField(
             controller: _userNameController,
-            label: 'Username',
+            label: isFr ? 'Nom d\'utilisateur' : 'Username',
             icon: Icons.alternate_email,
           ),
           const SizedBox(height: 16),
@@ -285,7 +286,7 @@ class _SignupPageState extends State<SignupPage> {
           // Email
           _buildInputField(
             controller: _emailController,
-            label: 'Email',
+            label: isFr ? 'E-mail' : 'Email',
             icon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
           ),
@@ -301,7 +302,7 @@ class _SignupPageState extends State<SignupPage> {
               Expanded(
                 child: _buildInputField(
                   controller: _passwordController,
-                  label: 'Password',
+                  label: isFr ? 'Mot de passe' : 'Password',
                   icon: Icons.lock_outline,
                   isPassword: true,
                   isConfirm: false,
@@ -311,7 +312,7 @@ class _SignupPageState extends State<SignupPage> {
               Expanded(
                 child: _buildInputField(
                   controller: _confirmPasswordController,
-                  label: 'Confirm',
+                  label: isFr ? 'Confirmer' : 'Confirm',
                   icon: Icons.lock_outline,
                   isPassword: true,
                   isConfirm: true,
@@ -442,14 +443,14 @@ class _SignupPageState extends State<SignupPage> {
       ),
       child: DropdownButtonFormField<String>(
         initialValue: _role,
-        items: const [
+        items: [
           DropdownMenuItem(
             value: "student",
             child: Row(
               children: [
                 Icon(Icons.school, size: 18, color: Colors.green),
                 SizedBox(width: 8),
-                Text("Student"),
+                Text(isFr ? 'Étudiant' : 'Student'),
               ],
             ),
           ),
@@ -459,7 +460,7 @@ class _SignupPageState extends State<SignupPage> {
               children: [
                 Icon(Icons.architecture, size: 18, color: Colors.blue),
                 SizedBox(width: 8),
-                Text("Instructor"),
+                Text(isFr ? 'Instructeur' : 'Instructor'),
               ],
             ),
           ),
@@ -470,7 +471,7 @@ class _SignupPageState extends State<SignupPage> {
           });
         },
         decoration: InputDecoration(
-          labelText: "I want to register as",
+          labelText: isFr ? 'Je souhaite m\'inscrire en tant que' : 'I want to register as',
           labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           prefixIcon: const Icon(Icons.badge_outlined, color: Colors.blueAccent, size: 20),
           border: InputBorder.none,
@@ -505,13 +506,13 @@ class _SignupPageState extends State<SignupPage> {
                   strokeWidth: 2.5,
                 ),
               )
-            : const Row(
+            : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.person_add_rounded, size: 22),
-                  SizedBox(width: 10),
+                  const Icon(Icons.person_add_rounded, size: 22),
+                  const SizedBox(width: 10),
                   Text(
-                    'Create Account',
+                    isFr ? 'Créer un compte' : 'Create Account',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -533,7 +534,7 @@ class _SignupPageState extends State<SignupPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                'Already have an account?',
+                isFr ? 'Vous avez déjà un compte ?' : 'Already have an account?',
                 style: TextStyle(
                   color: Colors.grey.shade600,
                   fontSize: 14,
@@ -561,13 +562,13 @@ class _SignupPageState extends State<SignupPage> {
               borderRadius: BorderRadius.circular(14),
             ),
           ),
-          child: const Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.login_rounded, size: 20),
-              SizedBox(width: 10),
+              const Icon(Icons.login_rounded, size: 20),
+              const SizedBox(width: 10),
               Text(
-                'Sign In Instead',
+                isFr ? 'Se connecter' : 'Sign In Instead',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,

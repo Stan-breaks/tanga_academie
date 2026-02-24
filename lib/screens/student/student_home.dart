@@ -4,6 +4,7 @@ import 'package:tanga_acadamie/screens/shared/explore_page.dart';
 import 'package:tanga_acadamie/screens/shared/profile_page.dart';
 import 'package:tanga_acadamie/screens/student/student_chat_list.dart';
 import 'package:tanga_acadamie/screens/student/student_dashboard.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class StudentHome extends StatefulWidget {
   final bool isLoggedIn;
@@ -61,10 +62,10 @@ class _StudentHomeState extends State<StudentHome> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(0, Icons.explore_outlined, Icons.explore, 'Explore'),
-                _buildNavItem(1, Icons.school_outlined, Icons.school, 'Learn'),
-                _buildNavItem(2, Icons.chat_bubble_outline, Icons.chat_bubble, 'Messages'),
-                _buildNavItem(3, Icons.person_outline, Icons.person, 'Profile'),
+                _buildNavItem(0, Icons.explore_outlined, Icons.explore, isFr ? 'Explorer' : 'Explore'),
+                _buildNavItem(1, Icons.school_outlined, Icons.school, isFr ? 'Apprendre' : 'Learn'),
+                _buildNavItem(2, Icons.chat_bubble_outline, Icons.chat_bubble, isFr ? 'Messages' : 'Messages'),
+                _buildNavItem(3, Icons.person_outline, Icons.person, isFr ? 'Profil' : 'Profile'),
               ],
             ),
           ),

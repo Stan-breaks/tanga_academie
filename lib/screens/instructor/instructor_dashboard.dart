@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/screens/shared/_stat_card.dart';
 import 'package:intl/intl.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class InstructorDashboard extends StatelessWidget {
   const InstructorDashboard({super.key});
@@ -24,7 +25,7 @@ class InstructorDashboard extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Loading your dashboard...',
+                    isFr ? 'Chargement du tableau de bord...' : 'Loading your dashboard...',
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                   ),
                 ],
@@ -43,7 +44,7 @@ class InstructorDashboard extends StatelessWidget {
                     Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
                     const SizedBox(height: 16),
                     Text(
-                      'Something went wrong',
+                      isFr ? 'Quelque chose a mal tourné' : 'Something went wrong',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -92,7 +93,7 @@ class InstructorDashboard extends StatelessWidget {
                     crossAxisSpacing: 12,
                     children: [
                       StatCard(
-                        title: 'Total Courses',
+                        title: isFr ? 'Total des cours' : 'Total Courses',
                         value: "${stats['totalCourses'] ?? 0}",
                         icon: Icons.library_books,
                         gradientColors: [
@@ -101,7 +102,7 @@ class InstructorDashboard extends StatelessWidget {
                         ],
                       ),
                       StatCard(
-                        title: 'Active Courses',
+                        title: isFr ? 'Cours actifs' : 'Active Courses',
                         value: "${stats['activeCourses'] ?? 0}",
                         icon: Icons.play_circle_fill,
                         gradientColors: [
@@ -110,7 +111,7 @@ class InstructorDashboard extends StatelessWidget {
                         ],
                       ),
                       StatCard(
-                        title: 'Total Students',
+                        title: isFr ? 'Total des étudiants' : 'Total Students',
                         value: "${stats['totalStudents'] ?? 0}",
                         icon: Icons.people,
                         gradientColors: [
@@ -119,7 +120,7 @@ class InstructorDashboard extends StatelessWidget {
                         ],
                       ),
                       StatCard(
-                        title: 'Pending Submissions',
+                        title: isFr ? 'Soumissions en attente' : 'Pending Submissions',
                         value: "${stats['pendingSubmissions'] ?? 0}",
                         icon: Icons.assignment_late,
                         gradientColors: [
@@ -128,7 +129,7 @@ class InstructorDashboard extends StatelessWidget {
                         ],
                       ),
                       StatCard(
-                        title: 'Total Reviews',
+                        title: isFr ? 'Total des avis' : 'Total Reviews',
                         value: "${stats['totalReviews'] ?? 0}",
                         icon: Icons.rate_review,
                         gradientColors: [
@@ -137,7 +138,7 @@ class InstructorDashboard extends StatelessWidget {
                         ],
                       ),
                       StatCard(
-                        title: 'Course Rating',
+                        title: isFr ? 'Note des cours' : 'Course Rating',
                         value: "4.5 ⭐",
                         icon: Icons.star,
                         gradientColors: [
@@ -150,18 +151,18 @@ class InstructorDashboard extends StatelessWidget {
                   const SizedBox(height: 32),
 
                   // Quick Actions Section
-                  _buildSectionHeader('Quick Actions', Icons.flash_on),
+                  _buildSectionHeader(isFr ? 'Actions rapides' : 'Quick Actions', Icons.flash_on),
                   const SizedBox(height: 16),
                   _buildQuickActions(context),
                   const SizedBox(height: 32),
 
                   // Recent Courses Section
-                  _buildSectionHeader('Recent Courses', Icons.library_books),
+                  _buildSectionHeader(isFr ? 'Cours récents' : 'Recent Courses', Icons.library_books),
                   const SizedBox(height: 16),
                   if (recentCourses.isEmpty)
                     _buildEmptyState(
-                      'No courses yet',
-                      'Create your first course to get started!',
+                      isFr ? 'Aucun cours' : 'No courses yet',
+                      isFr ? 'Créez votre premier cours pour commencer !' : 'Create your first course to get started!',
                       Icons.book_outlined,
                     )
                   else
@@ -169,12 +170,12 @@ class InstructorDashboard extends StatelessWidget {
                   const SizedBox(height: 32),
 
                   // Recent Assignment Activity Section
-                  _buildSectionHeader('Assignment Activity', Icons.assignment),
+                  _buildSectionHeader(isFr ? 'Activité des devoirs' : 'Assignment Activity', Icons.assignment),
                   const SizedBox(height: 16),
                   if (recentAssignments.isEmpty)
                     _buildEmptyState(
-                      'No assignments yet',
-                      'Create assignments to track student submissions!',
+                      isFr ? 'Aucun devoir' : 'No assignments yet',
+                      isFr ? 'Créez des devoirs pour suivre les soumissions !' : 'Create assignments to track student submissions!',
                       Icons.assignment_outlined,
                     )
                   else
@@ -194,13 +195,13 @@ class InstructorDashboard extends StatelessWidget {
     IconData greetingIcon;
 
     if (hour < 12) {
-      greeting = 'Good morning';
+      greeting = isFr ? 'Bonjour' : 'Good morning';
       greetingIcon = Icons.wb_sunny_outlined;
     } else if (hour < 17) {
-      greeting = 'Good afternoon';
+      greeting = isFr ? 'Bon après-midi' : 'Good afternoon';
       greetingIcon = Icons.wb_sunny;
     } else {
-      greeting = 'Good evening';
+      greeting = isFr ? 'Bonsoir' : 'Good evening';
       greetingIcon = Icons.nights_stay_outlined;
     }
 
@@ -261,8 +262,8 @@ class InstructorDashboard extends StatelessWidget {
                     color: Colors.white.withAlpha(40),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
-                    '\u{1F393} Instructor Dashboard',
+                  child: Text(
+                    isFr ? '\u{1F393} Tableau de bord instructeur' : '\u{1F393} Instructor Dashboard',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -317,46 +318,39 @@ class InstructorDashboard extends StatelessWidget {
   Widget _buildQuickActions(BuildContext context) {
     final actions = [
       QuickAction(
-        title: 'Create New Course',
-        description: 'Start creating your next course',
+        title: isFr ? 'Créer un cours' : 'Create New Course',
+        description: isFr ? 'Commencez à créer votre prochain cours' : 'Start creating your next course',
         icon: '📚',
         color: Colors.blue.shade400,
         route: '/create-course',
       ),
       QuickAction(
-        title: 'Manage Courses',
-        description: 'Edit and update existing courses',
+        title: isFr ? 'Gérer les cours' : 'Manage Courses',
+        description: isFr ? 'Modifier et mettre à jour les cours' : 'Edit and update existing courses',
         icon: '⚙️',
         color: Colors.green.shade500,
         route: '/instructor-courses',
       ),
       QuickAction(
-        title: 'Grade Assignments',
-        description: 'Review and grade student submissions',
+        title: isFr ? 'Noter les devoirs' : 'Grade Assignments',
+        description: isFr ? 'Vérifier et noter les soumissions' : 'Review and grade student submissions',
         icon: '📝',
         color: Colors.orange.shade400,
         route: '/instructor-assignments',
       ),
       QuickAction(
-        title: 'Quiz Analytics',
-        description: 'Track student quiz performance',
+        title: isFr ? 'Créer un quiz' : 'Create Quiz',
+        description: isFr ? 'Créer et gérer les quiz' : 'Create & manage lesson quizzes',
         icon: '📊',
         color: Colors.purple.shade500,
-        route: '/instructor-quiz-analytics',
+        route: '/instructor-quiz',
       ),
       QuickAction(
-        title: 'Student Progress',
-        description: 'Monitor student learning progress',
+        title: isFr ? 'Progrès des étudiants' : 'Student Progress',
+        description: isFr ? 'Suivre les progrès d\'apprentissage' : 'Monitor student learning progress',
         icon: '👥',
         color: Colors.teal.shade500,
         route: '/instructor-student-progress',
-      ),
-      QuickAction(
-        title: 'Messages',
-        description: 'Communicate with your students',
-        icon: '💬',
-        color: Colors.pink.shade500,
-        route: '/instructor-messages',
       ),
     ];
 

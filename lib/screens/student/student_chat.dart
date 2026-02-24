@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class StudentChatPage extends StatefulWidget {
   final String chatId;
@@ -266,11 +267,11 @@ class _StudentChatPageState extends State<StudentChatPage>
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
                 Icon(Icons.error_outline, color: Colors.white),
                 SizedBox(width: 12),
-                Text('Failed to send message'),
+                Text(isFr ? 'Échec de l\'envoi du message' : 'Failed to send message'),
               ],
             ),
             backgroundColor: Colors.red.shade600,
@@ -284,11 +285,11 @@ class _StudentChatPageState extends State<StudentChatPage>
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
               Icon(Icons.error_outline, color: Colors.white),
               SizedBox(width: 12),
-              Text('Error sending message'),
+              Text(isFr ? 'Erreur lors de l\'envoi du message' : 'Error sending message'),
             ],
           ),
           backgroundColor: Colors.red.shade600,
@@ -479,7 +480,7 @@ class _StudentChatPageState extends State<StudentChatPage>
                     Text(
                       _isTyping
                           ? 'typing...'
-                          : (_isConnected ? 'Online' : 'Offline'),
+                          : (_isConnected ? (isFr ? 'En ligne' : 'Online') : (isFr ? 'Hors ligne' : 'Offline')),
                       style: TextStyle(
                         fontSize: 12,
                         color: _isTyping
@@ -548,8 +549,8 @@ class _StudentChatPageState extends State<StudentChatPage>
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'No messages yet',
+          Text(
+            isFr ? 'Aucun message' : 'No messages yet',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -558,7 +559,7 @@ class _StudentChatPageState extends State<StudentChatPage>
           ),
           const SizedBox(height: 8),
           Text(
-            'Send a message to start the conversation!',
+            isFr ? 'Envoyez un message pour commencer la conversation !' : 'Send a message to start the conversation!',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey.shade600,
@@ -769,7 +770,7 @@ class _StudentChatPageState extends State<StudentChatPage>
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text('Attachments coming soon!'),
+                    content: Text(isFr ? 'Pièces jointes bientôt disponibles !' : 'Attachments coming soon!'),
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -787,7 +788,7 @@ class _StudentChatPageState extends State<StudentChatPage>
                 child: TextField(
                   controller: _messageController,
                   decoration: InputDecoration(
-                    hintText: 'Type a message...',
+                    hintText: isFr ? 'Tapez un message...' : 'Type a message...',
                     hintStyle: TextStyle(color: Colors.grey.shade500),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
@@ -840,9 +841,9 @@ class _StudentChatPageState extends State<StudentChatPage>
     final messageDate = DateTime(date.year, date.month, date.day);
 
     if (messageDate == today) {
-      return 'Today';
+      return isFr ? 'Aujourd\'hui' : 'Today';
     } else if (messageDate == yesterday) {
-      return 'Yesterday';
+      return isFr ? 'Hier' : 'Yesterday';
     } else {
       return DateFormat('MMM d, yyyy').format(date);
     }

@@ -5,6 +5,7 @@ import 'package:tanga_acadamie/screens/instructor/edit_course_page.dart';
 import 'package:tanga_acadamie/core/theme/app_colors.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class InstructorCoursesPage extends StatefulWidget {
   const InstructorCoursesPage({super.key});
@@ -75,20 +76,20 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 28),
             SizedBox(width: 8),
-            Text('Delete Course'),
+            Text(isFr ? 'Supprimer le cours' : 'Delete Course'),
           ],
         ),
-        content: const Text(
-          'Are you sure you want to delete this course? This action cannot be undone.',
+        content: Text(
+          isFr ? 'Êtes-vous sûr de vouloir supprimer ce cours ? Cette action est irréversible.' : 'Are you sure you want to delete this course? This action cannot be undone.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(isFr ? 'Annuler' : 'Cancel'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -96,7 +97,7 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
               backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Delete'),
+            child: Text(isFr ? 'Supprimer' : 'Delete'),
           ),
         ],
       ),
@@ -161,9 +162,9 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'My Courses',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          isFr ? 'Mes cours' : 'My Courses',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -200,10 +201,10 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
 
   Widget _buildFilterChips() {
     final filters = [
-      {'key': 'all', 'label': 'All', 'icon': Icons.list},
-      {'key': 'published', 'label': 'Published', 'icon': Icons.check_circle},
-      {'key': 'pending', 'label': 'Pending', 'icon': Icons.hourglass_empty},
-      {'key': 'draft', 'label': 'Draft', 'icon': Icons.edit_note},
+      {'key': 'all', 'label': isFr ? 'Tous' : 'All', 'icon': Icons.list},
+      {'key': 'published', 'label': isFr ? 'Publiés' : 'Published', 'icon': Icons.check_circle},
+      {'key': 'pending', 'label': isFr ? 'En attente' : 'Pending', 'icon': Icons.hourglass_empty},
+      {'key': 'draft', 'label': isFr ? 'Brouillon' : 'Draft', 'icon': Icons.edit_note},
     ];
 
     return Container(
@@ -321,13 +322,13 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem('📚', '${_courses.length}', 'Courses'),
+          _buildStatItem('📚', '${_courses.length}', isFr ? 'Cours' : 'Courses'),
           Container(width: 1, height: 40, color: Colors.grey.shade300),
-          _buildStatItem('👥', '$totalStudents', 'Students'),
+          _buildStatItem('👥', '$totalStudents', isFr ? 'Étudiants' : 'Students'),
           Container(width: 1, height: 40, color: Colors.grey.shade300),
-          _buildStatItem('⭐', avgRating.toStringAsFixed(1), 'Avg Rating'),
+          _buildStatItem('⭐', avgRating.toStringAsFixed(1), isFr ? 'Moy.' : 'Avg Rating'),
           Container(width: 1, height: 40, color: Colors.grey.shade300),
-          _buildStatItem('💬', '$totalReviews', 'Reviews'),
+          _buildStatItem('💬', '$totalReviews', isFr ? 'Avis' : 'Reviews'),
         ],
       ),
     );
@@ -383,7 +384,7 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
             ElevatedButton.icon(
               onPressed: _fetchCourses,
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text(isFr ? 'Réessayer' : 'Retry'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -406,7 +407,7 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
             Icon(Icons.filter_list_off, size: 64, color: Colors.grey.shade400),
             const SizedBox(height: 16),
             Text(
-              'No $_selectedFilter courses',
+              isFr ? 'Aucun cours $_selectedFilter' : 'No $_selectedFilter courses',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -420,8 +421,8 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
                   _selectedFilter = 'all';
                 });
               },
-              child: const Text(
-                'Show all courses',
+              child: Text(
+                isFr ? 'Afficher tous les cours' : 'Show all courses',
                 style: TextStyle(color: AppColors.primary),
               ),
             ),
@@ -470,18 +471,18 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'No Courses Yet',
-              style: TextStyle(
+            Text(
+              isFr ? 'Aucun cours' : 'No Courses Yet',
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textDark,
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Start sharing your knowledge by creating your first course!',
-              style: TextStyle(fontSize: 16, color: AppColors.textLight),
+            Text(
+              isFr ? 'Partagez vos connaissances en créant votre premier cours !' : 'Start sharing your knowledge by creating your first course!',
+              style: const TextStyle(fontSize: 16, color: AppColors.textLight),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -491,7 +492,7 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
                 _fetchCourses();
               },
               icon: const Icon(Icons.add),
-              label: const Text('Create Your First Course'),
+              label: Text(isFr ? 'Créer votre premier cours' : 'Create Your First Course'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
@@ -683,12 +684,12 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.edit, size: 12),
-                                    SizedBox(width: 3),
-                                    Text('Edit', style: TextStyle(fontSize: 10)),
+                                    const Icon(Icons.edit, size: 12),
+                                    const SizedBox(width: 3),
+                                    Text(isFr ? 'Modifier' : 'Edit', style: const TextStyle(fontSize: 10)),
                                   ],
                                 ),
                               ),

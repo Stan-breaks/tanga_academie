@@ -4,6 +4,7 @@ import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/screens/shared/settings_page.dart';
 import 'package:tanga_acadamie/screens/signup_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -57,13 +58,13 @@ class _ProfilePageState extends State<ProfilePage> {
   String _getRoleLabel(String? role) {
     switch (role) {
       case 'admin':
-        return 'Administrator';
+        return isFr ? 'Administrateur' : 'Administrator';
       case 'instructor':
-        return 'Instructor';
+        return isFr ? 'Instructeur' : 'Instructor';
       case 'student':
-        return 'Student';
+        return isFr ? 'Étudiant' : 'Student';
       default:
-        return 'User';
+        return isFr ? 'Utilisateur' : 'User';
     }
   }
 
@@ -98,25 +99,25 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.logout_rounded, color: Colors.redAccent, size: 24),
             SizedBox(width: 10),
             Text(
-              'Sign Out',
+              isFr ? 'Déconnexion' : 'Sign Out',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
           ],
         ),
-        content: const Text(
-          'Are you sure you want to sign out? You will need to log in again to access your account.',
-          style: TextStyle(fontSize: 15, height: 1.5),
+        content: Text(
+          isFr ? 'Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous reconnecter pour accéder à votre compte.' : 'Are you sure you want to sign out? You will need to log in again to access your account.',
+          style: const TextStyle(fontSize: 15, height: 1.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel',
+              isFr ? 'Annuler' : 'Cancel',
               style: TextStyle(
                 color: Colors.grey.shade600,
                 fontWeight: FontWeight.w600,
@@ -133,9 +134,9 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               elevation: 0,
             ),
-            child: const Text(
-              'Sign Out',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            child: Text(
+              isFr ? 'Déconnexion' : 'Sign Out',
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -168,7 +169,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Loading profile...',
+                isFr ? 'Chargement du profil...' : 'Loading profile...',
                 style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
               ),
             ],
@@ -230,7 +231,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     // Account details card
                     _buildSectionHeader(
-                      'Account Details',
+                      isFr ? 'Détails du compte' : 'Account Details',
                       Icons.person_rounded,
                     ),
                     const SizedBox(height: 12),
@@ -238,25 +239,25 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         _buildInfoTile(
                           icon: Icons.person_rounded,
-                          label: 'Full Name',
+                          label: isFr ? 'Nom complet' : 'Full Name',
                           value: fullName.isNotEmpty ? fullName : '—',
                         ),
                         _buildCardDivider(),
                         _buildInfoTile(
                           icon: Icons.alternate_email_rounded,
-                          label: 'Username',
+                          label: isFr ? 'Nom d\'utilisateur' : 'Username',
                           value: username.isNotEmpty ? '@$username' : '—',
                         ),
                         _buildCardDivider(),
                         _buildInfoTile(
                           icon: Icons.email_rounded,
-                          label: 'Email',
+                          label: isFr ? 'E-mail' : 'Email',
                           value: email.isNotEmpty ? email : '—',
                         ),
                         _buildCardDivider(),
                         _buildInfoTile(
                           icon: _getRoleIcon(role),
-                          label: 'Role',
+                          label: isFr ? 'Rôle' : 'Role',
                           value: _getRoleLabel(role),
                           valueColor: roleColor,
                         ),
@@ -265,14 +266,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 24),
 
                     // Preferences section
-                    _buildSectionHeader('Preferences', Icons.tune_rounded),
+                    _buildSectionHeader(isFr ? 'Préférences' : 'Preferences', Icons.tune_rounded),
                     const SizedBox(height: 12),
                     _buildInfoCard(
                       children: [
                         _buildActionTile(
                           icon: Icons.settings_rounded,
-                          label: 'Settings',
-                          subtitle: 'App preferences & notifications',
+                          label: isFr ? 'Paramètres' : 'Settings',
+                          subtitle: isFr ? 'Préférences et notifications' : 'App preferences & notifications',
                           onTap: () {
                             Navigator.push(
                               context,
@@ -289,8 +290,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         _buildActionTile(
                           icon: Icons.logout_rounded,
-                          label: 'Sign Out',
-                          subtitle: 'Log out of your account',
+                          label: isFr ? 'Déconnexion' : 'Sign Out',
+                          subtitle: isFr ? 'Se déconnecter du compte' : 'Log out of your account',
                           iconColor: Colors.redAccent,
                           labelColor: Colors.redAccent,
                           onTap: _handleLogout,
@@ -477,7 +478,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Expanded(
           child: _buildStatusChip(
             icon: isVerified ? Icons.verified_rounded : Icons.gpp_maybe_rounded,
-            label: isVerified ? 'Verified' : 'Not Verified',
+            label: isVerified ? (isFr ? 'Vérifié' : 'Verified') : (isFr ? 'Non vérifié' : 'Not Verified'),
             color: isVerified ? Colors.green : Colors.orange,
           ),
         ),
@@ -487,7 +488,7 @@ class _ProfilePageState extends State<ProfilePage> {
             icon: isActive
                 ? Icons.check_circle_rounded
                 : Icons.pause_circle_rounded,
-            label: isActive ? 'Active' : 'Inactive',
+            label: isActive ? (isFr ? 'Actif' : 'Active') : (isFr ? 'Inactif' : 'Inactive'),
             color: isActive ? Colors.green : Colors.grey,
           ),
         ),
@@ -720,9 +721,9 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 32),
 
               // Welcome Text
-              const Text(
-                'Your Profile Awaits',
-                style: TextStyle(
+              Text(
+                isFr ? 'Votre profil vous attend' : 'Your Profile Awaits',
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -733,7 +734,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
               // Subtitle
               Text(
-                'Sign in to manage your profile, view your learning history, and personalize your experience on Tanga Academie.',
+                isFr ? 'Connectez-vous pour gérer votre profil, consulter votre historique et personnaliser votre expérience.' : 'Sign in to manage your profile, view your learning history, and personalize your experience on Tanga Academie.',
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.grey.shade600,
@@ -749,8 +750,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   Expanded(
                     child: _buildFeatureCard(
                       Icons.person_outline_rounded,
-                      'My Profile',
-                      'Manage your info',
+                      isFr ? 'Mon profil' : 'My Profile',
+                      isFr ? 'Gérer vos infos' : 'Manage your info',
                       Colors.blue,
                     ),
                   ),
@@ -758,8 +759,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   Expanded(
                     child: _buildFeatureCard(
                       Icons.history_rounded,
-                      'History',
-                      'View past activity',
+                      isFr ? 'Historique' : 'History',
+                      isFr ? 'Voir l\'activité passée' : 'View past activity',
                       Colors.green,
                     ),
                   ),
@@ -771,8 +772,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   Expanded(
                     child: _buildFeatureCard(
                       Icons.settings_rounded,
-                      'Settings',
-                      'Customize your app',
+                      isFr ? 'Paramètres' : 'Settings',
+                      isFr ? 'Personnaliser l\'application' : 'Customize your app',
                       Colors.teal,
                     ),
                   ),
@@ -780,8 +781,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   Expanded(
                     child: _buildFeatureCard(
                       Icons.bookmark_rounded,
-                      'Saved',
-                      'Your bookmarks',
+                      isFr ? 'Enregistrés' : 'Saved',
+                      isFr ? 'Vos favoris' : 'Your bookmarks',
                       Colors.orange,
                     ),
                   ),
@@ -808,13 +809,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     elevation: 0,
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.login_rounded, size: 20),
-                      SizedBox(width: 10),
+                      const Icon(Icons.login_rounded, size: 20),
+                      const SizedBox(width: 10),
                       Text(
-                        'Sign In to Continue',
+                        isFr ? 'Se connecter pour continuer' : 'Sign In to Continue',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -831,7 +832,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Don't have an account? ",
+                    isFr ? 'Pas de compte ? ' : "Don't have an account? ",
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                   ),
                   GestureDetector(
@@ -841,9 +842,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         MaterialPageRoute(builder: (_) => const SignupPage()),
                       );
                     },
-                    child: const Text(
-                      'Sign Up',
-                      style: TextStyle(
+                    child: Text(
+                      isFr ? 'S\'inscrire' : 'Sign Up',
+                      style: const TextStyle(
                         color: Colors.blueAccent,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

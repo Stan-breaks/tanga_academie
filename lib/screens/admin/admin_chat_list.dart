@@ -3,6 +3,7 @@ import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/core/utils/chat.dart';
 import 'package:tanga_acadamie/models/models.dart';
 import 'package:tanga_acadamie/screens/shared/chat_page.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class AdminChatList extends StatefulWidget {
   const AdminChatList({super.key});
@@ -129,7 +130,7 @@ class _AdminChatListState extends State<AdminChatList> {
           ),
           const SizedBox(height: 20),
           Text(
-            'Loading messages...',
+            isFr ? 'Chargement des messages...' : 'Loading messages...',
             style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           ),
         ],
@@ -149,7 +150,7 @@ class _AdminChatListState extends State<AdminChatList> {
             });
           },
           icon: Icon(_showUserList ? Icons.close : Icons.add),
-          label: Text(_showUserList ? 'Hide Users' : 'New Conversation'),
+          label: Text(_showUserList ? (isFr ? 'Masquer les utilisateurs' : 'Hide Users') : (isFr ? 'Nouvelle conversation' : 'New Conversation')),
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(double.infinity, 52),
             backgroundColor: Colors.blueAccent,
@@ -216,9 +217,9 @@ class _AdminChatListState extends State<AdminChatList> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Recent Conversations',
-                style: TextStyle(
+              Text(
+                isFr ? 'Conversations récentes' : 'Recent Conversations',
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -248,9 +249,9 @@ class _AdminChatListState extends State<AdminChatList> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Select a user to message',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          Text(
+            isFr ? 'Sélectionnez un utilisateur' : 'Select a user to message',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -261,7 +262,7 @@ class _AdminChatListState extends State<AdminChatList> {
                       children: [
                         Icon(Icons.people_outline, size: 48, color: Colors.grey.shade400),
                         const SizedBox(height: 12),
-                        Text('No users available', style: TextStyle(color: Colors.grey.shade600)),
+                        Text(isFr ? 'Aucun utilisateur disponible' : 'No users available', style: TextStyle(color: Colors.grey.shade600)),
                       ],
                     ),
                   )
@@ -485,12 +486,12 @@ class _AdminChatListState extends State<AdminChatList> {
           ),
           const SizedBox(height: 20),
           Text(
-            'No conversations yet',
+            isFr ? 'Aucune conversation' : 'No conversations yet',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
           ),
           const SizedBox(height: 8),
           Text(
-            'Start a new conversation using the button above',
+            isFr ? 'Démarrez une nouvelle conversation' : 'Start a new conversation using the button above',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
           ),

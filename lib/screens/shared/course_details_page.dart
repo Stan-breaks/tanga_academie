@@ -5,6 +5,7 @@ import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/screens/student/course_learn_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class CourseDetailsPage extends StatefulWidget {
   final Map<String, dynamic>? course;
@@ -81,7 +82,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
 
       if (token == null || token.isEmpty) {
         setState(() => _loading = false);
-        _navigateToLogin('Sign in to enroll in this course');
+        _navigateToLogin(isFr ? 'Connectez-vous pour vous inscrire à ce cours' : 'Sign in to enroll in this course');
         return;
       }
 
@@ -97,7 +98,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
       );
 
       if (response.data['success'] == true) {
-        _showSnackBar('Successfully enrolled in free course!');
+        _showSnackBar(isFr ? 'Inscription au cours gratuit réussie !' : 'Successfully enrolled in free course!');
         setState(() => _hasAccess = true);
 
         await Future.delayed(const Duration(milliseconds: 1500));
@@ -119,7 +120,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
 
       if (token == null || token.isEmpty) {
         setState(() => _loading = false);
-        _navigateToLogin('Sign in to purchase this course');
+        _navigateToLogin(isFr ? 'Connectez-vous pour acheter ce cours' : 'Sign in to purchase this course');
         return;
       }
 
@@ -191,7 +192,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
               child: const Icon(Icons.login, color: Colors.blueAccent),
             ),
             const SizedBox(width: 12),
-            const Text('Sign In Required'),
+            Text(isFr ? 'Connexion requise' : 'Sign In Required'),
           ],
         ),
         content: Text(
@@ -202,7 +203,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
-              'Cancel',
+              isFr ? 'Annuler' : 'Cancel',
               style: TextStyle(color: Colors.grey.shade600),
             ),
           ),
@@ -221,7 +222,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text('Sign In'),
+            child: Text(isFr ? 'Se connecter' : 'Sign In'),
           ),
         ],
       ),
@@ -268,10 +269,10 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),
-                tabs: const [
-                  Tab(text: 'Overview'),
-                  Tab(text: 'Curriculum'),
-                  Tab(text: 'Reviews'),
+                tabs: [
+                  Tab(text: isFr ? 'Aperçu' : 'Overview'),
+                  Tab(text: isFr ? 'Programme' : 'Curriculum'),
+                  Tab(text: isFr ? 'Avis' : 'Reviews'),
                 ],
               ),
             ),
@@ -342,7 +343,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
             spacing: 8,
             runSpacing: 8,
             children: [
-              _buildChip('Featured', Colors.blue),
+              _buildChip(isFr ? 'En vedette' : 'Featured', Colors.blue),
               _buildChip(course['category'] ?? 'All', Colors.indigo),
             ],
           ),
@@ -393,7 +394,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                       ),
                     ),
                     Text(
-                      'Instructor',
+                      isFr ? 'Instructeur' : 'Instructor',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade600,
@@ -418,7 +419,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
               ),
               _buildStat(
                 Icons.book_outlined,
-                '${(course['chapters'] as List?)?.length ?? 0} Lessons',
+                '${(course['chapters'] as List?)?.length ?? 0} ${isFr ? 'Leçons' : 'Lessons'}',
               ),
             ],
           ),
@@ -461,7 +462,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     final currentPrice = _getCurrentPrice(course);
     final originalPrice = course['price']?.toDouble();
     final discountPercent =
-        originalPrice != null && course['discountedPrice'] != null
+        originalPrice != null && originalPrice > 0 && course['discountedPrice'] != null
         ? (((originalPrice - course['discountedPrice']) / originalPrice) * 100)
               .round()
         : 0;
@@ -477,9 +478,9 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               if (isFree)
-                const Text(
-                  'Free',
-                  style: TextStyle(
+                Text(
+                  isFr ? 'Gratuit' : 'Free',
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Colors.green,
@@ -549,7 +550,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
               Icon(Icons.info_outline, size: 16, color: Colors.grey.shade600),
               const SizedBox(width: 4),
               Text(
-                isFree ? 'Free lifetime access' : 'Secure payment via MaxiCash',
+                isFr ? (isFree ? 'Accès gratuit à vie' : 'Paiement sécurisé via MaxiCash') : (isFree ? 'Free lifetime access' : 'Secure payment via MaxiCash'),
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
             ],
@@ -571,7 +572,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
         child: ElevatedButton.icon(
           onPressed: _handleStartLearning,
           icon: const Icon(Icons.play_circle_outline),
-          label: const Text('Start Learning'),
+          label: Text(isFr ? 'Commencer à apprendre' : 'Start Learning'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
             foregroundColor: Colors.white,
@@ -601,7 +602,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                   ),
                 )
               : const Icon(Icons.add),
-          label: Text(_loading ? 'Enrolling...' : 'Enroll for Free'),
+          label: Text(_loading ? (isFr ? 'Inscription...' : 'Enrolling...') : (isFr ? 'S\'inscrire gratuitement' : 'Enroll for Free')),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
             foregroundColor: Colors.white,
@@ -630,8 +631,8 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
             : const Icon(Icons.credit_card),
         label: Text(
           _loading
-              ? 'Processing...'
-              : 'Buy Now - \$${_getCurrentPrice(course).toStringAsFixed(2)}',
+              ? (isFr ? 'Traitement...' : 'Processing...')
+              : '${isFr ? "Acheter" : "Buy Now"} - \$${_getCurrentPrice(course).toStringAsFixed(2)}',
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blue,
@@ -656,14 +657,14 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
             children: [
               Expanded(
                 child: _buildDetailItem(
-                  'Lectures',
+                  isFr ? 'Leçons' : 'Lectures',
                   '${(course['chapters'] as List?)?.length ?? 0}',
                   Icons.book_outlined,
                 ),
               ),
               Expanded(
                 child: _buildDetailItem(
-                  'Duration',
+                  isFr ? 'Durée' : 'Duration',
                   _getTotalDuration(course['totalDuration']),
                   Icons.timer_outlined,
                 ),
@@ -675,15 +676,15 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
             children: [
               Expanded(
                 child: _buildDetailItem(
-                  'Language',
+                  isFr ? 'Langue' : 'Language',
                   course['language'] ?? 'N/A',
                   Icons.language,
                 ),
               ),
               Expanded(
                 child: _buildDetailItem(
-                  'Certificate',
-                  'Yes',
+                  isFr ? 'Certificat' : 'Certificate',
+                  isFr ? 'Oui' : 'Yes',
                   Icons.workspace_premium,
                 ),
               ),
@@ -715,13 +716,13 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildSection('What you\'ll learn', course['benefits']),
-        _buildSection('Requirements', course['requirements']),
+        _buildSection(isFr ? 'Ce que vous apprendrez' : 'What you\'ll learn', course['benefits']),
+        _buildSection(isFr ? 'Prérequis' : 'Requirements', course['requirements']),
         if ((course['tags'] as List?)?.isNotEmpty ?? false) ...[
           const SizedBox(height: 20),
-          const Text(
-            'Tags',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            isFr ? 'Étiquettes' : 'Tags',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -737,26 +738,26 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
           ),
         ],
         const SizedBox(height: 30),
-        const Text(
-          'Why choose this course?',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Text(
+          isFr ? 'Pourquoi choisir ce cours ?' : 'Why choose this course?',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         _buildFeatureItem(
-          'Expert-led videos',
-          'Learn from industry professionals with step-by-step tutorials',
+          isFr ? 'Vidéos d\'experts' : 'Expert-led videos',
+          isFr ? 'Apprenez avec des tutoriels étape par étape' : 'Learn from industry professionals with step-by-step tutorials',
         ),
         _buildFeatureItem(
-          'Downloadable resources',
-          'Access PDFs, cheat sheets, and templates for offline learning',
+          isFr ? 'Ressources téléchargeables' : 'Downloadable resources',
+          isFr ? 'Accédez aux PDF et modèles hors ligne' : 'Access PDFs, cheat sheets, and templates for offline learning',
         ),
         _buildFeatureItem(
-          'Community support',
-          'Get answers to your questions via discussion forums',
+          isFr ? 'Support communautaire' : 'Community support',
+          isFr ? 'Posez vos questions sur les forums' : 'Get answers to your questions via discussion forums',
         ),
         _buildFeatureItem(
-          'Certificate of completion',
-          'Earn certification to showcase your skills',
+          isFr ? 'Certificat de fin' : 'Certificate of completion',
+          isFr ? 'Obtenez une certification pour valoriser vos compétences' : 'Earn certification to showcase your skills',
         ),
       ],
     );
@@ -831,7 +832,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     final chapters = course['chapters'] as List<dynamic>? ?? [];
 
     if (chapters.isEmpty) {
-      return const Center(child: Text('No curriculum available yet'));
+      return Center(child: Text(isFr ? 'Aucun programme disponible' : 'No curriculum available yet'));
     }
 
     return ListView.builder(
@@ -868,7 +869,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
           chapter['title'] ?? 'Chapter $chapterNumber',
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
-        subtitle: Text('${lessons.length} lessons'),
+        subtitle: Text('${lessons.length} ${isFr ? 'leçons' : 'lessons'}'),
         children: lessons.asMap().entries.map((entry) {
           return _buildLessonTile(entry.value, entry.key + 1, isLocked);
         }).toList(),
@@ -956,7 +957,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
               ),
               const SizedBox(height: 8),
               Text(
-                '$totalReviews reviews',
+                isFr ? '$totalReviews avis' : '$totalReviews reviews',
                 style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
             ],
@@ -970,13 +971,13 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
             child: Padding(
               padding: const EdgeInsets.all(40),
               child: Text(
-                'No reviews yet',
+                isFr ? 'Aucun avis' : 'No reviews yet',
                 style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
               ),
             ),
           )
         else
-          const Center(child: Text('Reviews will appear here')),
+          Center(child: Text(isFr ? 'Les avis apparaîtront ici' : 'Reviews will appear here')),
       ],
     );
   }

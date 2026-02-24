@@ -4,6 +4,7 @@ import 'package:tanga_acadamie/core/utils/chat.dart';
 import 'package:tanga_acadamie/models/models.dart';
 import 'package:tanga_acadamie/screens/shared/chat_page.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class StudentChatList extends StatefulWidget {
   const StudentChatList({super.key});
@@ -175,7 +176,7 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
         children: [
           const CircularProgressIndicator(color: Colors.blueAccent, strokeWidth: 3),
           const SizedBox(height: 20),
-          Text('Loading messages...', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+          Text(isFr ? 'Chargement des messages...' : 'Loading messages...', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
         ],
       ),
     );
@@ -189,7 +190,7 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
           Icon(Icons.lock_outline, size: 64, color: Colors.grey.shade400),
           const SizedBox(height: 16),
           Text(
-            'Please log in to view messages',
+            isFr ? 'Veuillez vous connecter pour voir les messages' : 'Please log in to view messages',
             style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
           ),
           const SizedBox(height: 24),
@@ -206,7 +207,7 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Log In'),
+            child: Text(isFr ? 'Se connecter' : 'Log In'),
           ),
         ],
       ),
@@ -229,7 +230,7 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
             },
             icon: Icon(_showInstructorList ? Icons.close : Icons.edit_square, size: 18),
             label: Text(
-              _showInstructorList ? 'Hide Instructors' : 'New Message',
+              _showInstructorList ? (isFr ? 'Masquer les instructeurs' : 'Hide Instructors') : (isFr ? 'Nouveau message' : 'New Message'),
               style: const TextStyle(fontSize: 12),
             ),
             style: ElevatedButton.styleFrom(
@@ -319,9 +320,9 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Recent Conversations',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+              Text(
+                isFr ? 'Conversations récentes' : 'Recent Conversations',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
               ),
               if (_chats.isNotEmpty)
                 Text(
@@ -362,9 +363,9 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                 child: const Icon(Icons.person_add, color: Colors.blueAccent, size: 20),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Start a New Conversation',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+              Text(
+                isFr ? 'Démarrer une nouvelle conversation' : 'Start a New Conversation',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
               ),
             ],
           ),
@@ -377,12 +378,12 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                   Icon(Icons.school_outlined, size: 48, color: Colors.grey.shade400),
                   const SizedBox(height: 12),
                   Text(
-                    'No instructors available',
+                    isFr ? 'Aucun instructeur disponible' : 'No instructors available',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Enroll in courses to message instructors',
+                    isFr ? 'Inscrivez-vous à des cours pour contacter les instructeurs' : 'Enroll in courses to message instructors',
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
                   ),
                 ],
@@ -451,7 +452,7 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                     children: [
                       Icon(Icons.verified, size: 14, color: Colors.green.shade400),
                       const SizedBox(width: 4),
-                      Text('Instructor', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                      Text(isFr ? 'Instructeur' : 'Instructor', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
                     ],
                   ),
                 ],
@@ -644,13 +645,13 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
             child: Icon(Icons.chat_bubble_outline, size: 56, color: Colors.blueAccent.shade400),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'No conversations yet',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+          Text(
+            isFr ? 'Aucune conversation' : 'No conversations yet',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
           const SizedBox(height: 8),
           Text(
-            'Start a conversation with your instructors!',
+            isFr ? 'Démarrez une conversation avec vos instructeurs !' : 'Start a conversation with your instructors!',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
           ),

@@ -79,7 +79,9 @@ class _ExplorePageState extends State<ExplorePage>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    isFr ? 'Quelque chose a mal tourné' : 'Something went wrong',
+                    isFr
+                        ? 'Quelque chose a mal tourné'
+                        : 'Something went wrong',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -165,11 +167,11 @@ class _ExplorePageState extends State<ExplorePage>
                     SliverToBoxAdapter(
                       child: SizedBox(
                         width: 500,
-                        height: 100,
+                        height: 200,
                         child: ClipRect(
                           child: Image.asset(
                             'public/banner1.png',
-                            fit: BoxFit.cover,
+                            fit: BoxFit.fill,
                           ),
                         ),
                       ),
@@ -220,6 +222,18 @@ class _ExplorePageState extends State<ExplorePage>
                               }, childCount: filteredCourses.length),
                             ),
                     ),
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        width: 500,
+                        height: 200,
+                        child: ClipRect(
+                          child: Image.asset(
+                            'public/banner1.png',
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -266,7 +280,9 @@ class _ExplorePageState extends State<ExplorePage>
                     ),
                     SizedBox(height: 2),
                     Text(
-                      isFr ? 'Trouvez votre prochain cours' : 'Find your next learning journey',
+                      isFr
+                          ? 'Trouvez votre prochain cours'
+                          : 'Find your next learning journey',
                       style: TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                   ],
@@ -415,7 +431,11 @@ class _ExplorePageState extends State<ExplorePage>
                     color: Colors.blueAccent,
                   ),
                 ),
-                TextSpan(text: count == 1 ? (isFr ? 'cours trouvé' : 'course found') : (isFr ? 'cours trouvés' : 'courses found')),
+                TextSpan(
+                  text: count == 1
+                      ? (isFr ? 'cours trouvé' : 'course found')
+                      : (isFr ? 'cours trouvés' : 'courses found'),
+                ),
               ],
             ),
           ),
@@ -479,8 +499,12 @@ class _ExplorePageState extends State<ExplorePage>
           const SizedBox(height: 8),
           Text(
             searchQuery.isNotEmpty
-                ? (isFr ? 'Essayez un autre terme de recherche' : 'Try a different search term')
-                : (isFr ? 'Aucun cours dans cette catégorie' : 'No courses in this category yet'),
+                ? (isFr
+                      ? 'Essayez un autre terme de recherche'
+                      : 'Try a different search term')
+                : (isFr
+                      ? 'Aucun cours dans cette catégorie'
+                      : 'No courses in this category yet'),
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),

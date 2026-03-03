@@ -101,7 +101,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   );
                 } else {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const LoginPage()),
                   );

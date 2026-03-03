@@ -35,7 +35,9 @@ class _LoginPageState extends State<LoginPage> {
     final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      _showError(isFr ? 'Veuillez remplir tous les champs' : 'Please fill in all fields');
+      _showError(
+        isFr ? 'Veuillez remplir tous les champs' : 'Please fill in all fields',
+      );
       return;
     }
 
@@ -80,10 +82,19 @@ class _LoginPageState extends State<LoginPage> {
         }
       } else {
         final errorData = jsonDecode(response.body);
-        _showError(errorData['message'] ?? (isFr ? 'Échec de connexion. Veuillez réessayer.' : 'Login failed. Please try again.'));
+        _showError(
+          errorData['message'] ??
+              (isFr
+                  ? 'Échec de connexion. Veuillez réessayer.'
+                  : 'Login failed. Please try again.'),
+        );
       }
     } catch (e) {
-      _showError(isFr ? 'Une erreur est survenue. Veuillez réessayer.' : 'An error occurred. Please try again.');
+      _showError(
+        isFr
+            ? 'Une erreur est survenue. Veuillez réessayer.'
+            : 'An error occurred. Please try again.',
+      );
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -106,12 +117,13 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(backgroundColor: Colors.white),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Colors.white,Colors.white],
+            colors: [Colors.white, Colors.white, Colors.white],
             stops: const [0.0, 0.3, 1.0],
           ),
         ),
@@ -120,8 +132,6 @@ class _LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
-                const SizedBox(height: 40),
-
                 // Logo Section
                 _buildLogoSection(),
                 const SizedBox(height: 40),
@@ -153,19 +163,12 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
 
-        const Text(
-          'Tanga Academie',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-            letterSpacing: -0.5,
-          ),
-        ),
         const SizedBox(height: 24),
         // Subtitle
         Text(
-          isFr ? 'Connectez-vous pour continuer votre apprentissage' : 'Sign in to continue your learning journey',
+          isFr
+              ? 'Connectez-vous pour continuer votre apprentissage'
+              : 'Sign in to continue your learning journey',
           style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
         ),
       ],
@@ -200,7 +203,9 @@ class _LoginPageState extends State<LoginPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            isFr ? 'Entrez vos identifiants pour accéder à votre compte' : 'Enter your credentials to access your account',
+            isFr
+                ? 'Entrez vos identifiants pour accéder à votre compte'
+                : 'Enter your credentials to access your account',
             style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
           const SizedBox(height: 28),
@@ -239,7 +244,10 @@ class _LoginPageState extends State<LoginPage> {
               ),
               child: Text(
                 isFr ? 'Mot de passe oublié ?' : 'Forgot Password?',
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
               ),
             ),
           ),

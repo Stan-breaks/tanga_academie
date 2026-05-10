@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:tanga_acadamie/api_config.dart';
@@ -52,7 +53,7 @@ class ChatService {
         final message = Message.fromJson(data);
         onMessageReceived(message);
       } catch (e) {
-        print('Error parsing received message: $e');
+        debugPrint('Error parsing received message: $e');
       }
     });
 
@@ -82,10 +83,7 @@ class ChatService {
 
   /// Emit typing status
   void emitTyping(String chatId, bool isTyping) {
-    _socket?.emit('typing', {
-      'chatId': chatId,
-      'isTyping': isTyping,
-    });
+    _socket?.emit('typing', {'chatId': chatId, 'isTyping': isTyping});
   }
 
   /// Fetch messages for a chat
@@ -110,10 +108,7 @@ class ChatService {
   /// Send a message
   Future<Message?> sendMessage(String chatId, String content) async {
     // First emit via socket for real-time delivery
-    _socket?.emit('send_message', {
-      'chatId': chatId,
-      'content': content,
-    });
+    _socket?.emit('send_message', {'chatId': chatId, 'content': content});
 
     // Also send via HTTP for persistence
     try {
@@ -131,7 +126,7 @@ class ChatService {
         return Message.fromJson(data['data'] ?? data);
       }
     } catch (e) {
-      print('HTTP send failed, relying on socket: $e');
+      debugPrint('HTTP send failed, relying on socket: $e');
     }
     return null;
   }
@@ -149,7 +144,9 @@ class ChatService {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final chatsList = (data['data'] ?? data['chats'] ?? []) as List;
-      return chatsList.map((c) => ChatItem.fromJson(c)).toList();
+      return chatsList
+          .map((c) => ChatItem.fromJson(c as Map<String, dynamic>, null))
+          .toList();
     } else {
       throw Exception('Failed to fetch chats');
     }

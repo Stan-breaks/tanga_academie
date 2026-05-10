@@ -1,9 +1,11 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:intl/intl.dart';
-import 'dart:convert';
-import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
@@ -30,6 +32,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   bool _isTyping = false;
   bool _isOtherTyping = false;
   String? _token;
+  List<PlatformFile> _pendingFiles = [];
   Timer? _reconnectTimer;
   Timer? _typingResetTimer;
   Timer? _otherTypingResetTimer;
@@ -338,6 +341,58 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     }
   }
 
+  Future<void> _pickAttachment() async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.any,
+    );
+    if (result != null) {
+      final newFiles = result.files.where((f) => f.path != null).toList();
+      setState(() {
+        _pendingFiles = [..._pendingFiles, ...newFiles].take(5).toList();
+      });
+    }
+  }
+
+  Future<void> _sendMessageWithFiles() async {
+    if (_token == null) return;
+    final messageText = _messageController.text.trim();
+    if (messageText.isEmpty && _pendingFiles.isEmpty) return;
+
+    _messageController.clear();
+    final filesToSend = List<PlatformFile>.from(_pendingFiles);
+    setState(() => _pendingFiles = []);
+
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${ApiConfig.baseUrl}/api/chats/${widget.chatId}/messages'),
+      );
+      request.headers['Authorization'] = 'Bearer $_token';
+      if (messageText.isNotEmpty) request.fields['content'] = messageText;
+
+      for (final file in filesToSend) {
+        if (file.path != null) {
+          final ext = file.extension ?? 'bin';
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'attachments',
+              file.path!,
+              contentType: MediaType('application', ext),
+            ),
+          );
+        }
+      }
+
+      final streamed = await request.send();
+      final res = await http.Response.fromStream(streamed);
+
+      if ((res.statusCode == 200 || res.statusCode == 201) && mounted) {
+        _scrollToBottom();
+      }
+    } catch (_) {}
+  }
+
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -615,60 +670,125 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             ),
             child: SafeArea(
               top: false,
-              child: Row(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(
-                    icon: Icon(Icons.attach_file, color: Colors.grey.shade600),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Attachments coming soon!'),
-                        ),
-                      );
-                    },
-                  ),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: TextField(
-                        controller: _messageController,
-                        decoration: InputDecoration(
-                          hintText: isFr ? 'Écrivez un message...' : 'Type a message...',
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
+                  if (_pendingFiles.isNotEmpty) ...[
+                    SizedBox(
+                      height: 50,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.only(bottom: 8),
+                        itemCount: _pendingFiles.length,
+                        itemBuilder: (_, i) => Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.blueAccent.withAlpha(20),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.blueAccent.withAlpha(60),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.attach_file,
+                                size: 14,
+                                color: Colors.blueAccent,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                _pendingFiles[i].name,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.blueAccent,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(width: 4),
+                              GestureDetector(
+                                onTap: () => setState(
+                                  () => _pendingFiles.removeAt(i),
+                                ),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 14,
+                                  color: Colors.blueAccent.withAlpha(180),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        maxLines: null,
-                        textCapitalization: TextCapitalization.sentences,
-                        onChanged: _onTypingChanged,
-                        onSubmitted: (_) => _sendMessage(),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.blueAccent.shade200,
-                          Colors.blueAccent.shade700,
-                        ],
+                  ],
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.attach_file,
+                          color: _pendingFiles.isNotEmpty
+                              ? Colors.blueAccent
+                              : Colors.grey.shade600,
+                        ),
+                        onPressed:
+                            _pendingFiles.length < 5 ? _pickAttachment : null,
                       ),
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.send,
-                        color: Colors.white,
-                        size: 20,
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: TextField(
+                            controller: _messageController,
+                            decoration: InputDecoration(
+                              hintText: isFr
+                                  ? 'Écrivez un message...'
+                                  : 'Type a message...',
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                            ),
+                            maxLines: null,
+                            textCapitalization: TextCapitalization.sentences,
+                            onChanged: _onTypingChanged,
+                            onSubmitted: (_) => _pendingFiles.isEmpty
+                                ? _sendMessage()
+                                : _sendMessageWithFiles(),
+                          ),
+                        ),
                       ),
-                      onPressed: _sendMessage,
-                    ),
+                      const SizedBox(width: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.blueAccent.shade200,
+                              Colors.blueAccent.shade700,
+                            ],
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          onPressed: _pendingFiles.isEmpty
+                              ? _sendMessage
+                              : _sendMessageWithFiles,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

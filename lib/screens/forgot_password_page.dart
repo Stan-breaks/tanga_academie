@@ -21,10 +21,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     6,
     (index) => TextEditingController(),
   );
-  final List<FocusNode> _focusNodes = List.generate(
-    6,
-    (index) => FocusNode(),
-  );
+  final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
 
   bool _isLoading = false;
   bool _isPasswordObscure = true;
@@ -58,7 +55,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
     if (!_isValidEmail(email)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isFr ? 'Veuillez entrer un email valide' : 'Please enter a valid email')),
+        SnackBar(
+          content: Text(
+            isFr
+                ? 'Veuillez entrer un email valide'
+                : 'Please enter a valid email',
+          ),
+        ),
       );
       return;
     }
@@ -88,20 +91,30 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isFr ? 'Code de vérification envoyé à votre email' : 'Verification code sent to your email'),
+            content: Text(
+              isFr
+                  ? 'Code de vérification envoyé à votre email'
+                  : 'Verification code sent to your email',
+            ),
             backgroundColor: Colors.green,
           ),
         );
       } else {
         final error = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error['message'] ?? (isFr ? 'Erreur inconnue' : 'Unknown error'))),
+          SnackBar(
+            content: Text(
+              error['message'] ?? (isFr ? 'Erreur inconnue' : 'Unknown error'),
+            ),
+          ),
         );
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("${isFr ? 'Erreur' : 'Error'}: ${e.toString()}")),
+        SnackBar(
+          content: Text("${isFr ? 'Erreur' : 'Error'}: ${e.toString()}"),
+        ),
       );
     } finally {
       if (mounted) {
@@ -119,21 +132,39 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
     if (code.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isFr ? 'Veuillez entrer le code complet' : 'Please enter the full code')),
+        SnackBar(
+          content: Text(
+            isFr
+                ? 'Veuillez entrer le code complet'
+                : 'Please enter the full code',
+          ),
+        ),
       );
       return;
     }
 
     if (newPassword.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isFr ? 'Veuillez remplir tous les champs' : 'Please fill in all fields')),
+        SnackBar(
+          content: Text(
+            isFr
+                ? 'Veuillez remplir tous les champs'
+                : 'Please fill in all fields',
+          ),
+        ),
       );
       return;
     }
 
     if (newPassword != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isFr ? 'Les mots de passe ne correspondent pas' : 'Passwords do not match')),
+        SnackBar(
+          content: Text(
+            isFr
+                ? 'Les mots de passe ne correspondent pas'
+                : 'Passwords do not match',
+          ),
+        ),
       );
       return;
     }
@@ -141,7 +172,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     if (newPassword.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(isFr ? 'Le mot de passe doit contenir au moins 6 caractères' : 'Password must be at least 6 characters')),
+          content: Text(
+            isFr
+                ? 'Le mot de passe doit contenir au moins 6 caractères'
+                : 'Password must be at least 6 characters',
+          ),
+        ),
       );
       return;
     }
@@ -171,11 +207,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isFr ? 'Mot de passe réinitialisé avec succès!' : 'Password reset successfully!'),
+            content: Text(
+              isFr
+                  ? 'Mot de passe réinitialisé avec succès!'
+                  : 'Password reset successfully!',
+            ),
             backgroundColor: Colors.green,
           ),
         );
-        
+
         // Navigate back to login page
         await Future.delayed(const Duration(seconds: 1));
         if (!mounted) return;
@@ -186,13 +226,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       } else {
         final error = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error['message'] ?? (isFr ? 'Code invalide' : 'Invalid code'))),
+          SnackBar(
+            content: Text(
+              error['message'] ?? (isFr ? 'Code invalide' : 'Invalid code'),
+            ),
+          ),
         );
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("${isFr ? 'Erreur' : 'Error'}: ${e.toString()}")),
+        SnackBar(
+          content: Text("${isFr ? 'Erreur' : 'Error'}: ${e.toString()}"),
+        ),
       );
     } finally {
       if (mounted) {
@@ -206,12 +252,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   void _onCodeChanged(String value, int index) {
     if (value.isNotEmpty && index < 5) {
       _focusNodes[index + 1].requestFocus();
-    }
-  }
-
-  void _onBackspace(String value, int index) {
-    if (value.isEmpty && index > 0) {
-      _focusNodes[index - 1].requestFocus();
     }
   }
 
@@ -262,7 +302,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               // Title
               Text(
                 _codeSent
-                    ? (isFr ? 'Réinitialiser le mot de passe' : 'Reset Password')
+                    ? (isFr
+                          ? 'Réinitialiser le mot de passe'
+                          : 'Reset Password')
                     : (isFr ? 'Mot de passe oublié ?' : 'Forgot Password?'),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
@@ -277,8 +319,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               // Description
               Text(
                 _codeSent
-                    ? (isFr ? 'Entrez le code à 6 chiffres envoyé à $_userEmail et votre nouveau mot de passe' : 'Enter the 6-digit code sent to $_userEmail and your new password')
-                    : (isFr ? 'Pas de soucis! Entrez votre adresse email et nous vous enverrons un code de vérification.' : 'No worries! Enter your email and we\'ll send you a verification code.'),
+                    ? (isFr
+                          ? 'Entrez le code à 6 chiffres envoyé à $_userEmail et votre nouveau mot de passe'
+                          : 'Enter the 6-digit code sent to $_userEmail and your new password')
+                    : (isFr
+                          ? 'Pas de soucis! Entrez votre adresse email et nous vous enverrons un code de vérification.'
+                          : 'No worries! Enter your email and we\'ll send you a verification code.'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
@@ -323,8 +369,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : Text(isFr ? 'Envoyer le code' : 'Send Code'),
@@ -412,7 +459,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   controller: _confirmPasswordController,
                   obscureText: _isConfirmPasswordObscure,
                   decoration: InputDecoration(
-                    labelText: isFr ? 'Confirmer le mot de passe' : 'Confirm Password',
+                    labelText: isFr
+                        ? 'Confirmer le mot de passe'
+                        : 'Confirm Password',
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.lock),
                     suffixIcon: IconButton(
@@ -454,11 +503,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
-                      : Text(isFr ? 'Réinitialiser le mot de passe' : 'Reset Password'),
+                      : Text(
+                          isFr
+                              ? 'Réinitialiser le mot de passe'
+                              : 'Reset Password',
+                        ),
                 ),
 
                 const SizedBox(height: 16),

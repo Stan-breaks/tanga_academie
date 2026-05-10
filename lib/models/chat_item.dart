@@ -1,5 +1,6 @@
-/// Chat item model representing a conversation in chat list
 import 'package:intl/intl.dart';
+
+/// Chat item model representing a conversation in chat list
 
 class ChatItem {
   final String id;
@@ -30,7 +31,7 @@ class ChatItem {
 
   factory ChatItem.fromJson(Map<String, dynamic> json, String? currentUserId) {
     // Handle different API response formats
-    
+
     // For chats with otherParticipants array (most common)
     if (json['otherParticipants'] != null) {
       final otherParticipants = json['otherParticipants'] as List;
@@ -38,27 +39,38 @@ class ChatItem {
         final participant = otherParticipants[0];
         final firstName = participant['firstName']?.toString() ?? '';
         final lastName = participant['lastName']?.toString() ?? '';
-        final name = participant['name']?.toString() ?? '$firstName $lastName'.trim();
+        final name =
+            participant['name']?.toString() ?? '$firstName $lastName'.trim();
         final displayName = name.isEmpty ? 'Unknown User' : name;
 
         final lastMsg = json['lastMessage'];
-        final lastMessageContent = lastMsg?['content']?.toString() ?? 'No messages yet';
+        final lastMessageContent =
+            lastMsg?['content']?.toString() ?? 'No messages yet';
         final lastMessageTime = lastMsg?['timestamp'] != null
-            ? DateTime.tryParse(lastMsg['timestamp'].toString()) ?? DateTime.now()
+            ? DateTime.tryParse(lastMsg['timestamp'].toString()) ??
+                  DateTime.now()
             : DateTime.now();
 
         return ChatItem(
           id: json['_id']?.toString() ?? json['chatId']?.toString() ?? '',
           recipientId: participant['_id']?.toString() ?? '',
           recipientName: displayName,
-          recipientInitial: displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
-          recipientAvatar: participant['profile']?.toString() ?? participant['avatar']?.toString(),
+          recipientInitial: displayName.isNotEmpty
+              ? displayName[0].toUpperCase()
+              : '?',
+          recipientAvatar:
+              participant['profile']?.toString() ??
+              participant['avatar']?.toString(),
           recipientRole: participant['role']?.toString(),
           lastMessage: lastMessageContent,
           lastMessageTime: lastMessageTime,
           unreadCount: json['unreadCount'] ?? 0,
-          courseId: json['courseId']?.toString() ?? json['course']?['_id']?.toString(),
-          courseName: json['courseName']?.toString() ?? json['course']?['title']?.toString(),
+          courseId:
+              json['courseId']?.toString() ??
+              json['course']?['_id']?.toString(),
+          courseName:
+              json['courseName']?.toString() ??
+              json['course']?['title']?.toString(),
         );
       }
     }
@@ -67,27 +79,40 @@ class ChatItem {
     final recipientData = json['recipient'] ?? json['otherUser'] ?? {};
     final firstName = recipientData['firstName']?.toString() ?? '';
     final lastName = recipientData['lastName']?.toString() ?? '';
-    final name = recipientData['username']?.toString() ?? 
-                 recipientData['name']?.toString() ?? 
-                 '$firstName $lastName'.trim();
+    final name =
+        recipientData['username']?.toString() ??
+        recipientData['name']?.toString() ??
+        '$firstName $lastName'.trim();
     final displayName = name.isEmpty ? 'Unknown' : name;
 
     return ChatItem(
       id: json['_id']?.toString() ?? json['chatId']?.toString() ?? '',
-      recipientId: recipientData['_id']?.toString() ?? json['recipientId']?.toString() ?? '',
+      recipientId:
+          recipientData['_id']?.toString() ??
+          json['recipientId']?.toString() ??
+          '',
       recipientName: displayName,
-      recipientInitial: displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
-      recipientAvatar: recipientData['avatar']?.toString() ?? recipientData['profile']?.toString(),
+      recipientInitial: displayName.isNotEmpty
+          ? displayName[0].toUpperCase()
+          : '?',
+      recipientAvatar:
+          recipientData['avatar']?.toString() ??
+          recipientData['profile']?.toString(),
       recipientRole: recipientData['role']?.toString(),
       lastMessage: json['lastMessage']?.toString() ?? 'No messages yet',
       lastMessageTime: json['lastMessageTime'] != null
-          ? DateTime.tryParse(json['lastMessageTime'].toString()) ?? DateTime.now()
+          ? DateTime.tryParse(json['lastMessageTime'].toString()) ??
+                DateTime.now()
           : (json['updatedAt'] != null
-              ? DateTime.tryParse(json['updatedAt'].toString()) ?? DateTime.now()
-              : DateTime.now()),
+                ? DateTime.tryParse(json['updatedAt'].toString()) ??
+                      DateTime.now()
+                : DateTime.now()),
       unreadCount: int.tryParse(json['unreadCount']?.toString() ?? '0') ?? 0,
-      courseId: json['courseId']?.toString() ?? json['course']?['_id']?.toString(),
-      courseName: json['courseName']?.toString() ?? json['course']?['title']?.toString(),
+      courseId:
+          json['courseId']?.toString() ?? json['course']?['_id']?.toString(),
+      courseName:
+          json['courseName']?.toString() ??
+          json['course']?['title']?.toString(),
     );
   }
 

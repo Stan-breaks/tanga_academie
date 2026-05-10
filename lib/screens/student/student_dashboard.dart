@@ -8,13 +8,32 @@ import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 
-class StudentDashboard extends StatelessWidget {
+class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
+
+  @override
+  State<StudentDashboard> createState() => _StudentDashboardState();
+}
+
+class _StudentDashboardState extends State<StudentDashboard> {
+  late Future<Map<String, dynamic>> _dashFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _dashFuture = getStudentDash();
+  }
+
+  void _refresh() {
+    setState(() {
+      _dashFuture = getStudentDash();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getStudentDash(),
+      future: _dashFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _buildLoadingState();
@@ -40,9 +59,7 @@ class StudentDashboard extends StatelessWidget {
             backgroundColor: Colors.grey.shade50,
             body: RefreshIndicator(
               color: Colors.blueAccent,
-              onRefresh: () async {
-                // Trigger refresh
-              },
+              onRefresh: () async => _refresh(),
               child: ListView(
                 padding: const EdgeInsets.all(20),
                 children: [

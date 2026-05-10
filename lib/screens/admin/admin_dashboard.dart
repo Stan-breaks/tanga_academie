@@ -5,8 +5,10 @@ import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/screens/admin/admin_analytics_page.dart';
 import 'package:tanga_acadamie/screens/admin/admin_courses_page.dart';
 import 'package:tanga_acadamie/screens/admin/admin_users_list.dart';
+import 'package:tanga_acadamie/screens/admin/admin_blogs_page.dart';
 import 'package:tanga_acadamie/screens/shared/_stat_card.dart';
 import 'package:tanga_acadamie/screens/shared/course_card.dart';
+import 'package:tanga_acadamie/screens/shared/course_details_page.dart';
 import 'package:tanga_acadamie/screens/shared/settings_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
@@ -101,7 +103,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             const SizedBox(height: 20),
             Text(
-              isFr ? 'Chargement du tableau de bord admin...' : 'Loading admin dashboard...',
+              isFr
+                  ? 'Chargement du tableau de bord admin...'
+                  : 'Loading admin dashboard...',
               style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
             ),
           ],
@@ -172,7 +176,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const SizedBox(height: 32),
 
             // Quick Actions Section
-            _buildSectionHeader(context, isFr ? 'Actions rapides' : 'Quick Actions', Icons.flash_on, 0),
+            _buildSectionHeader(
+              context,
+              isFr ? 'Actions rapides' : 'Quick Actions',
+              Icons.flash_on,
+              0,
+            ),
             const SizedBox(height: 16),
             _buildQuickActions(),
             const SizedBox(height: 32),
@@ -468,6 +477,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
         },
       ),
       _QuickActionItem(
+        title: isFr ? 'Articles' : 'Blogs',
+        icon: Icons.article,
+        color: Colors.teal,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminBlogsPage()),
+          );
+        },
+      ),
+      _QuickActionItem(
         title: isFr ? 'Paramètres' : 'Settings',
         icon: Icons.settings,
         color: Colors.orange,
@@ -529,7 +549,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     if (_recentCourses.isEmpty) {
       return _buildEmptyState(
         isFr ? 'Aucun cours' : 'No courses yet',
-        isFr ? 'Les cours apparaîtront ici' : 'Courses will appear here as they are created',
+        isFr
+            ? 'Les cours apparaîtront ici'
+            : 'Courses will appear here as they are created',
         Icons.library_books_outlined,
       );
     }
@@ -548,7 +570,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
         return CourseCard(
           course: _recentCourses[index],
           onTap: () {
-            // Navigate to course details
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    CourseDetailsPage(course: _recentCourses[index]),
+              ),
+            );
           },
         );
       },
@@ -559,7 +587,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     if (_topInstructors.isEmpty) {
       return _buildEmptyState(
         isFr ? 'Aucun instructeur' : 'No instructors yet',
-        isFr ? 'Les instructeurs apparaîtront ici' : 'Instructors will appear here once they create courses',
+        isFr
+            ? 'Les instructeurs apparaîtront ici'
+            : 'Instructors will appear here once they create courses',
         Icons.school_outlined,
       );
     }
@@ -639,7 +669,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     if (_notices.isEmpty) {
       return _buildEmptyState(
         isFr ? 'Aucune notification' : 'No notices',
-        isFr ? 'Les notifications apparaîtront ici' : 'Important notices will appear here',
+        isFr
+            ? 'Les notifications apparaîtront ici'
+            : 'Important notices will appear here',
         Icons.notifications_none,
       );
     }
@@ -654,7 +686,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: _notices.length,
-        separatorBuilder: (_, __) =>
+        separatorBuilder: (context, index) =>
             Divider(color: Colors.grey.shade200, height: 1),
         itemBuilder: (context, index) {
           final notice = _notices[index];

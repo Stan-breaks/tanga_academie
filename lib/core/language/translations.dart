@@ -63,11 +63,13 @@ const Map<String, String> enToFr = {
   'Change Password': 'Changer le mot de passe',
   'Send Code': 'Envoyer le code',
   'Sending...': 'Envoi en cours...',
-  'A verification code will be sent to': 'Un code de vérification sera envoyé à',
+  'A verification code will be sent to':
+      'Un code de vérification sera envoyé à',
   'Enter the complete code (6 digits)': 'Entrez le code complet (6 chiffres)',
   'Please fill in all fields': 'Veuillez remplir tous les champs',
   'Passwords do not match': 'Les mots de passe ne correspondent pas',
-  'Password must be at least 6 characters': 'Le mot de passe doit contenir au moins 6 caractères',
+  'Password must be at least 6 characters':
+      'Le mot de passe doit contenir au moins 6 caractères',
   'Password reset successfully!': 'Mot de passe réinitialisé avec succès !',
   'New Password': 'Nouveau mot de passe',
   'Account Details': 'Détails du compte',
@@ -122,11 +124,13 @@ const Map<String, String> enToFr = {
   'Manage Courses': 'Gérer les cours',
   'View and edit your courses': 'Voir et modifier vos cours',
   'Grade Assignments': 'Noter les devoirs',
-  'Review and grade student submissions': 'Examiner et noter les soumissions des étudiants',
+  'Review and grade student submissions':
+      'Examiner et noter les soumissions des étudiants',
   'Create Quiz': 'Créer un quiz',
   'Create & manage lesson quizzes': 'Créer et gérer les quiz de leçons',
   'Student Progress': 'Progrès des étudiants',
-  'Monitor student learning progress': 'Surveiller les progrès d\'apprentissage des étudiants',
+  'Monitor student learning progress':
+      'Surveiller les progrès d\'apprentissage des étudiants',
 
   // ── Courses ────────────────────────────────────────────────────
   'All Courses': 'Tous les cours',
@@ -164,7 +168,8 @@ const Map<String, String> enToFr = {
   'Loading courses...': 'Chargement des cours...',
   'Loading assignments...': 'Chargement des devoirs...',
   'No Assignments Found': 'Aucun devoir trouvé',
-  'Select a course or check your assignments.': 'Sélectionnez un cours ou vérifiez vos devoirs.',
+  'Select a course or check your assignments.':
+      'Sélectionnez un cours ou vérifiez vos devoirs.',
   'Due': 'Échéance',
   'Overdue': 'En retard',
   'Max Points': 'Points max',
@@ -181,7 +186,6 @@ const Map<String, String> enToFr = {
   'Due Date': 'Date d\'échéance',
   'Select Date': 'Sélectionner la date',
   'No submissions yet': 'Aucune soumission pour le moment',
-  'Student': 'Étudiant',
   'Submitted': 'Soumis',
   'Grade': 'Note',
   'Feedback': 'Commentaire',
@@ -195,17 +199,21 @@ const Map<String, String> enToFr = {
   // ── Quiz ───────────────────────────────────────────────────────
   'Select a Course': 'Sélectionner un cours',
   'Select a Lesson': 'Sélectionner une leçon',
-  'This course has no lessons yet. Add lessons first.': 'Ce cours n\'a pas encore de leçons. Ajoutez des leçons d\'abord.',
+  'This course has no lessons yet. Add lessons first.':
+      'Ce cours n\'a pas encore de leçons. Ajoutez des leçons d\'abord.',
   'Edit Quiz': 'Modifier le quiz',
   'No Questions': 'Aucune question',
-  'Tap the add button above to create your first question.': 'Appuyez sur le bouton ajouter ci-dessus pour créer votre première question.',
+  'Tap the add button above to create your first question.':
+      'Appuyez sur le bouton ajouter ci-dessus pour créer votre première question.',
   'Add Question': 'Ajouter une question',
-  'A quiz must have at least one question': 'Un quiz doit avoir au moins une question',
+  'A quiz must have at least one question':
+      'Un quiz doit avoir au moins une question',
   'Question': 'Question',
   'Type your question here...': 'Tapez votre question ici...',
   'Options': 'Options',
   'Option': 'Option',
-  'Tap the letter to mark the correct answer': 'Appuyez sur la lettre pour marquer la bonne réponse',
+  'Tap the letter to mark the correct answer':
+      'Appuyez sur la lettre pour marquer la bonne réponse',
   'Save Quiz': 'Enregistrer le quiz',
   'Update Quiz': 'Mettre à jour le quiz',
   'Quiz updated successfully': 'Quiz mis à jour avec succès',
@@ -220,7 +228,8 @@ const Map<String, String> enToFr = {
   'Track individual student progress and quiz performance':
       'Suivez les progrès individuels des étudiants et leurs performances aux quiz',
   'No Students Found': 'Aucun étudiant trouvé',
-  'No students match the current filters.': 'Aucun étudiant ne correspond aux filtres actuels.',
+  'No students match the current filters.':
+      'Aucun étudiant ne correspond aux filtres actuels.',
   'Reset Course': 'Réinitialiser le cours',
   'Reset Chapter?': 'Réinitialiser le chapitre ?',
   'Reset Course Progress?': 'Réinitialiser le progrès du cours ?',
@@ -228,8 +237,10 @@ const Map<String, String> enToFr = {
       'Ceci réinitialisera la progression du quiz de l\'étudiant pour ce chapitre. Cette action ne peut pas être annulée.',
   'This will reset all quiz progress for this student in this course. This cannot be undone.':
       'Ceci réinitialisera tous les progrès de quiz de cet étudiant dans ce cours. Cette action ne peut pas être annulée.',
-  'Chapter progress reset successfully': 'Progrès du chapitre réinitialisé avec succès',
-  'Course progress reset successfully': 'Progrès du cours réinitialisé avec succès',
+  'Chapter progress reset successfully':
+      'Progrès du chapitre réinitialisé avec succès',
+  'Course progress reset successfully':
+      'Progrès du cours réinitialisé avec succès',
   'Failed to reset progress': 'Échec de la réinitialisation du progrès',
   'No quiz attempts yet': 'Aucune tentative de quiz pour le moment',
   'Overall': 'Global',

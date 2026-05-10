@@ -25,7 +25,9 @@ class InstructorDashboard extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    isFr ? 'Chargement du tableau de bord...' : 'Loading your dashboard...',
+                    isFr
+                        ? 'Chargement du tableau de bord...'
+                        : 'Loading your dashboard...',
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                   ),
                 ],
@@ -41,10 +43,16 @@ class InstructorDashboard extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red.shade300,
+                    ),
                     const SizedBox(height: 16),
                     Text(
-                      isFr ? 'Quelque chose a mal tourné' : 'Something went wrong',
+                      isFr
+                          ? 'Quelque chose a mal tourné'
+                          : 'Something went wrong',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -120,7 +128,9 @@ class InstructorDashboard extends StatelessWidget {
                         ],
                       ),
                       StatCard(
-                        title: isFr ? 'Soumissions en attente' : 'Pending Submissions',
+                        title: isFr
+                            ? 'Soumissions en attente'
+                            : 'Pending Submissions',
                         value: "${stats['pendingSubmissions'] ?? 0}",
                         icon: Icons.assignment_late,
                         gradientColors: [
@@ -151,18 +161,26 @@ class InstructorDashboard extends StatelessWidget {
                   const SizedBox(height: 32),
 
                   // Quick Actions Section
-                  _buildSectionHeader(isFr ? 'Actions rapides' : 'Quick Actions', Icons.flash_on),
+                  _buildSectionHeader(
+                    isFr ? 'Actions rapides' : 'Quick Actions',
+                    Icons.flash_on,
+                  ),
                   const SizedBox(height: 16),
                   _buildQuickActions(context),
                   const SizedBox(height: 32),
 
                   // Recent Courses Section
-                  _buildSectionHeader(isFr ? 'Cours récents' : 'Recent Courses', Icons.library_books),
+                  _buildSectionHeader(
+                    isFr ? 'Cours récents' : 'Recent Courses',
+                    Icons.library_books,
+                  ),
                   const SizedBox(height: 16),
                   if (recentCourses.isEmpty)
                     _buildEmptyState(
                       isFr ? 'Aucun cours' : 'No courses yet',
-                      isFr ? 'Créez votre premier cours pour commencer !' : 'Create your first course to get started!',
+                      isFr
+                          ? 'Créez votre premier cours pour commencer !'
+                          : 'Create your first course to get started!',
                       Icons.book_outlined,
                     )
                   else
@@ -170,12 +188,17 @@ class InstructorDashboard extends StatelessWidget {
                   const SizedBox(height: 32),
 
                   // Recent Assignment Activity Section
-                  _buildSectionHeader(isFr ? 'Activité des devoirs' : 'Assignment Activity', Icons.assignment),
+                  _buildSectionHeader(
+                    isFr ? 'Activité des devoirs' : 'Assignment Activity',
+                    Icons.assignment,
+                  ),
                   const SizedBox(height: 16),
                   if (recentAssignments.isEmpty)
                     _buildEmptyState(
                       isFr ? 'Aucun devoir' : 'No assignments yet',
-                      isFr ? 'Créez des devoirs pour suivre les soumissions !' : 'Create assignments to track student submissions!',
+                      isFr
+                          ? 'Créez des devoirs pour suivre les soumissions !'
+                          : 'Create assignments to track student submissions!',
                       Icons.assignment_outlined,
                     )
                   else
@@ -263,7 +286,9 @@ class InstructorDashboard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    isFr ? '\u{1F393} Tableau de bord instructeur' : '\u{1F393} Instructor Dashboard',
+                    isFr
+                        ? '\u{1F393} Tableau de bord instructeur'
+                        : '\u{1F393} Instructor Dashboard',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -280,11 +305,7 @@ class InstructorDashboard extends StatelessWidget {
               color: Colors.white.withAlpha(40),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Icon(
-              Icons.school,
-              color: Colors.white,
-              size: 36,
-            ),
+            child: const Icon(Icons.school, color: Colors.white, size: 36),
           ),
         ],
       ),
@@ -319,35 +340,45 @@ class InstructorDashboard extends StatelessWidget {
     final actions = [
       QuickAction(
         title: isFr ? 'Créer un cours' : 'Create New Course',
-        description: isFr ? 'Commencez à créer votre prochain cours' : 'Start creating your next course',
+        description: isFr
+            ? 'Commencez à créer votre prochain cours'
+            : 'Start creating your next course',
         icon: '📚',
         color: Colors.blue.shade400,
         route: '/create-course',
       ),
       QuickAction(
         title: isFr ? 'Gérer les cours' : 'Manage Courses',
-        description: isFr ? 'Modifier et mettre à jour les cours' : 'Edit and update existing courses',
+        description: isFr
+            ? 'Modifier et mettre à jour les cours'
+            : 'Edit and update existing courses',
         icon: '⚙️',
         color: Colors.green.shade500,
         route: '/instructor-courses',
       ),
       QuickAction(
         title: isFr ? 'Noter les devoirs' : 'Grade Assignments',
-        description: isFr ? 'Vérifier et noter les soumissions' : 'Review and grade student submissions',
+        description: isFr
+            ? 'Vérifier et noter les soumissions'
+            : 'Review and grade student submissions',
         icon: '📝',
         color: Colors.orange.shade400,
         route: '/instructor-assignments',
       ),
       QuickAction(
         title: isFr ? 'Créer un quiz' : 'Create Quiz',
-        description: isFr ? 'Créer et gérer les quiz' : 'Create & manage lesson quizzes',
+        description: isFr
+            ? 'Créer et gérer les quiz'
+            : 'Create & manage lesson quizzes',
         icon: '📊',
         color: Colors.purple.shade500,
         route: '/instructor-quiz',
       ),
       QuickAction(
         title: isFr ? 'Progrès des étudiants' : 'Student Progress',
-        description: isFr ? 'Suivre les progrès d\'apprentissage' : 'Monitor student learning progress',
+        description: isFr
+            ? 'Suivre les progrès d\'apprentissage'
+            : 'Monitor student learning progress',
         icon: '👥',
         color: Colors.teal.shade500,
         route: '/instructor-student-progress',
@@ -382,15 +413,12 @@ class InstructorDashboard extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              action.color,
-              action.color.withOpacity(0.8),
-            ],
+            colors: [action.color, action.color.withValues(alpha: 0.8)],
           ),
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: action.color.withOpacity(0.3),
+              color: action.color.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -401,10 +429,7 @@ class InstructorDashboard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                action.icon,
-                style: const TextStyle(fontSize: 32),
-              ),
+              Text(action.icon, style: const TextStyle(fontSize: 32)),
               const SizedBox(height: 8),
               Text(
                 action.title,
@@ -421,7 +446,7 @@ class InstructorDashboard extends StatelessWidget {
               Text(
                 action.description,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   fontSize: 11,
                 ),
                 textAlign: TextAlign.center,
@@ -453,8 +478,8 @@ class InstructorDashboard extends StatelessWidget {
     final statusColor = status == 'published'
         ? Colors.green
         : status == 'pending'
-            ? Colors.orange
-            : Colors.red;
+        ? Colors.orange
+        : Colors.red;
 
     return Container(
       decoration: BoxDecoration(
@@ -493,9 +518,11 @@ class InstructorDashboard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: statusColor.withOpacity(0.3)),
+                    border: Border.all(
+                      color: statusColor.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Text(
                     status,
@@ -533,13 +560,7 @@ class InstructorDashboard extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: Colors.grey.shade600),
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey.shade600,
-          ),
-        ),
+        Text(text, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
       ],
     );
   }
@@ -583,10 +604,7 @@ class InstructorDashboard extends StatelessWidget {
           children: [
             Text(
               assignment['title'] ?? 'Untitled Assignment',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -622,13 +640,7 @@ class InstructorDashboard extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: Colors.grey.shade600),
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey.shade600,
-          ),
-        ),
+        Text(text, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
       ],
     );
   }
@@ -656,10 +668,7 @@ class InstructorDashboard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             textAlign: TextAlign.center,
           ),
         ],

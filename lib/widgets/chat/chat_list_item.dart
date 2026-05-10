@@ -10,11 +10,7 @@ class ChatListItem extends StatelessWidget {
   final ChatItem chat;
   final VoidCallback onTap;
 
-  const ChatListItem({
-    super.key,
-    required this.chat,
-    required this.onTap,
-  });
+  const ChatListItem({super.key, required this.chat, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -62,9 +58,9 @@ class ChatListItem extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (chat.lastMessageTime != null)
+                          if (true)
                             Text(
-                              _formatTime(chat.lastMessageTime!),
+                              _formatTime(chat.lastMessageTime),
                               style: TextStyle(
                                 fontSize: 12,
                                 color: hasUnread
@@ -82,7 +78,9 @@ class ChatListItem extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              chat.lastMessage ?? 'Start a conversation',
+                              chat.lastMessage.isNotEmpty
+                                  ? chat.lastMessage
+                                  : 'Start a conversation',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: hasUnread

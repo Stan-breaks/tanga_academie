@@ -147,6 +147,111 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
     }
   }
 
+  Future<void> _showZoomDialog(Map<String, dynamic> course) async {
+    final courseId = course['_id']?.toString() ?? '';
+    final existing = course['zoomLink']?.toString();
+    final controller = TextEditingController(text: existing ?? '');
+
+    final result = await showDialog<String?>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.videocam, color: Colors.blue, size: 26),
+            const SizedBox(width: 8),
+            Text(isFr ? 'Lien Zoom' : 'Zoom Link'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                hintText: 'https://zoom.us/j/...',
+                labelText: isFr ? 'URL Zoom' : 'Zoom URL',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                prefixIcon: const Icon(Icons.link),
+              ),
+              keyboardType: TextInputType.url,
+            ),
+          ],
+        ),
+        actions: [
+          if (existing != null)
+            TextButton(
+              onPressed: () => Navigator.pop(context, '__remove__'),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: Text(isFr ? 'Supprimer' : 'Remove'),
+            ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            child: Text(isFr ? 'Annuler' : 'Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(isFr ? 'Enregistrer' : 'Save'),
+          ),
+        ],
+      ),
+    );
+
+    controller.dispose();
+    if (result == null) return;
+
+    try {
+      final token = await getToken();
+      http.Response res;
+
+      if (result == '__remove__') {
+        res = await http.delete(
+          Uri.parse('${ApiConfig.baseUrl}/api/courses/$courseId/zoom'),
+          headers: {'Authorization': 'Bearer $token'},
+        );
+      } else {
+        if (result.isEmpty) return;
+        res = await http.put(
+          Uri.parse('${ApiConfig.baseUrl}/api/courses/$courseId/zoom'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({'zoomLink': result}),
+        );
+      }
+
+      if ((res.statusCode == 200 || res.statusCode == 201) && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result == '__remove__'
+                  ? (isFr ? 'Lien Zoom supprimé' : 'Zoom link removed')
+                  : (isFr ? 'Lien Zoom enregistré' : 'Zoom link saved'),
+            ),
+            backgroundColor:
+                result == '__remove__' ? Colors.orange : Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        _fetchCourses();
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(isFr ? 'Erreur' : 'Failed'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } catch (_) {}
+  }
+
   void _navigateToEditCourse(Map<String, dynamic> course) async {
     final result = await Navigator.push(
       context,
@@ -691,6 +796,33 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
                                     const SizedBox(width: 3),
                                     Text(isFr ? 'Modifier' : 'Edit', style: const TextStyle(fontSize: 10)),
                                   ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          SizedBox(
+                            height: 30,
+                            width: 30,
+                            child: IconButton(
+                              onPressed: () =>
+                                  _showZoomDialog(course),
+                              padding: EdgeInsets.zero,
+                              tooltip: 'Zoom',
+                              icon: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                padding: const EdgeInsets.all(5),
+                                child: Icon(
+                                  course['zoomLink'] != null
+                                      ? Icons.videocam
+                                      : Icons.videocam_off,
+                                  color: course['zoomLink'] != null
+                                      ? Colors.blue
+                                      : Colors.grey.shade500,
+                                  size: 14,
                                 ),
                               ),
                             ),

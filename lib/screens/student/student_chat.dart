@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
@@ -11,7 +13,11 @@ class StudentChatPage extends StatefulWidget {
   final String chatId;
   final String userId;
 
-  const StudentChatPage({super.key, required this.chatId, required this.userId});
+  const StudentChatPage({
+    super.key,
+    required this.chatId,
+    required this.userId,
+  });
 
   @override
   State<StudentChatPage> createState() => _StudentChatPageState();
@@ -26,9 +32,9 @@ class _StudentChatPageState extends State<StudentChatPage>
   bool _isLoading = true;
   bool _isConnected = false;
   String _otherUserName = 'Chat';
-  String? _otherUserId;
   bool _isTyping = false;
   String? _token;
+  List<PlatformFile> _pendingFiles = [];
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
@@ -130,10 +136,11 @@ class _StudentChatPageState extends State<StudentChatPage>
 
   void _handleNewMessage(dynamic data) {
     if (!mounted) return;
-    
+
     debugPrint('Received new message: $data');
-    
-    final senderId = data['senderId'] ?? data['sender']?['_id'] ?? data['sender'];
+
+    final senderId =
+        data['senderId'] ?? data['sender']?['_id'] ?? data['sender'];
 
     // Skip our own messages
     if (senderId == widget.userId) {
@@ -147,8 +154,9 @@ class _StudentChatPageState extends State<StudentChatPage>
       (msg) =>
           (msg.id == newMessage.id && msg.id.isNotEmpty) ||
           (msg.senderId == senderId &&
-           msg.content == newMessage.content &&
-           msg.timestamp.difference(newMessage.timestamp).inSeconds.abs() < 5),
+              msg.content == newMessage.content &&
+              msg.timestamp.difference(newMessage.timestamp).inSeconds.abs() <
+                  5),
     );
 
     if (!exists) {
@@ -196,7 +204,6 @@ class _StudentChatPageState extends State<StudentChatPage>
             );
 
             if (otherParticipant != null) {
-              _otherUserId = otherParticipant['_id'];
               _otherUserName =
                   otherParticipant['name'] ??
                   '${otherParticipant['firstName'] ?? ''} ${otherParticipant['lastName'] ?? ''}'
@@ -265,13 +272,18 @@ class _StudentChatPageState extends State<StudentChatPage>
           _fetchChatMessages();
         });
       } else {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
                 Icon(Icons.error_outline, color: Colors.white),
                 SizedBox(width: 12),
-                Text(isFr ? 'Échec de l\'envoi du message' : 'Failed to send message'),
+                Text(
+                  isFr
+                      ? 'Échec de l\'envoi du message'
+                      : 'Failed to send message',
+                ),
               ],
             ),
             backgroundColor: Colors.red.shade600,
@@ -283,13 +295,18 @@ class _StudentChatPageState extends State<StudentChatPage>
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
             children: [
               Icon(Icons.error_outline, color: Colors.white),
               SizedBox(width: 12),
-              Text(isFr ? 'Erreur lors de l\'envoi du message' : 'Error sending message'),
+              Text(
+                isFr
+                    ? 'Erreur lors de l\'envoi du message'
+                    : 'Error sending message',
+              ),
             ],
           ),
           backgroundColor: Colors.red.shade600,
@@ -300,6 +317,59 @@ class _StudentChatPageState extends State<StudentChatPage>
         ),
       );
     }
+  }
+
+  Future<void> _pickAttachment() async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.any,
+    );
+    if (result != null) {
+      final newFiles = result.files.where((f) => f.path != null).toList();
+      setState(() {
+        _pendingFiles = [..._pendingFiles, ...newFiles].take(5).toList();
+      });
+    }
+  }
+
+  Future<void> _sendMessageWithFiles() async {
+    if (_token == null) return;
+    final messageText = _messageController.text.trim();
+    if (messageText.isEmpty && _pendingFiles.isEmpty) return;
+
+    _messageController.clear();
+    final filesToSend = List<PlatformFile>.from(_pendingFiles);
+    setState(() => _pendingFiles = []);
+
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${ApiConfig.baseUrl}/api/chats/${widget.chatId}/messages'),
+      );
+      request.headers['Authorization'] = 'Bearer $_token';
+      if (messageText.isNotEmpty) request.fields['content'] = messageText;
+
+      for (final file in filesToSend) {
+        if (file.path != null) {
+          final ext = file.extension ?? 'bin';
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'attachments',
+              file.path!,
+              contentType: MediaType('application', ext),
+            ),
+          );
+        }
+      }
+
+      final streamed = await request.send();
+      final res = await http.Response.fromStream(streamed);
+
+      if ((res.statusCode == 200 || res.statusCode == 201) && mounted) {
+        Future.delayed(const Duration(milliseconds: 500), _fetchChatMessages);
+        _scrollToBottom();
+      }
+    } catch (_) {}
   }
 
   void _scrollToBottom() {
@@ -371,37 +441,37 @@ class _StudentChatPageState extends State<StudentChatPage>
                     ),
                   )
                 : _messages.isEmpty
-                    ? _buildEmptyChat()
-                    : FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: ListView.builder(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                          itemCount: _messages.length,
-                          itemBuilder: (context, index) {
-                            final message = _messages[index];
-                            final isMe = message.senderId == widget.userId;
-                            final showDate =
-                                index == 0 ||
-                                !_isSameDay(
-                                  _messages[index - 1].timestamp,
-                                  message.timestamp,
-                                );
-                            final showAvatar =
-                                !isMe &&
-                                (index == 0 ||
-                                    _messages[index - 1].senderId !=
-                                        message.senderId);
-
-                            return Column(
-                              children: [
-                                if (showDate) _buildDateDivider(message.timestamp),
-                                _buildMessageBubble(message, isMe, showAvatar),
-                              ],
+                ? _buildEmptyChat()
+                : FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final message = _messages[index];
+                        final isMe = message.senderId == widget.userId;
+                        final showDate =
+                            index == 0 ||
+                            !_isSameDay(
+                              _messages[index - 1].timestamp,
+                              message.timestamp,
                             );
-                          },
-                        ),
-                      ),
+                        final showAvatar =
+                            !isMe &&
+                            (index == 0 ||
+                                _messages[index - 1].senderId !=
+                                    message.senderId);
+
+                        return Column(
+                          children: [
+                            if (showDate) _buildDateDivider(message.timestamp),
+                            _buildMessageBubble(message, isMe, showAvatar),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
           ),
           if (_isTyping) _buildTypingIndicator(),
           _buildMessageInput(),
@@ -480,16 +550,19 @@ class _StudentChatPageState extends State<StudentChatPage>
                     Text(
                       _isTyping
                           ? 'typing...'
-                          : (_isConnected ? (isFr ? 'En ligne' : 'Online') : (isFr ? 'Hors ligne' : 'Offline')),
+                          : (_isConnected
+                                ? (isFr ? 'En ligne' : 'Online')
+                                : (isFr ? 'Hors ligne' : 'Offline')),
                       style: TextStyle(
                         fontSize: 12,
                         color: _isTyping
                             ? Colors.blueAccent
                             : (_isConnected
-                                ? Colors.green.shade600
-                                : Colors.grey.shade500),
-                        fontStyle:
-                            _isTyping ? FontStyle.italic : FontStyle.normal,
+                                  ? Colors.green.shade600
+                                  : Colors.grey.shade500),
+                        fontStyle: _isTyping
+                            ? FontStyle.italic
+                            : FontStyle.normal,
                       ),
                     ),
                   ],
@@ -559,11 +632,10 @@ class _StudentChatPageState extends State<StudentChatPage>
           ),
           const SizedBox(height: 8),
           Text(
-            isFr ? 'Envoyez un message pour commencer la conversation !' : 'Send a message to start the conversation!',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-            ),
+            isFr
+                ? 'Envoyez un message pour commencer la conversation !'
+                : 'Send a message to start the conversation!',
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
         ],
       ),
@@ -626,8 +698,9 @@ class _StudentChatPageState extends State<StudentChatPage>
         right: isMe ? 0 : 48,
       ),
       child: Row(
-        mainAxisAlignment:
-            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isMe
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe && showAvatar)
@@ -763,70 +836,130 @@ class _StudentChatPageState extends State<StudentChatPage>
       ),
       child: SafeArea(
         top: false,
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton(
-              icon: Icon(Icons.attach_file, color: Colors.grey.shade600),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(isFr ? 'Pièces jointes bientôt disponibles !' : 'Attachments coming soon!'),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+            if (_pendingFiles.isNotEmpty) ...[
+              SizedBox(
+                height: 50,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.only(bottom: 8),
+                  itemCount: _pendingFiles.length,
+                  itemBuilder: (_, i) => Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent.withAlpha(20),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.blueAccent.withAlpha(60),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.attach_file,
+                          size: 14,
+                          color: Colors.blueAccent,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _pendingFiles[i].name,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.blueAccent,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () => setState(
+                            () => _pendingFiles.removeAt(i),
+                          ),
+                          child: Icon(
+                            Icons.close,
+                            size: 14,
+                            color: Colors.blueAccent.withAlpha(180),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                );
-              },
-            ),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(24),
                 ),
-                child: TextField(
-                  controller: _messageController,
-                  decoration: InputDecoration(
-                    hintText: isFr ? 'Tapez un message...' : 'Type a message...',
-                    hintStyle: TextStyle(color: Colors.grey.shade500),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
+              ),
+            ],
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.attach_file,
+                    color: _pendingFiles.isNotEmpty
+                        ? Colors.blueAccent
+                        : Colors.grey.shade600,
+                  ),
+                  onPressed: _pendingFiles.length < 5 ? _pickAttachment : null,
+                ),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: InputDecoration(
+                        hintText: isFr
+                            ? 'Tapez un message...'
+                            : 'Type a message...',
+                        hintStyle: TextStyle(color: Colors.grey.shade500),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                      ),
+                      maxLines: null,
+                      textCapitalization: TextCapitalization.sentences,
+                      onChanged: _onTypingChanged,
+                      onSubmitted: (_) => _pendingFiles.isEmpty
+                          ? _sendMessage()
+                          : _sendMessageWithFiles(),
                     ),
                   ),
-                  maxLines: null,
-                  textCapitalization: TextCapitalization.sentences,
-                  onChanged: _onTypingChanged,
-                  onSubmitted: (_) => _sendMessage(),
                 ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.blueAccent.shade400,
-                    Colors.blueAccent.shade700,
-                  ],
-                ),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.blueAccent.withAlpha(80),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                const SizedBox(width: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.blueAccent.shade400,
+                        Colors.blueAccent.shade700,
+                      ],
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blueAccent.withAlpha(80),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.send, color: Colors.white, size: 20),
-                onPressed: _sendMessage,
-              ),
+                  child: IconButton(
+                    icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                    onPressed: _pendingFiles.isEmpty
+                        ? _sendMessage
+                        : _sendMessageWithFiles,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

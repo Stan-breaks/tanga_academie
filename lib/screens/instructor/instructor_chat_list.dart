@@ -78,7 +78,11 @@ class _InstructorChatListState extends State<InstructorChatList> {
     }
   }
 
-  Future<void> _startNewChat(String userId, String userType, String? courseId) async {
+  Future<void> _startNewChat(
+    String userId,
+    String userType,
+    String? courseId,
+  ) async {
     final result = await startChat(
       participantId: userId,
       userType: userType,
@@ -98,7 +102,8 @@ class _InstructorChatListState extends State<InstructorChatList> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ChatPage(chatId: chatId, userId: _currentUserId!),
+            builder: (context) =>
+                ChatPage(chatId: chatId, userId: _currentUserId!),
           ),
         ).then((_) => _fetchUserChats());
       }
@@ -123,7 +128,8 @@ class _InstructorChatListState extends State<InstructorChatList> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ChatPage(chatId: chat.id, userId: _currentUserId!),
+        builder: (context) =>
+            ChatPage(chatId: chat.id, userId: _currentUserId!),
       ),
     ).then((_) => _fetchUserChats());
   }
@@ -151,9 +157,15 @@ class _InstructorChatListState extends State<InstructorChatList> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(color: Colors.blueAccent, strokeWidth: 3),
+          const CircularProgressIndicator(
+            color: Colors.blueAccent,
+            strokeWidth: 3,
+          ),
           const SizedBox(height: 20),
-          Text(isFr ? 'Chargement des messages...' : 'Loading messages...', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+          Text(
+            isFr ? 'Chargement des messages...' : 'Loading messages...',
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+          ),
         ],
       ),
     );
@@ -166,35 +178,46 @@ class _InstructorChatListState extends State<InstructorChatList> {
         // Action buttons row
         Row(
           children: [
-            Expanded(child: _buildActionButton(
-              icon: _showStudentList ? Icons.close : Icons.school,
-              label: _showStudentList ? (isFr ? 'Masquer' : 'Hide Students') : (isFr ? 'Message étudiants' : 'Message Students'),
-              color: Colors.green,
-              onPressed: () {
-                setState(() {
-                  if (_showAdminList) _showAdminList = false;
-                  _showStudentList = !_showStudentList;
-                });
-              },
-            )),
+            Expanded(
+              child: _buildActionButton(
+                icon: _showStudentList ? Icons.close : Icons.school,
+                label: _showStudentList
+                    ? (isFr ? 'Masquer' : 'Hide Students')
+                    : (isFr ? 'Message étudiants' : 'Message Students'),
+                color: Colors.green,
+                onPressed: () {
+                  setState(() {
+                    if (_showAdminList) _showAdminList = false;
+                    _showStudentList = !_showStudentList;
+                  });
+                },
+              ),
+            ),
             const SizedBox(width: 12),
-            Expanded(child: _buildActionButton(
-              icon: _showAdminList ? Icons.close : Icons.admin_panel_settings,
-              label: _showAdminList ? (isFr ? 'Masquer' : 'Hide Admins') : (isFr ? 'Message admin' : 'Message Admin'),
-              color: Colors.purple,
-              onPressed: () {
-                setState(() {
-                  if (_showStudentList) _showStudentList = false;
-                  _showAdminList = !_showAdminList;
-                });
-              },
-            )),
+            Expanded(
+              child: _buildActionButton(
+                icon: _showAdminList ? Icons.close : Icons.admin_panel_settings,
+                label: _showAdminList
+                    ? (isFr ? 'Masquer' : 'Hide Admins')
+                    : (isFr ? 'Message admin' : 'Message Admin'),
+                color: Colors.purple,
+                onPressed: () {
+                  setState(() {
+                    if (_showStudentList) _showStudentList = false;
+                    _showAdminList = !_showAdminList;
+                  });
+                },
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
 
         // Student List
-        if (_showStudentList) ...[_buildStudentsList(), const SizedBox(height: 16)],
+        if (_showStudentList) ...[
+          _buildStudentsList(),
+          const SizedBox(height: 16),
+        ],
 
         // Admin List
         if (_showAdminList) ...[_buildAdminsList(), const SizedBox(height: 16)],
@@ -212,7 +235,12 @@ class _InstructorChatListState extends State<InstructorChatList> {
               children: [
                 Icon(Icons.error_outline, color: Colors.red.shade400),
                 const SizedBox(width: 12),
-                Expanded(child: Text(_error!, style: TextStyle(color: Colors.red.shade700))),
+                Expanded(
+                  child: Text(
+                    _error!,
+                    style: TextStyle(color: Colors.red.shade700),
+                  ),
+                ),
               ],
             ),
           ),
@@ -267,7 +295,11 @@ class _InstructorChatListState extends State<InstructorChatList> {
             children: [
               Text(
                 isFr ? 'Conversations récentes' : 'Recent Conversations',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
               if (_chats.isNotEmpty)
                 Text(
@@ -297,7 +329,15 @@ class _InstructorChatListState extends State<InstructorChatList> {
             children: [
               const Icon(Icons.school, color: Colors.green, size: 20),
               const SizedBox(width: 8),
-              Text(isFr ? 'Sélectionnez un étudiant' : 'Select a student to message', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                isFr
+                    ? 'Sélectionnez un étudiant'
+                    : 'Select a student to message',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -307,16 +347,27 @@ class _InstructorChatListState extends State<InstructorChatList> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.people_outline, size: 48, color: Colors.grey.shade400),
+                        Icon(
+                          Icons.people_outline,
+                          size: 48,
+                          color: Colors.grey.shade400,
+                        ),
                         const SizedBox(height: 12),
-                        Text(isFr ? 'Aucun étudiant inscrit' : 'No students enrolled yet', style: TextStyle(color: Colors.grey.shade600)),
+                        Text(
+                          isFr
+                              ? 'Aucun étudiant inscrit'
+                              : 'No students enrolled yet',
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
                       ],
                     ),
                   )
                 : ListView.separated(
                     itemCount: _coursesWithStudents.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 16),
-                    itemBuilder: (context, index) => _buildCourseWithStudents(_coursesWithStudents[index]),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 16),
+                    itemBuilder: (context, index) =>
+                        _buildCourseWithStudents(_coursesWithStudents[index]),
                   ),
           ),
         ],
@@ -344,26 +395,40 @@ class _InstructorChatListState extends State<InstructorChatList> {
                   color: Colors.blueAccent.withAlpha(25),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.book, size: 18, color: Colors.blueAccent),
+                child: const Icon(
+                  Icons.book,
+                  size: 18,
+                  color: Colors.blueAccent,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   courseWithStudents.courseTitle,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.green.withAlpha(25),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   '${courseWithStudents.students.length} ${isFr ? 'étudiant${courseWithStudents.students.length == 1 ? "" : "s"}' : 'student${courseWithStudents.students.length == 1 ? "" : "s"}'}',
-                  style: const TextStyle(fontSize: 11, color: Colors.green, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Colors.green,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -371,7 +436,8 @@ class _InstructorChatListState extends State<InstructorChatList> {
           const Divider(height: 20),
           // Students list
           ...courseWithStudents.students.map(
-            (student) => _buildStudentItem(student, courseWithStudents.courseId),
+            (student) =>
+                _buildStudentItem(student, courseWithStudents.courseId),
           ),
         ],
       ),
@@ -389,9 +455,18 @@ class _InstructorChatListState extends State<InstructorChatList> {
             CircleAvatar(
               radius: 18,
               backgroundColor: Colors.green.withAlpha(25),
-              backgroundImage: student.profile.isNotEmpty ? NetworkImage(student.profile) : null,
+              backgroundImage: student.profile.isNotEmpty
+                  ? NetworkImage(student.profile)
+                  : null,
               child: student.profile.isEmpty
-                  ? Text(student.initial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.green))
+                  ? Text(
+                      student.initial,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Colors.green,
+                      ),
+                    )
                   : null,
             ),
             const SizedBox(width: 12),
@@ -399,9 +474,22 @@ class _InstructorChatListState extends State<InstructorChatList> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(student.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  Text(
+                    student.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
                   if (student.email.isNotEmpty)
-                    Text(student.email, style: TextStyle(fontSize: 12, color: Colors.grey.shade600), overflow: TextOverflow.ellipsis),
+                    Text(
+                      student.email,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                 ],
               ),
             ),
@@ -411,7 +499,11 @@ class _InstructorChatListState extends State<InstructorChatList> {
                 color: Colors.green.withAlpha(25),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.chat_bubble_outline, size: 16, color: Colors.green),
+              child: const Icon(
+                Icons.chat_bubble_outline,
+                size: 16,
+                color: Colors.green,
+              ),
             ),
           ],
         ),
@@ -433,9 +525,19 @@ class _InstructorChatListState extends State<InstructorChatList> {
         children: [
           Row(
             children: [
-              const Icon(Icons.admin_panel_settings, color: Colors.purple, size: 20),
+              const Icon(
+                Icons.admin_panel_settings,
+                color: Colors.purple,
+                size: 20,
+              ),
               const SizedBox(width: 8),
-              Text(isFr ? 'Contacter l\'administration' : 'Contact Administration', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                isFr ? 'Contacter l\'administration' : 'Contact Administration',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -445,16 +547,26 @@ class _InstructorChatListState extends State<InstructorChatList> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.admin_panel_settings_outlined, size: 48, color: Colors.grey.shade400),
+                        Icon(
+                          Icons.admin_panel_settings_outlined,
+                          size: 48,
+                          color: Colors.grey.shade400,
+                        ),
                         const SizedBox(height: 12),
-                        Text(isFr ? 'Aucun admin disponible' : 'No admins available', style: TextStyle(color: Colors.grey.shade600)),
+                        Text(
+                          isFr
+                              ? 'Aucun admin disponible'
+                              : 'No admins available',
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
                       ],
                     ),
                   )
                 : ListView.separated(
                     itemCount: _admins.length,
-                    separatorBuilder: (_, __) => const Divider(),
-                    itemBuilder: (context, index) => _buildAdminItem(_admins[index]),
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemBuilder: (context, index) =>
+                        _buildAdminItem(_admins[index]),
                   ),
           ),
         ],
@@ -473,9 +585,18 @@ class _InstructorChatListState extends State<InstructorChatList> {
             CircleAvatar(
               radius: 20,
               backgroundColor: Colors.purple.withAlpha(25),
-              backgroundImage: admin.profile.isNotEmpty ? NetworkImage(admin.profile) : null,
+              backgroundImage: admin.profile.isNotEmpty
+                  ? NetworkImage(admin.profile)
+                  : null,
               child: admin.profile.isEmpty
-                  ? Text(admin.initial, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.purple))
+                  ? Text(
+                      admin.initial,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.purple,
+                      ),
+                    )
                   : null,
             ),
             const SizedBox(width: 12),
@@ -483,9 +604,22 @@ class _InstructorChatListState extends State<InstructorChatList> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(admin.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                  Text(
+                    admin.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
                   if (admin.email.isNotEmpty)
-                    Text(admin.email, style: TextStyle(fontSize: 12, color: Colors.grey.shade600), overflow: TextOverflow.ellipsis),
+                    Text(
+                      admin.email,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                 ],
               ),
             ),
@@ -495,7 +629,11 @@ class _InstructorChatListState extends State<InstructorChatList> {
                 color: Colors.purple.withAlpha(25),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.chat_bubble_outline, size: 18, color: Colors.purple),
+              child: const Icon(
+                Icons.chat_bubble_outline,
+                size: 18,
+                color: Colors.purple,
+              ),
             ),
           ],
         ),
@@ -514,7 +652,8 @@ class _InstructorChatListState extends State<InstructorChatList> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: _chats.length,
-        separatorBuilder: (_, __) => Divider(height: 1, indent: 72, color: Colors.grey.shade200),
+        separatorBuilder: (context, index) =>
+            Divider(height: 1, indent: 72, color: Colors.grey.shade200),
         itemBuilder: (context, index) => _buildChatItem(_chats[index]),
       ),
     );
@@ -531,11 +670,21 @@ class _InstructorChatListState extends State<InstructorChatList> {
             CircleAvatar(
               radius: 26,
               backgroundColor: Colors.blueAccent.withAlpha(25),
-              backgroundImage: chat.recipientAvatar != null && chat.recipientAvatar!.isNotEmpty
+              backgroundImage:
+                  chat.recipientAvatar != null &&
+                      chat.recipientAvatar!.isNotEmpty
                   ? NetworkImage('${ApiConfig.baseUrl}${chat.recipientAvatar}')
                   : null,
-              child: chat.recipientAvatar == null || chat.recipientAvatar!.isEmpty
-                  ? Text(chat.recipientInitial, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blueAccent))
+              child:
+                  chat.recipientAvatar == null || chat.recipientAvatar!.isEmpty
+                  ? Text(
+                      chat.recipientInitial,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueAccent,
+                      ),
+                    )
                   : null,
             ),
             const SizedBox(width: 14),
@@ -548,14 +697,24 @@ class _InstructorChatListState extends State<InstructorChatList> {
                       Expanded(
                         child: Text(
                           chat.recipientName,
-                          style: TextStyle(fontWeight: chat.unreadCount > 0 ? FontWeight.bold : FontWeight.w600, fontSize: 16),
+                          style: TextStyle(
+                            fontWeight: chat.unreadCount > 0
+                                ? FontWeight.bold
+                                : FontWeight.w600,
+                            fontSize: 16,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Text(
                         chat.formattedTime,
-                        style: TextStyle(fontSize: 12, color: chat.unreadCount > 0 ? Colors.blueAccent : Colors.grey.shade500),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: chat.unreadCount > 0
+                              ? Colors.blueAccent
+                              : Colors.grey.shade500,
+                        ),
                       ),
                     ],
                   ),
@@ -568,8 +727,12 @@ class _InstructorChatListState extends State<InstructorChatList> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: chat.unreadCount > 0 ? Colors.black87 : Colors.grey.shade600,
-                            fontWeight: chat.unreadCount > 0 ? FontWeight.w500 : FontWeight.normal,
+                            color: chat.unreadCount > 0
+                                ? Colors.black87
+                                : Colors.grey.shade600,
+                            fontWeight: chat.unreadCount > 0
+                                ? FontWeight.w500
+                                : FontWeight.normal,
                             fontSize: 14,
                           ),
                         ),
@@ -577,9 +740,22 @@ class _InstructorChatListState extends State<InstructorChatList> {
                       if (chat.unreadCount > 0)
                         Container(
                           margin: const EdgeInsets.only(left: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: Colors.blueAccent, borderRadius: BorderRadius.circular(12)),
-                          child: Text('${chat.unreadCount}', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.blueAccent,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '${chat.unreadCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                     ],
                   ),
@@ -605,14 +781,30 @@ class _InstructorChatListState extends State<InstructorChatList> {
         children: [
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(color: Colors.grey.shade100, shape: BoxShape.circle),
-            child: Icon(Icons.chat_bubble_outline, size: 48, color: Colors.grey.shade400),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.chat_bubble_outline,
+              size: 48,
+              color: Colors.grey.shade400,
+            ),
           ),
           const SizedBox(height: 20),
-          Text(isFr ? 'Aucune conversation' : 'No conversations yet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
+          Text(
+            isFr ? 'Aucune conversation' : 'No conversations yet',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade700,
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
-            isFr ? 'Démarrez une conversation avec les étudiants ou les admins' : 'Start a conversation with students or admins using the buttons above',
+            isFr
+                ? 'Démarrez une conversation avec les étudiants ou les admins'
+                : 'Start a conversation with students or admins using the buttons above',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
           ),

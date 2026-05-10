@@ -13,7 +13,8 @@ class StudentChatList extends StatefulWidget {
   State<StudentChatList> createState() => _StudentChatListState();
 }
 
-class _StudentChatListState extends State<StudentChatList> with SingleTickerProviderStateMixin {
+class _StudentChatListState extends State<StudentChatList>
+    with SingleTickerProviderStateMixin {
   List<ChatItem> _chats = [];
   List<InstructorContact> _instructors = [];
   bool _isLoading = true;
@@ -92,7 +93,10 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
     }
   }
 
-  Future<void> _startChatWithInstructor(String instructorId, String courseId) async {
+  Future<void> _startChatWithInstructor(
+    String instructorId,
+    String courseId,
+  ) async {
     final result = await startChat(
       participantId: instructorId,
       userType: 'Student',
@@ -113,7 +117,8 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ChatPage(chatId: chatId, userId: _currentUserId!),
+            builder: (context) =>
+                ChatPage(chatId: chatId, userId: _currentUserId!),
           ),
         ).then((_) => _fetchUserChats());
       }
@@ -145,7 +150,8 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ChatPage(chatId: chat.id, userId: _currentUserId!),
+          builder: (context) =>
+              ChatPage(chatId: chat.id, userId: _currentUserId!),
         ),
       ).then((_) => _fetchUserChats());
     }
@@ -163,8 +169,8 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
         child: _isLoading
             ? _buildLoadingState()
             : !_isAuthenticated
-                ? _buildNotLoggedInState()
-                : _buildBody(),
+            ? _buildNotLoggedInState()
+            : _buildBody(),
       ),
     );
   }
@@ -174,9 +180,15 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(color: Colors.blueAccent, strokeWidth: 3),
+          const CircularProgressIndicator(
+            color: Colors.blueAccent,
+            strokeWidth: 3,
+          ),
           const SizedBox(height: 20),
-          Text(isFr ? 'Chargement des messages...' : 'Loading messages...', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+          Text(
+            isFr ? 'Chargement des messages...' : 'Loading messages...',
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+          ),
         ],
       ),
     );
@@ -190,7 +202,9 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
           Icon(Icons.lock_outline, size: 64, color: Colors.grey.shade400),
           const SizedBox(height: 16),
           Text(
-            isFr ? 'Veuillez vous connecter pour voir les messages' : 'Please log in to view messages',
+            isFr
+                ? 'Veuillez vous connecter pour voir les messages'
+                : 'Please log in to view messages',
             style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
           ),
           const SizedBox(height: 24),
@@ -205,7 +219,9 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
               backgroundColor: Colors.blueAccent,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             child: Text(isFr ? 'Se connecter' : 'Log In'),
           ),
@@ -228,16 +244,23 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                 _showInstructorList = !_showInstructorList;
               });
             },
-            icon: Icon(_showInstructorList ? Icons.close : Icons.edit_square, size: 18),
+            icon: Icon(
+              _showInstructorList ? Icons.close : Icons.edit_square,
+              size: 18,
+            ),
             label: Text(
-              _showInstructorList ? (isFr ? 'Masquer les instructeurs' : 'Hide Instructors') : (isFr ? 'Nouveau message' : 'New Message'),
+              _showInstructorList
+                  ? (isFr ? 'Masquer les instructeurs' : 'Hide Instructors')
+                  : (isFr ? 'Nouveau message' : 'New Message'),
               style: const TextStyle(fontSize: 12),
             ),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 48),
               backgroundColor: Colors.blueAccent,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               elevation: 0,
             ),
           ),
@@ -247,7 +270,9 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
-            child: _showInstructorList ? _buildInstructorList() : const SizedBox(),
+            child: _showInstructorList
+                ? _buildInstructorList()
+                : const SizedBox(),
           ),
 
           // Error Message
@@ -263,7 +288,12 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                 children: [
                   Icon(Icons.error_outline, color: Colors.red.shade400),
                   const SizedBox(width: 12),
-                  Expanded(child: Text(_error!, style: TextStyle(color: Colors.red.shade700))),
+                  Expanded(
+                    child: Text(
+                      _error!,
+                      style: TextStyle(color: Colors.red.shade700),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -289,12 +319,13 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: _chats.length,
-                      separatorBuilder: (_, __) => Divider(
+                      separatorBuilder: (context, index) => Divider(
                         height: 1,
                         indent: 72,
                         color: Colors.grey.shade200,
                       ),
-                      itemBuilder: (context, index) => _buildChatItem(_chats[index]),
+                      itemBuilder: (context, index) =>
+                          _buildChatItem(_chats[index]),
                     ),
                   ),
                 ),
@@ -322,7 +353,11 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
             children: [
               Text(
                 isFr ? 'Conversations récentes' : 'Recent Conversations',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
               if (_chats.isNotEmpty)
                 Text(
@@ -344,7 +379,10 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blueAccent.shade100.withAlpha(80), Colors.blue.shade50],
+          colors: [
+            Colors.blueAccent.shade100.withAlpha(80),
+            Colors.blue.shade50,
+          ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.blueAccent.withAlpha(50)),
@@ -360,12 +398,22 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                   color: Colors.blueAccent.withAlpha(50),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.person_add, color: Colors.blueAccent, size: 20),
+                child: const Icon(
+                  Icons.person_add,
+                  color: Colors.blueAccent,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               Text(
-                isFr ? 'Démarrer une nouvelle conversation' : 'Start a New Conversation',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                isFr
+                    ? 'Démarrer une nouvelle conversation'
+                    : 'Start a New Conversation',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
             ],
           ),
@@ -375,15 +423,27 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  Icon(Icons.school_outlined, size: 48, color: Colors.grey.shade400),
+                  Icon(
+                    Icons.school_outlined,
+                    size: 48,
+                    color: Colors.grey.shade400,
+                  ),
                   const SizedBox(height: 12),
                   Text(
-                    isFr ? 'Aucun instructeur disponible' : 'No instructors available',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
+                    isFr
+                        ? 'Aucun instructeur disponible'
+                        : 'No instructors available',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade700,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    isFr ? 'Inscrivez-vous à des cours pour contacter les instructeurs' : 'Enroll in courses to message instructors',
+                    isFr
+                        ? 'Inscrivez-vous à des cours pour contacter les instructeurs'
+                        : 'Enroll in courses to message instructors',
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
                   ),
                 ],
@@ -395,12 +455,13 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: _instructors.length,
-                separatorBuilder: (_, __) => Container(
+                separatorBuilder: (context, index) => Container(
                   margin: const EdgeInsets.symmetric(vertical: 12),
                   height: 1,
                   color: Colors.blueAccent.withAlpha(25),
                 ),
-                itemBuilder: (context, index) => _buildInstructorItem(_instructors[index]),
+                itemBuilder: (context, index) =>
+                    _buildInstructorItem(_instructors[index]),
               ),
             ),
         ],
@@ -421,7 +482,10 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Colors.blueAccent.shade200, Colors.blueAccent.shade700],
+                  colors: [
+                    Colors.blueAccent.shade200,
+                    Colors.blueAccent.shade700,
+                  ],
                 ),
                 shape: BoxShape.circle,
                 boxShadow: [
@@ -435,7 +499,11 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
               child: Center(
                 child: Text(
                   instructor.initial,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -446,13 +514,27 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                 children: [
                   Text(
                     instructor.name,
-                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.black87),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: Colors.black87,
+                    ),
                   ),
                   Row(
                     children: [
-                      Icon(Icons.verified, size: 14, color: Colors.green.shade400),
+                      Icon(
+                        Icons.verified,
+                        size: 14,
+                        color: Colors.green.shade400,
+                      ),
                       const SizedBox(width: 4),
-                      Text(isFr ? 'Instructeur' : 'Instructor', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                      Text(
+                        isFr ? 'Instructeur' : 'Instructor',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -471,7 +553,10 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                 onTap: () => _startChatWithInstructor(instructor.id, course.id),
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
@@ -487,7 +572,11 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.book_outlined, size: 14, color: Colors.blueAccent.shade400),
+                      Icon(
+                        Icons.book_outlined,
+                        size: 14,
+                        color: Colors.blueAccent.shade400,
+                      ),
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
@@ -528,21 +617,34 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Colors.blueAccent.shade100, Colors.blueAccent.shade400],
+                    colors: [
+                      Colors.blueAccent.shade100,
+                      Colors.blueAccent.shade400,
+                    ],
                   ),
                   shape: BoxShape.circle,
-                  image: chat.recipientAvatar != null && chat.recipientAvatar!.isNotEmpty
+                  image:
+                      chat.recipientAvatar != null &&
+                          chat.recipientAvatar!.isNotEmpty
                       ? DecorationImage(
-                          image: NetworkImage('${ApiConfig.baseUrl}${chat.recipientAvatar}'),
+                          image: NetworkImage(
+                            '${ApiConfig.baseUrl}${chat.recipientAvatar}',
+                          ),
                           fit: BoxFit.cover,
                         )
                       : null,
                 ),
-                child: chat.recipientAvatar == null || chat.recipientAvatar!.isEmpty
+                child:
+                    chat.recipientAvatar == null ||
+                        chat.recipientAvatar!.isEmpty
                     ? Center(
                         child: Text(
                           chat.recipientInitial,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
                         ),
                       )
                     : null,
@@ -559,7 +661,9 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                           child: Text(
                             chat.recipientName,
                             style: TextStyle(
-                              fontWeight: chat.unreadCount > 0 ? FontWeight.bold : FontWeight.w600,
+                              fontWeight: chat.unreadCount > 0
+                                  ? FontWeight.bold
+                                  : FontWeight.w600,
                               fontSize: 15,
                               color: Colors.black87,
                             ),
@@ -571,8 +675,12 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                           chat.formattedTime,
                           style: TextStyle(
                             fontSize: 12,
-                            color: chat.unreadCount > 0 ? Colors.blueAccent : Colors.grey.shade500,
-                            fontWeight: chat.unreadCount > 0 ? FontWeight.w600 : FontWeight.normal,
+                            color: chat.unreadCount > 0
+                                ? Colors.blueAccent
+                                : Colors.grey.shade500,
+                            fontWeight: chat.unreadCount > 0
+                                ? FontWeight.w600
+                                : FontWeight.normal,
                           ),
                         ),
                       ],
@@ -586,23 +694,34 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: chat.unreadCount > 0 ? Colors.black87 : Colors.grey.shade600,
+                              color: chat.unreadCount > 0
+                                  ? Colors.black87
+                                  : Colors.grey.shade600,
                               fontSize: 13,
-                              fontWeight: chat.unreadCount > 0 ? FontWeight.w500 : FontWeight.normal,
+                              fontWeight: chat.unreadCount > 0
+                                  ? FontWeight.w500
+                                  : FontWeight.normal,
                             ),
                           ),
                         ),
                         if (chat.unreadCount > 0) ...[
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.blueAccent,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               '${chat.unreadCount}',
-                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],
@@ -642,16 +761,26 @@ class _StudentChatListState extends State<StudentChatList> with SingleTickerProv
               color: Colors.blueAccent.withAlpha(25),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.chat_bubble_outline, size: 56, color: Colors.blueAccent.shade400),
+            child: Icon(
+              Icons.chat_bubble_outline,
+              size: 56,
+              color: Colors.blueAccent.shade400,
+            ),
           ),
           const SizedBox(height: 24),
           Text(
             isFr ? 'Aucune conversation' : 'No conversations yet',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            isFr ? 'Démarrez une conversation avec vos instructeurs !' : 'Start a conversation with your instructors!',
+            isFr
+                ? 'Démarrez une conversation avec vos instructeurs !'
+                : 'Start a conversation with your instructors!',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
           ),

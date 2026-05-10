@@ -40,15 +40,10 @@ class _SettingsPageState extends State<SettingsPage> {
     6,
     (index) => TextEditingController(),
   );
-  final List<FocusNode> _focusNodes = List.generate(
-    6,
-    (index) => FocusNode(),
-  );
+  final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
 
   bool _isSendingCode = false;
   bool _isResettingPassword = false;
-  bool _isPasswordObscure = true;
-  bool _isConfirmPasswordObscure = true;
   bool _codeSent = false;
   bool _passwordChanged = false;
 
@@ -159,12 +154,14 @@ class _SettingsPageState extends State<SettingsPage> {
         // Refresh local state
         if (updatedUser['profile'] != null) {
           setState(() {
-            _profileImageUrl =
-                ApiConfig.getImageUrl(updatedUser['profile'].toString());
+            _profileImageUrl = ApiConfig.getImageUrl(
+              updatedUser['profile'].toString(),
+            );
             _pickedImage = null;
           });
         }
 
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Row(
@@ -209,7 +206,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _sendVerificationCode() async {
     if (_email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email non trouvé. Veuillez vous reconnecter.')),
+        const SnackBar(
+          content: Text('Email non trouvé. Veuillez vous reconnecter.'),
+        ),
       );
       return;
     }
@@ -247,9 +246,9 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: ${e.toString()}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erreur: ${e.toString()}')));
     } finally {
       if (mounted) setState(() => _isSendingCode = false);
     }
@@ -262,7 +261,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (code.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez entrer le code complet (6 chiffres)')),
+        const SnackBar(
+          content: Text('Veuillez entrer le code complet (6 chiffres)'),
+        ),
       );
       return;
     }
@@ -283,7 +284,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (newPassword.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Le mot de passe doit contenir au moins 6 caractères')),
+        const SnackBar(
+          content: Text('Le mot de passe doit contenir au moins 6 caractères'),
+        ),
       );
       return;
     }
@@ -341,9 +344,9 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: ${e.toString()}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erreur: ${e.toString()}')));
     } finally {
       if (mounted) setState(() => _isResettingPassword = false);
     }
@@ -352,12 +355,6 @@ class _SettingsPageState extends State<SettingsPage> {
   void _onCodeChanged(String value, int index) {
     if (value.isNotEmpty && index < 5) {
       _focusNodes[index + 1].requestFocus();
-    }
-  }
-
-  void _onBackspace(String value, int index) {
-    if (value.isEmpty && index > 0) {
-      _focusNodes[index - 1].requestFocus();
     }
   }
 
@@ -389,10 +386,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   const SizedBox(height: 20),
                   Text(
                     isFr ? 'Chargement...' : 'Loading...',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                   ),
                 ],
               ),
@@ -563,7 +557,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 _isSavingProfile
                     ? (isFr ? 'Enregistrement...' : 'Saving...')
                     : (isFr ? 'Mettre à jour le profil' : 'Update Profile'),
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blueAccent,
@@ -583,7 +580,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildProfileImagePicker() {
-    final hasImage = _pickedImage != null ||
+    final hasImage =
+        _pickedImage != null ||
         (_profileImageUrl != null && _profileImageUrl!.isNotEmpty);
 
     return Column(
@@ -608,12 +606,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           fit: BoxFit.cover,
                         )
                       : (_profileImageUrl != null &&
-                              _profileImageUrl!.isNotEmpty)
-                          ? DecorationImage(
-                              image: NetworkImage(_profileImageUrl!),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
+                            _profileImageUrl!.isNotEmpty)
+                      ? DecorationImage(
+                          image: NetworkImage(_profileImageUrl!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
                 child: !hasImage
                     ? const Icon(
@@ -646,10 +644,7 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 8),
         Text(
           isFr ? "Appuyez pour changer l'image" : 'Tap to change image',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
         ),
       ],
     );
@@ -675,10 +670,7 @@ class _SettingsPageState extends State<SettingsPage> {
           style: const TextStyle(fontSize: 14),
           decoration: InputDecoration(
             labelText: label,
-            labelStyle: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 14,
-            ),
+            labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
             prefixIcon: Icon(icon, size: 20, color: Colors.blueAccent),
             filled: true,
             fillColor: Colors.grey.shade50,
@@ -754,7 +746,11 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.info_outline, color: Colors.blueAccent, size: 20),
+              const Icon(
+                Icons.info_outline,
+                color: Colors.blueAccent,
+                size: 20,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: RichText(
@@ -766,7 +762,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     children: [
                       TextSpan(
-                        text: isFr ? 'Un code de vérification sera envoyé à ' : 'A verification code will be sent to ',
+                        text: isFr
+                            ? 'Un code de vérification sera envoyé à '
+                            : 'A verification code will be sent to ',
                       ),
                       TextSpan(
                         text: _email,
@@ -801,7 +799,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   )
                 : const Icon(Icons.email_outlined, size: 20),
             label: Text(
-              _isSendingCode ? (isFr ? 'Envoi en cours...' : 'Sending...') : (isFr ? 'Envoyer le code' : 'Send Code'),
+              _isSendingCode
+                  ? (isFr ? 'Envoi en cours...' : 'Sending...')
+                  : (isFr ? 'Envoyer le code' : 'Send Code'),
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             ),
             style: ElevatedButton.styleFrom(
@@ -839,10 +839,7 @@ class _SettingsPageState extends State<SettingsPage> {
               Expanded(
                 child: Text(
                   'Code envoyé à $_email',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade700,
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
                 ),
               ),
             ],
@@ -995,7 +992,9 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         const SizedBox(height: 16),
         Text(
-          isFr ? 'Mot de passe réinitialisé avec succès !' : 'Password reset successfully!',
+          isFr
+              ? 'Mot de passe réinitialisé avec succès !'
+              : 'Password reset successfully!',
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -1049,16 +1048,14 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.translate,
-                    color: Colors.blueAccent, size: 20),
+                const Icon(Icons.translate, color: Colors.blueAccent, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    isFr ? 'Choisissez votre langue préférée' : 'Choose your preferred language',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade700,
-                    ),
+                    isFr
+                        ? 'Choisissez votre langue préférée'
+                        : 'Choose your preferred language',
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
                   ),
                 ),
               ],
@@ -1109,9 +1106,7 @@ class _SettingsPageState extends State<SettingsPage> {
               : Colors.grey.shade50,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected
-                ? Colors.blueAccent
-                : Colors.grey.shade200,
+            color: isSelected ? Colors.blueAccent : Colors.grey.shade200,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -1127,19 +1122,15 @@ class _SettingsPageState extends State<SettingsPage> {
                     label,
                     style: TextStyle(
                       fontSize: 15,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.w500,
-                      color: isSelected
-                          ? Colors.blueAccent
-                          : Colors.black87,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
+                      color: isSelected ? Colors.blueAccent : Colors.black87,
                     ),
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade500,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
                   ),
                 ],
               ),
@@ -1154,8 +1145,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         color: Colors.blueAccent,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.check,
-                          color: Colors.white, size: 16),
+                      child: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 16,
+                      ),
                     )
                   : Container(
                       key: const ValueKey('unselected'),
@@ -1164,7 +1158,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                            color: Colors.grey.shade300, width: 2),
+                          color: Colors.grey.shade300,
+                          width: 2,
+                        ),
                       ),
                     ),
             ),

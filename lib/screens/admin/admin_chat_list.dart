@@ -75,7 +75,8 @@ class _AdminChatListState extends State<AdminChatList> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ChatPage(chatId: chatId, userId: _currentUserId!),
+            builder: (context) =>
+                ChatPage(chatId: chatId, userId: _currentUserId!),
           ),
         ).then((_) => _fetchUserChats());
       }
@@ -100,7 +101,8 @@ class _AdminChatListState extends State<AdminChatList> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ChatPage(chatId: chat.id, userId: _currentUserId!),
+        builder: (context) =>
+            ChatPage(chatId: chat.id, userId: _currentUserId!),
       ),
     ).then((_) => _fetchUserChats());
   }
@@ -150,7 +152,11 @@ class _AdminChatListState extends State<AdminChatList> {
             });
           },
           icon: Icon(_showUserList ? Icons.close : Icons.add),
-          label: Text(_showUserList ? (isFr ? 'Masquer les utilisateurs' : 'Hide Users') : (isFr ? 'Nouvelle conversation' : 'New Conversation')),
+          label: Text(
+            _showUserList
+                ? (isFr ? 'Masquer les utilisateurs' : 'Hide Users')
+                : (isFr ? 'Nouvelle conversation' : 'New Conversation'),
+          ),
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(double.infinity, 52),
             backgroundColor: Colors.blueAccent,
@@ -260,16 +266,26 @@ class _AdminChatListState extends State<AdminChatList> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.people_outline, size: 48, color: Colors.grey.shade400),
+                        Icon(
+                          Icons.people_outline,
+                          size: 48,
+                          color: Colors.grey.shade400,
+                        ),
                         const SizedBox(height: 12),
-                        Text(isFr ? 'Aucun utilisateur disponible' : 'No users available', style: TextStyle(color: Colors.grey.shade600)),
+                        Text(
+                          isFr
+                              ? 'Aucun utilisateur disponible'
+                              : 'No users available',
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
                       ],
                     ),
                   )
                 : ListView.separated(
                     itemCount: _users.length,
                     separatorBuilder: (_, _) => const Divider(),
-                    itemBuilder: (context, index) => _buildUserItem(_users[index]),
+                    itemBuilder: (context, index) =>
+                        _buildUserItem(_users[index]),
                   ),
           ),
         ],
@@ -279,7 +295,7 @@ class _AdminChatListState extends State<AdminChatList> {
 
   Widget _buildUserItem(UserContact user) {
     final roleColor = _getRoleColor(user.role);
-    
+
     return InkWell(
       onTap: () => _startNewChat(user.id),
       borderRadius: BorderRadius.circular(10),
@@ -290,11 +306,17 @@ class _AdminChatListState extends State<AdminChatList> {
             CircleAvatar(
               radius: 22,
               backgroundColor: roleColor.withAlpha(25),
-              backgroundImage: user.profile.isNotEmpty ? NetworkImage(user.profile) : null,
+              backgroundImage: user.profile.isNotEmpty
+                  ? NetworkImage(user.profile)
+                  : null,
               child: user.profile.isEmpty
                   ? Text(
                       user.initial,
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: roleColor),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: roleColor,
+                      ),
                     )
                   : null,
             ),
@@ -303,19 +325,32 @@ class _AdminChatListState extends State<AdminChatList> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(user.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                  Text(
+                    user.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: roleColor.withAlpha(25),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           user.role.toUpperCase(),
-                          style: TextStyle(fontSize: 10, color: roleColor, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: roleColor,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       if (user.email.isNotEmpty) ...[
@@ -323,7 +358,10 @@ class _AdminChatListState extends State<AdminChatList> {
                         Expanded(
                           child: Text(
                             user.email,
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -340,7 +378,11 @@ class _AdminChatListState extends State<AdminChatList> {
                 color: Colors.blueAccent.withAlpha(25),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.chat_bubble_outline, size: 20, color: Colors.blueAccent),
+              child: const Icon(
+                Icons.chat_bubble_outline,
+                size: 20,
+                color: Colors.blueAccent,
+              ),
             ),
           ],
         ),
@@ -372,7 +414,8 @@ class _AdminChatListState extends State<AdminChatList> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: _chats.length,
-        separatorBuilder: (_, __) => Divider(height: 1, indent: 72, color: Colors.grey.shade200),
+        separatorBuilder: (context, index) =>
+            Divider(height: 1, indent: 72, color: Colors.grey.shade200),
         itemBuilder: (context, index) => _buildChatItem(_chats[index]),
       ),
     );
@@ -389,13 +432,20 @@ class _AdminChatListState extends State<AdminChatList> {
             CircleAvatar(
               radius: 26,
               backgroundColor: Colors.blueAccent.withAlpha(25),
-              backgroundImage: chat.recipientAvatar != null && chat.recipientAvatar!.isNotEmpty
+              backgroundImage:
+                  chat.recipientAvatar != null &&
+                      chat.recipientAvatar!.isNotEmpty
                   ? NetworkImage('${ApiConfig.baseUrl}${chat.recipientAvatar}')
                   : null,
-              child: chat.recipientAvatar == null || chat.recipientAvatar!.isEmpty
+              child:
+                  chat.recipientAvatar == null || chat.recipientAvatar!.isEmpty
                   ? Text(
                       chat.recipientInitial,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueAccent,
+                      ),
                     )
                   : null,
             ),
@@ -410,7 +460,9 @@ class _AdminChatListState extends State<AdminChatList> {
                         child: Text(
                           chat.recipientName,
                           style: TextStyle(
-                            fontWeight: chat.unreadCount > 0 ? FontWeight.bold : FontWeight.w600,
+                            fontWeight: chat.unreadCount > 0
+                                ? FontWeight.bold
+                                : FontWeight.w600,
                             fontSize: 16,
                           ),
                           maxLines: 1,
@@ -421,7 +473,9 @@ class _AdminChatListState extends State<AdminChatList> {
                         chat.formattedTime,
                         style: TextStyle(
                           fontSize: 12,
-                          color: chat.unreadCount > 0 ? Colors.blueAccent : Colors.grey.shade500,
+                          color: chat.unreadCount > 0
+                              ? Colors.blueAccent
+                              : Colors.grey.shade500,
                         ),
                       ),
                     ],
@@ -435,8 +489,12 @@ class _AdminChatListState extends State<AdminChatList> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: chat.unreadCount > 0 ? Colors.black87 : Colors.grey.shade600,
-                            fontWeight: chat.unreadCount > 0 ? FontWeight.w500 : FontWeight.normal,
+                            color: chat.unreadCount > 0
+                                ? Colors.black87
+                                : Colors.grey.shade600,
+                            fontWeight: chat.unreadCount > 0
+                                ? FontWeight.w500
+                                : FontWeight.normal,
                             fontSize: 14,
                           ),
                         ),
@@ -444,14 +502,21 @@ class _AdminChatListState extends State<AdminChatList> {
                       if (chat.unreadCount > 0)
                         Container(
                           margin: const EdgeInsets.only(left: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.blueAccent,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             '${chat.unreadCount}',
-                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                     ],
@@ -482,16 +547,26 @@ class _AdminChatListState extends State<AdminChatList> {
               color: Colors.grey.shade100,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.chat_bubble_outline, size: 48, color: Colors.grey.shade400),
+            child: Icon(
+              Icons.chat_bubble_outline,
+              size: 48,
+              color: Colors.grey.shade400,
+            ),
           ),
           const SizedBox(height: 20),
           Text(
             isFr ? 'Aucune conversation' : 'No conversations yet',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade700,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            isFr ? 'Démarrez une nouvelle conversation' : 'Start a new conversation using the button above',
+            isFr
+                ? 'Démarrez une nouvelle conversation'
+                : 'Start a new conversation using the button above',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
           ),

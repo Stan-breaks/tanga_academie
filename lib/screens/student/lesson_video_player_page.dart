@@ -1,8 +1,16 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:tanga_acadamie/api_config.dart';
+import 'package:tanga_acadamie/storage_service.dart';
+import 'package:tanga_acadamie/screens/student/student_quiz_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:vimeo_video_player/vimeo_video_player.dart';
 
 class LessonVideoPlayerPage extends StatefulWidget {
   final Map<String, dynamic> lesson;
@@ -29,6 +37,7 @@ class LessonVideoPlayerPage extends StatefulWidget {
 class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
+  String? _vimeoId;
   bool _isLoading = true;
   bool _isCompleted = false;
   bool _hasError = false;
@@ -50,7 +59,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
 
   void _initializeVideo() async {
     final video = widget.lesson['video'];
-    
+
     if (video == null) {
       setState(() {
         _videoType = 'none';
@@ -60,25 +69,50 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
     }
 
     final url = video['url'];
-    
+    final vimeoId = video['vimeoId'];
+    final embedCode = video['embedCode'];
+
+    String? videoVimeoId;
+
+    // Check url for vimeo
+    if (url != null && url.toString().contains('vimeo')) {
+      videoVimeoId = _extractVimeoId(url.toString());
+    }
+
+    // Check embedCode for vimeo
+    if (videoVimeoId == null &&
+        embedCode != null &&
+        embedCode.toString().contains('vimeo')) {
+      videoVimeoId = _extractVimeoId(embedCode.toString());
+    }
+
+    // Use direct vimeoId
+    if (videoVimeoId == null &&
+        vimeoId != null &&
+        vimeoId.toString().trim().isNotEmpty) {
+      videoVimeoId = vimeoId.toString().trim();
+    }
+
+    // If we have vimeoId, use vimeo player
+    if (videoVimeoId != null && videoVimeoId.isNotEmpty) {
+      setState(() {
+        _videoType = 'vimeo';
+        _vimeoId = videoVimeoId;
+        _isLoading = false;
+      });
+      return;
+    }
+
+    // Direct video URL (non-vimeo)
     if (url != null && url.toString().trim().isNotEmpty) {
       await _initializeUrlVideo(url.toString().trim());
       return;
     }
 
-    final vimeoId = video['vimeoId'];
-    if (vimeoId != null && vimeoId.toString().trim().isNotEmpty) {
-      await _initializeVimeoVideo(vimeoId.toString().trim());
+    // Fallback to embedCode if not vimeo
+    if (embedCode != null && embedCode.toString().trim().isNotEmpty) {
+      await _initializeUrlVideo(embedCode.toString().trim());
       return;
-    }
-
-    final embedCode = video['embedCode'];
-    if (embedCode != null && embedCode.toString().isNotEmpty) {
-      final extractedId = _extractVimeoId(embedCode.toString());
-      if (extractedId != null) {
-        await _initializeVimeoVideo(extractedId);
-        return;
-      }
     }
 
     setState(() {
@@ -102,7 +136,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
       }
 
       final fullUrl = url.startsWith('http') ? url : '${ApiConfig.baseUrl}$url';
-      
+
       setState(() {
         _videoType = 'url';
         _isLoading = true;
@@ -121,9 +155,9 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
           allowBackgroundPlayback: false,
         ),
       );
-      
+
       await _videoController!.initialize();
-      
+
       _chewieController = ChewieController(
         videoPlayerController: _videoController!,
         autoPlay: false,
@@ -152,11 +186,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.error_outline,
-                  color: Colors.red.shade400,
-                  size: 48,
-                ),
+                Icon(Icons.error_outline, color: Colors.red.shade400, size: 48),
                 const SizedBox(height: 16),
                 Text(
                   isFr ? 'Erreur de lecture vidéo' : 'Error playing video',
@@ -182,15 +212,6 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
         });
       }
     }
-  }
-
-  Future<void> _initializeVimeoVideo(String vimeoId) async {
-    setState(() {
-      _videoType = 'vimeo';
-      _isLoading = false;
-      _hasError = true;
-      _errorMessage = 'Vimeo playback not yet implemented';
-    });
   }
 
   @override
@@ -243,11 +264,8 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
       body: Column(
         children: [
           // Video Player Section
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: _buildVideoPlayer(),
-          ),
-          
+          AspectRatio(aspectRatio: 16 / 9, child: _buildVideoPlayer()),
+
           // Lesson Content Section
           Expanded(
             child: Container(
@@ -274,7 +292,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                         ),
                       ),
                     ),
-                    
+
                     // Lesson Info
                     Padding(
                       padding: const EdgeInsets.all(24),
@@ -310,7 +328,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // Video Duration
                           if (widget.lesson['video']?['duration'] != null)
                             Row(
@@ -329,7 +347,9 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                 ),
                                 const SizedBox(width: 10),
                                 Text(
-                                  _formatDuration(widget.lesson['video']['duration']),
+                                  _formatDuration(
+                                    widget.lesson['video']['duration'],
+                                  ),
                                   style: TextStyle(
                                     color: Colors.grey.shade700,
                                     fontSize: 14,
@@ -341,9 +361,9 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                         ],
                       ),
                     ),
-                    
+
                     Divider(height: 1, color: Colors.grey.shade200),
-                    
+
                     // Action Buttons
                     Padding(
                       padding: const EdgeInsets.all(24),
@@ -355,27 +375,63 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                             child: ElevatedButton.icon(
                               onPressed: _isCompleted
                                   ? null
-                                  : () {
-                                      setState(() {
-                                        _isCompleted = true;
-                                      });
-                                      widget.onComplete?.call();
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Row(
-                                            children: [
-                                              Icon(Icons.check_circle, color: Colors.white),
-                                              SizedBox(width: 12),
-                                              Text(isFr ? 'Leçon terminée !' : 'Lesson completed!'),
-                                            ],
-                                          ),
-                                          backgroundColor: Colors.green.shade600,
-                                          behavior: SnackBarBehavior.floating,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
+                                  : () async {
+                                      final token = await getToken();
+                                      final videoId =
+                                          widget.lesson['video']?['_id']?.toString() ??
+                                          widget.lesson['video']?['id']?.toString() ??
+                                          widget.lesson['_id']?.toString() ??
+                                          widget.lesson['id']?.toString() ?? '';
+                                      final chapterId =
+                                          widget.chapter['_id']?.toString() ??
+                                          widget.chapter['id']?.toString() ?? '';
+                                      final response = await post(
+                                        Uri.parse(
+                                          '${ApiConfig.baseUrl}/api/progress/complete-video',
                                         ),
+                                        headers: {
+                                          "Authorization": "Bearer $token",
+                                          "Content-Type": "application/json",
+                                        },
+                                        body: jsonEncode({
+                                          "videoId": videoId,
+                                          "chapterId": chapterId,
+                                        }),
                                       );
+                                      if (response.statusCode == 200) {
+                                        setState(() {
+                                          _isCompleted = true;
+                                        });
+                                        widget.onComplete?.call();
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.check_circle,
+                                                  color: Colors.white,
+                                                ),
+                                                SizedBox(width: 12),
+                                                Text(
+                                                  isFr
+                                                      ? 'Leçon terminée !'
+                                                      : 'Lesson completed!',
+                                                ),
+                                              ],
+                                            ),
+                                            backgroundColor:
+                                                Colors.green.shade600,
+                                            behavior: SnackBarBehavior.floating,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                          ),
+                                        );
+                                      }
                                     },
                               icon: Icon(
                                 _isCompleted
@@ -384,7 +440,13 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                 size: 22,
                               ),
                               label: Text(
-                                isFr ? (_isCompleted ? 'Terminé' : 'Marquer comme terminé') : (_isCompleted ? 'Completed' : 'Mark as Complete'),
+                                isFr
+                                    ? (_isCompleted
+                                          ? 'Terminé'
+                                          : 'Marquer comme terminé')
+                                    : (_isCompleted
+                                          ? 'Completed'
+                                          : 'Mark as Complete'),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 15,
@@ -395,7 +457,9 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                     ? Colors.green
                                     : Colors.blueAccent,
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
@@ -403,7 +467,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                               ),
                             ),
                           ),
-                          
+
                           // Quiz Button (if available)
                           if (widget.lesson['quiz'] != null) ...[
                             const SizedBox(height: 14),
@@ -411,7 +475,17 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                               width: double.infinity,
                               child: OutlinedButton.icon(
                                 onPressed: () {
-                                  // Navigate to quiz
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => StudentQuizPage(
+                                        lesson: widget.lesson,
+                                        chapter: widget.chapter,
+                                        courseId: widget.courseId,
+                                        onCompleted: widget.onComplete,
+                                      ),
+                                    ),
+                                  );
                                 },
                                 icon: const Icon(Icons.quiz, size: 22),
                                 label: Text(
@@ -422,7 +496,9 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                   ),
                                 ),
                                 style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
                                   side: BorderSide(
                                     color: Colors.orange.shade400,
                                     width: 2,
@@ -438,9 +514,9 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                         ],
                       ),
                     ),
-                    
+
                     Divider(height: 1, color: Colors.grey.shade200),
-                    
+
                     // Navigation Buttons
                     Padding(
                       padding: const EdgeInsets.all(24),
@@ -453,7 +529,9 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                 icon: const Icon(Icons.arrow_back, size: 20),
                                 label: Text(isFr ? 'Précédent' : 'Previous'),
                                 style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
                                   side: BorderSide(color: Colors.grey.shade400),
                                   foregroundColor: Colors.grey.shade700,
                                   shape: RoundedRectangleBorder(
@@ -462,18 +540,23 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                 ),
                               ),
                             ),
-                          if (widget.onPrevious != null && widget.onNext != null)
+                          if (widget.onPrevious != null &&
+                              widget.onNext != null)
                             const SizedBox(width: 14),
                           if (widget.onNext != null)
                             Expanded(
                               child: ElevatedButton.icon(
                                 onPressed: widget.onNext,
-                                label: Text(isFr ? 'Leçon suivante' : 'Next Lesson'),
+                                label: Text(
+                                  isFr ? 'Leçon suivante' : 'Next Lesson',
+                                ),
                                 icon: const Icon(Icons.arrow_forward, size: 20),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blueAccent,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -541,10 +624,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Text(
                   _errorMessage,
-                  style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -584,15 +664,57 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
               ),
               const SizedBox(height: 4),
               Text(
-                isFr ? 'Cette leçon contient uniquement du texte' : 'This lesson has text content only',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 13,
-                ),
+                isFr
+                    ? 'Cette leçon contient uniquement du texte'
+                    : 'This lesson has text content only',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
               ),
             ],
           ),
         ),
+      );
+    }
+
+    if (_videoType == 'vimeo' && _vimeoId != null) {
+      if (defaultTargetPlatform == TargetPlatform.linux ||
+          defaultTargetPlatform == TargetPlatform.windows) {
+        final vimeoUrl = Uri.parse('https://vimeo.com/${_vimeoId!}');
+        return Container(
+          color: Colors.black,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.play_circle_outline,
+                  color: Colors.white70,
+                  size: 64,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  isFr ? 'Vidéo Vimeo' : 'Vimeo Video',
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () =>
+                      launchUrl(vimeoUrl, mode: LaunchMode.externalApplication),
+                  icon: const Icon(Icons.open_in_browser),
+                  label: Text(
+                    isFr ? 'Ouvrir dans le navigateur' : 'Open in browser',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+      return VimeoVideoPlayer(
+        videoId: _vimeoId!,
+        isAutoPlay: true,
+        isMuted: false,
+        showControls: true,
+        enableFullScreenOnPlay: true,
       );
     }
 

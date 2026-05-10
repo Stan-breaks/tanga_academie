@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
-import 'package:tanga_acadamie/screens/shared/custom_appbar.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class AdminAnalyticsPage extends StatefulWidget {
@@ -53,8 +52,8 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
         child: _isLoading
             ? _buildLoadingState()
             : _error != null
-                ? _buildErrorState()
-                : _buildAnalytics(),
+            ? _buildErrorState()
+            : _buildAnalytics(),
       ),
     );
   }
@@ -88,7 +87,9 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
             Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
             const SizedBox(height: 16),
             Text(
-              isFr ? 'Erreur de chargement des analytiques' : 'Error loading analytics',
+              isFr
+                  ? 'Erreur de chargement des analytiques'
+                  : 'Error loading analytics',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -127,7 +128,9 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
 
         // Enrollment Trends Chart
         _buildChartCard(
-          title: isFr ? 'Tendances d\'inscription mensuelles' : 'Monthly Enrollment Trends',
+          title: isFr
+              ? 'Tendances d\'inscription mensuelles'
+              : 'Monthly Enrollment Trends',
           icon: Icons.trending_up,
           color: Colors.blueAccent,
           child: _buildEnrollmentChart(),
@@ -136,7 +139,9 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
 
         // Course Distribution Chart
         _buildChartCard(
-          title: isFr ? 'Distribution des catégories de cours' : 'Course Category Distribution',
+          title: isFr
+              ? 'Distribution des catégories de cours'
+              : 'Course Category Distribution',
           icon: Icons.pie_chart,
           color: Colors.purple,
           child: _buildDistributionChart(),
@@ -145,7 +150,9 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
 
         // Revenue Chart
         _buildChartCard(
-          title: isFr ? 'Revenus mensuels de la plateforme' : 'Monthly Platform Revenue',
+          title: isFr
+              ? 'Revenus mensuels de la plateforme'
+              : 'Monthly Platform Revenue',
           icon: Icons.bar_chart,
           color: Colors.green,
           child: _buildRevenueChart(),
@@ -181,10 +188,16 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.analytics, color: Colors.white70, size: 20),
+                    const Icon(
+                      Icons.analytics,
+                      color: Colors.white70,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Text(
-                      isFr ? 'Analytiques de la plateforme' : 'Platform Analytics',
+                      isFr
+                          ? 'Analytiques de la plateforme'
+                          : 'Platform Analytics',
                       style: TextStyle(
                         color: Colors.white.withAlpha(200),
                         fontSize: 14,
@@ -205,7 +218,9 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isFr ? 'Suivez la croissance et l\'engagement' : 'Track your platform growth and user engagement',
+                  isFr
+                      ? 'Suivez la croissance et l\'engagement'
+                      : 'Track your platform growth and user engagement',
                   style: TextStyle(
                     color: Colors.white.withAlpha(180),
                     fontSize: 13,
@@ -291,17 +306,22 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
     final enrollmentData = _chartData?['enrollment'] as Map<String, dynamic>?;
 
     if (enrollmentData == null) {
-      return _buildNoDataState(isFr ? 'Aucune donnée d\'inscription' : 'No enrollment data available');
+      return _buildNoDataState(
+        isFr ? 'Aucune donnée d\'inscription' : 'No enrollment data available',
+      );
     }
 
-    final labels = (enrollmentData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
+    final labels =
+        (enrollmentData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
     final datasets = enrollmentData['datasets'] as List<dynamic>?;
-    final dataPoints = (datasets?.isNotEmpty == true) 
+    final dataPoints = (datasets?.isNotEmpty == true)
         ? (datasets![0]['data'] as List<dynamic>?)?.cast<num>() ?? []
         : <num>[];
 
     if (dataPoints.isEmpty) {
-      return _buildNoDataState(isFr ? 'Aucune donnée d\'inscription' : 'No enrollment data available');
+      return _buildNoDataState(
+        isFr ? 'Aucune donnée d\'inscription' : 'No enrollment data available',
+      );
     }
 
     final spots = <FlSpot>[];
@@ -317,10 +337,8 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
             show: true,
             drawVerticalLine: false,
             horizontalInterval: 10,
-            getDrawingHorizontalLine: (value) => FlLine(
-              color: Colors.grey.shade200,
-              strokeWidth: 1,
-            ),
+            getDrawingHorizontalLine: (value) =>
+                FlLine(color: Colors.grey.shade200, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
             leftTitles: AxisTitles(
@@ -342,16 +360,26 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                   final index = value.toInt();
                   if (index >= 0 && index < labels.length) {
                     return Text(
-                      labels[index].substring(0, labels[index].length > 3 ? 3 : labels[index].length),
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
+                      labels[index].substring(
+                        0,
+                        labels[index].length > 3 ? 3 : labels[index].length,
+                      ),
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 10,
+                      ),
                     );
                   }
                   return const Text('');
                 },
               ),
             ),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
           ),
           borderData: FlBorderData(show: false),
           lineBarsData: [
@@ -375,20 +403,30 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
   Widget _buildDistributionChart() {
     // Get distribution data from API response
     // API returns: { labels: [...], datasets: [{ data, backgroundColor, ... }] }
-    final distributionData = _chartData?['distribution'] as Map<String, dynamic>?;
+    final distributionData =
+        _chartData?['distribution'] as Map<String, dynamic>?;
 
     if (distributionData == null) {
-      return _buildNoDataState(isFr ? 'Aucune donnée de distribution' : 'No distribution data available');
+      return _buildNoDataState(
+        isFr
+            ? 'Aucune donnée de distribution'
+            : 'No distribution data available',
+      );
     }
 
-    final labels = (distributionData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
+    final labels =
+        (distributionData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
     final datasets = distributionData['datasets'] as List<dynamic>?;
-    final dataPoints = (datasets?.isNotEmpty == true) 
+    final dataPoints = (datasets?.isNotEmpty == true)
         ? (datasets![0]['data'] as List<dynamic>?)?.cast<num>() ?? []
         : <num>[];
 
     if (dataPoints.isEmpty || labels.isEmpty) {
-      return _buildNoDataState(isFr ? 'Aucune donnée de distribution' : 'No distribution data available');
+      return _buildNoDataState(
+        isFr
+            ? 'Aucune donnée de distribution'
+            : 'No distribution data available',
+      );
     }
 
     final colors = [
@@ -467,11 +505,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: Wrap(
-            spacing: 12,
-            runSpacing: 4,
-            children: legendItems,
-          ),
+          child: Wrap(spacing: 12, runSpacing: 4, children: legendItems),
         ),
       ],
     );
@@ -483,17 +517,22 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
     final revenueData = _chartData?['revenue'] as Map<String, dynamic>?;
 
     if (revenueData == null) {
-      return _buildNoDataState(isFr ? 'Aucune donnée de revenus' : 'No revenue data available');
+      return _buildNoDataState(
+        isFr ? 'Aucune donnée de revenus' : 'No revenue data available',
+      );
     }
 
-    final labels = (revenueData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
+    final labels =
+        (revenueData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
     final datasets = revenueData['datasets'] as List<dynamic>?;
-    final dataPoints = (datasets?.isNotEmpty == true) 
+    final dataPoints = (datasets?.isNotEmpty == true)
         ? (datasets![0]['data'] as List<dynamic>?)?.cast<num>() ?? []
         : <num>[];
 
     if (dataPoints.isEmpty) {
-      return _buildNoDataState(isFr ? 'Aucune donnée de revenus' : 'No revenue data available');
+      return _buildNoDataState(
+        isFr ? 'Aucune donnée de revenus' : 'No revenue data available',
+      );
     }
 
     final groups = <BarChartGroupData>[];
@@ -502,7 +541,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
     for (int i = 0; i < dataPoints.length; i++) {
       final value = dataPoints[i].toDouble();
       if (value > maxValue) maxValue = value;
-      
+
       groups.add(
         BarChartGroupData(
           x: i,
@@ -515,7 +554,9 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                 colors: [Colors.green.shade400, Colors.green.shade600],
               ),
               width: 18,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(6),
+              ),
             ),
           ],
         ),
@@ -532,10 +573,8 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
             show: true,
             drawVerticalLine: false,
             horizontalInterval: maxValue > 0 ? maxValue / 5 : 20,
-            getDrawingHorizontalLine: (value) => FlLine(
-              color: Colors.grey.shade200,
-              strokeWidth: 1,
-            ),
+            getDrawingHorizontalLine: (value) =>
+                FlLine(color: Colors.grey.shade200, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
             leftTitles: AxisTitles(
@@ -556,16 +595,26 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                   final index = value.toInt();
                   if (index >= 0 && index < labels.length) {
                     return Text(
-                      labels[index].substring(0, labels[index].length > 3 ? 3 : labels[index].length),
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
+                      labels[index].substring(
+                        0,
+                        labels[index].length > 3 ? 3 : labels[index].length,
+                      ),
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 10,
+                      ),
                     );
                   }
                   return const Text('');
                 },
               ),
             ),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
           ),
           borderData: FlBorderData(show: false),
           barGroups: groups,
@@ -587,7 +636,11 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
               color: Colors.grey.shade100,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.show_chart, size: 40, color: Colors.grey.shade400),
+            child: Icon(
+              Icons.show_chart,
+              size: 40,
+              color: Colors.grey.shade400,
+            ),
           ),
           const SizedBox(height: 12),
           Text(

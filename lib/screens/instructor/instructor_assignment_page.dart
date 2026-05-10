@@ -23,7 +23,6 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
   bool _isLoadingAssignments = false;
   String? _errorMessage;
   String? _selectedCourseId;
-  String _selectedCourseName = '';
 
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
@@ -158,8 +157,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            Icon(Icons.warning_amber_rounded,
-                color: AppColors.error, size: 28),
+            Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 28),
             SizedBox(width: 8),
             Text(isFr ? 'Supprimer le devoir' : 'Delete Assignment'),
           ],
@@ -189,7 +187,8 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
         final token = await getToken();
         final response = await http.delete(
           Uri.parse(
-              '${ApiConfig.baseUrl}/api/courses/assignments/$assignmentId'),
+            '${ApiConfig.baseUrl}/api/courses/assignments/$assignmentId',
+          ),
           headers: {
             'Authorization': 'Bearer $token',
             'Content-Type': 'application/json',
@@ -198,13 +197,16 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
 
         if (response.statusCode == 200) {
           setState(() {
-            _assignments
-                .removeWhere((a) => a['_id'] == assignmentId);
+            _assignments.removeWhere((a) => a['_id'] == assignmentId);
           });
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(isFr ? 'Devoir supprimé avec succès' : 'Assignment deleted successfully'),
+                content: Text(
+                  isFr
+                      ? 'Devoir supprimé avec succès'
+                      : 'Assignment deleted successfully',
+                ),
                 backgroundColor: AppColors.success,
               ),
             );
@@ -234,12 +236,13 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
 
   // ── Update assignment ─────────────────────────────────────────────
   Future<void> _updateAssignment(
-      String assignmentId, Map<String, dynamic> formData) async {
+    String assignmentId,
+    Map<String, dynamic> formData,
+  ) async {
     try {
       final token = await getToken();
       final response = await http.put(
-        Uri.parse(
-            '${ApiConfig.baseUrl}/api/courses/assignments/$assignmentId'),
+        Uri.parse('${ApiConfig.baseUrl}/api/courses/assignments/$assignmentId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -250,8 +253,9 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          final index =
-              _assignments.indexWhere((a) => a['_id'] == assignmentId);
+          final index = _assignments.indexWhere(
+            (a) => a['_id'] == assignmentId,
+          );
           if (index != -1) {
             _assignments[index] = data['data'];
           }
@@ -259,7 +263,11 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(isFr ? 'Devoir mis à jour avec succès' : 'Assignment updated successfully'),
+              content: Text(
+                isFr
+                    ? 'Devoir mis à jour avec succès'
+                    : 'Assignment updated successfully',
+              ),
               backgroundColor: AppColors.success,
             ),
           );
@@ -288,12 +296,15 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
 
   // ── Open edit bottom sheet ────────────────────────────────────────
   void _openEditSheet(Map<String, dynamic> assignment) {
-    final titleController =
-        TextEditingController(text: assignment['title'] ?? '');
-    final descController =
-        TextEditingController(text: assignment['description'] ?? '');
+    final titleController = TextEditingController(
+      text: assignment['title'] ?? '',
+    );
+    final descController = TextEditingController(
+      text: assignment['description'] ?? '',
+    );
     final maxPointsController = TextEditingController(
-        text: (assignment['maxPoints'] ?? 100).toString());
+      text: (assignment['maxPoints'] ?? 100).toString(),
+    );
     DateTime selectedDate = assignment['dueDate'] != null
         ? DateTime.parse(assignment['dueDate'])
         : DateTime.now().add(const Duration(days: 7));
@@ -342,8 +353,11 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                             ),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.edit_note,
-                              color: Colors.white, size: 22),
+                          child: const Icon(
+                            Icons.edit_note,
+                            color: Colors.white,
+                            size: 22,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         const Text(
@@ -388,8 +402,9 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                           context: context,
                           initialDate: selectedDate,
                           firstDate: DateTime.now(),
-                          lastDate:
-                              DateTime.now().add(const Duration(days: 365)),
+                          lastDate: DateTime.now().add(
+                            const Duration(days: 365),
+                          ),
                           builder: (context, child) {
                             return Theme(
                               data: Theme.of(context).copyWith(
@@ -416,14 +431,15 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                         decoration: BoxDecoration(
                           color: AppColors.surfaceLight,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                          ),
+                          border: Border.all(color: Colors.grey.shade300),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.calendar_today,
-                                color: AppColors.primary, size: 20),
+                            const Icon(
+                              Icons.calendar_today,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
                             const SizedBox(width: 12),
                             Text(
                               DateFormat('MMM d, yyyy').format(selectedDate),
@@ -433,8 +449,10 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                               ),
                             ),
                             const Spacer(),
-                            Icon(Icons.arrow_drop_down,
-                                color: Colors.grey.shade500),
+                            Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.grey.shade500,
+                            ),
                           ],
                         ),
                       ),
@@ -485,11 +503,13 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                                 'dueDate': selectedDate.toIso8601String(),
                                 'maxPoints':
                                     int.tryParse(maxPointsController.text) ??
-                                        100,
+                                    100,
                               };
                               Navigator.pop(context);
                               await _updateAssignment(
-                                  assignment['_id'], formData);
+                                assignment['_id'],
+                                formData,
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
@@ -567,15 +587,15 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
               ),
             )
           : _errorMessage != null
-              ? _buildErrorState()
-              : Column(
-                  children: [
-                    _buildCourseFilter(),
-                    if (!_isLoadingAssignments && _assignments.isNotEmpty)
-                      _buildStatsBanner(),
-                    Expanded(child: _buildAssignmentsList()),
-                  ],
-                ),
+          ? _buildErrorState()
+          : Column(
+              children: [
+                _buildCourseFilter(),
+                if (!_isLoadingAssignments && _assignments.isNotEmpty)
+                  _buildStatsBanner(),
+                Expanded(child: _buildAssignmentsList()),
+              ],
+            ),
     );
   }
 
@@ -632,8 +652,11 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
               color: AppColors.primary.withAlpha(20),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.filter_list,
-                color: AppColors.primary, size: 20),
+            child: const Icon(
+              Icons.filter_list,
+              color: AppColors.primary,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -647,8 +670,10 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                icon: const Icon(Icons.keyboard_arrow_down,
-                    color: AppColors.primary),
+                icon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: AppColors.primary,
+                ),
                 isExpanded: true,
                 items: [
                   const DropdownMenuItem<String>(
@@ -672,12 +697,6 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                 onChanged: (value) {
                   setState(() {
                     _selectedCourseId = value;
-                    _selectedCourseName = value != null
-                        ? (_courses.firstWhere(
-                            (c) => c['_id'] == value,
-                            orElse: () => {'title': ''},
-                          )['title'] ?? '')
-                        : '';
                   });
                   if (value == null) {
                     _fetchAllAssignments();
@@ -723,9 +742,17 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem('📝', '$totalAssignments', isFr ? 'Devoirs' : 'Assignments'),
+          _buildStatItem(
+            '📝',
+            '$totalAssignments',
+            isFr ? 'Devoirs' : 'Assignments',
+          ),
           Container(width: 1, height: 40, color: Colors.grey.shade300),
-          _buildStatItem('📤', '$totalSubmissions', isFr ? 'Soumissions' : 'Submissions'),
+          _buildStatItem(
+            '📤',
+            '$totalSubmissions',
+            isFr ? 'Soumissions' : 'Submissions',
+          ),
           Container(width: 1, height: 40, color: Colors.grey.shade300),
           _buildStatItem('⏰', '$overdueCount', isFr ? 'En retard' : 'Overdue'),
         ],
@@ -789,10 +816,10 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
     final dueDate = assignment['dueDate'] != null
         ? DateTime.parse(assignment['dueDate'])
         : null;
-    final isOverdue =
-        dueDate != null && dueDate.isBefore(DateTime.now());
-    final dueDateStr =
-        dueDate != null ? DateFormat('MMM d, yyyy').format(dueDate) : 'No date';
+    final isOverdue = dueDate != null && dueDate.isBefore(DateTime.now());
+    final dueDateStr = dueDate != null
+        ? DateFormat('MMM d, yyyy').format(dueDate)
+        : 'No date';
     final submissionCount = assignment['submissionCount'] ?? 0;
     final maxPoints = assignment['maxPoints'] ?? 100;
 
@@ -882,7 +909,9 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                     // Status badge
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
                       decoration: BoxDecoration(
                         color: isOverdue
                             ? AppColors.error.withAlpha(25)
@@ -895,9 +924,13 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                         ),
                       ),
                       child: Text(
-                        isOverdue ? (isFr ? 'En retard' : 'Overdue') : (isFr ? 'Actif' : 'Active'),
+                        isOverdue
+                            ? (isFr ? 'En retard' : 'Overdue')
+                            : (isFr ? 'Actif' : 'Active'),
                         style: TextStyle(
-                          color: isOverdue ? AppColors.error : AppColors.success,
+                          color: isOverdue
+                              ? AppColors.error
+                              : AppColors.success,
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
@@ -940,8 +973,10 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                         child: ElevatedButton.icon(
                           onPressed: () => _openSubmissionsView(assignment),
                           icon: const Icon(Icons.visibility_outlined, size: 16),
-                          label: Text(isFr ? 'Soumissions' : 'Submissions',
-                              style: TextStyle(fontSize: 12)),
+                          label: Text(
+                            isFr ? 'Soumissions' : 'Submissions',
+                            style: TextStyle(fontSize: 12),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.info,
                             foregroundColor: Colors.white,
@@ -959,8 +994,10 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                       child: OutlinedButton.icon(
                         onPressed: () => _openEditSheet(assignment),
                         icon: const Icon(Icons.edit_outlined, size: 16),
-                        label:
-                            Text(isFr ? 'Modifier' : 'Edit', style: const TextStyle(fontSize: 12)),
+                        label: Text(
+                          isFr ? 'Modifier' : 'Edit',
+                          style: const TextStyle(fontSize: 12),
+                        ),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primary,
                           side: const BorderSide(color: AppColors.primary),
@@ -975,8 +1012,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                       height: 36,
                       width: 36,
                       child: IconButton(
-                        onPressed: () =>
-                            _deleteAssignment(assignment['_id']),
+                        onPressed: () => _deleteAssignment(assignment['_id']),
                         padding: EdgeInsets.zero,
                         icon: Container(
                           decoration: BoxDecoration(
@@ -1052,7 +1088,9 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
             const SizedBox(height: 24),
             Text(
               _selectedCourseId != null
-                  ? (isFr ? 'Aucun devoir pour ce cours' : 'No Assignments for this Course')
+                  ? (isFr
+                        ? 'Aucun devoir pour ce cours'
+                        : 'No Assignments for this Course')
                   : (isFr ? 'Aucun devoir' : 'No Assignments Yet'),
               style: const TextStyle(
                 fontSize: 20,
@@ -1063,8 +1101,12 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
             const SizedBox(height: 12),
             Text(
               _selectedCourseId != null
-                  ? (isFr ? 'Ce cours n\'a pas encore de devoirs.' : 'This course doesn\'t have any assignments yet.')
-                  : (isFr ? 'Créez des devoirs pour vos cours !' : 'Create assignments for your courses to get started!'),
+                  ? (isFr
+                        ? 'Ce cours n\'a pas encore de devoirs.'
+                        : 'This course doesn\'t have any assignments yet.')
+                  : (isFr
+                        ? 'Créez des devoirs pour vos cours !'
+                        : 'Create assignments for your courses to get started!'),
               style: const TextStyle(fontSize: 14, color: AppColors.textLight),
               textAlign: TextAlign.center,
             ),
@@ -1116,8 +1158,10 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
       ),
     );
   }
@@ -1162,7 +1206,8 @@ class _AssignmentSubmissionsPageState
       final token = await getToken();
       final response = await http.get(
         Uri.parse(
-            '${ApiConfig.baseUrl}/api/courses/assignments/${widget.assignmentId}/submissions'),
+          '${ApiConfig.baseUrl}/api/courses/assignments/${widget.assignmentId}/submissions',
+        ),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -1191,20 +1236,21 @@ class _AssignmentSubmissionsPageState
 
   // ── Grade submission ──────────────────────────────────────────────
   Future<void> _gradeSubmission(
-      String submissionId, int grade, String feedback) async {
+    String submissionId,
+    int grade,
+    String feedback,
+  ) async {
     try {
       final token = await getToken();
       final response = await http.put(
         Uri.parse(
-            '${ApiConfig.baseUrl}/api/courses/assignments/submissions/$submissionId/grade'),
+          '${ApiConfig.baseUrl}/api/courses/assignments/submissions/$submissionId/grade',
+        ),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: json.encode({
-          'grade': grade,
-          'feedback': feedback,
-        }),
+        body: json.encode({'grade': grade, 'feedback': feedback}),
       );
 
       if (response.statusCode == 200) {
@@ -1290,8 +1336,11 @@ class _AssignmentSubmissionsPageState
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.grading,
-                          color: Colors.white, size: 22),
+                      child: const Icon(
+                        Icons.grading,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1368,8 +1417,11 @@ class _AssignmentSubmissionsPageState
                   decoration: InputDecoration(
                     hintText: 'Enter grade',
                     hintStyle: TextStyle(color: Colors.grey.shade400),
-                    prefixIcon: const Icon(Icons.stars_outlined,
-                        color: AppColors.warning, size: 20),
+                    prefixIcon: const Icon(
+                      Icons.stars_outlined,
+                      color: AppColors.warning,
+                      size: 20,
+                    ),
                     filled: true,
                     fillColor: AppColors.surfaceLight,
                     border: OutlineInputBorder(
@@ -1382,8 +1434,10 @@ class _AssignmentSubmissionsPageState
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: AppColors.primary, width: 1.5),
+                      borderSide: const BorderSide(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
                     ),
                   ),
                 ),
@@ -1407,8 +1461,11 @@ class _AssignmentSubmissionsPageState
                     hintStyle: TextStyle(color: Colors.grey.shade400),
                     prefixIcon: const Padding(
                       padding: EdgeInsets.only(bottom: 48),
-                      child: Icon(Icons.comment_outlined,
-                          color: AppColors.primary, size: 20),
+                      child: Icon(
+                        Icons.comment_outlined,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
                     ),
                     filled: true,
                     fillColor: AppColors.surfaceLight,
@@ -1422,8 +1479,10 @@ class _AssignmentSubmissionsPageState
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: AppColors.primary, width: 1.5),
+                      borderSide: const BorderSide(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
                     ),
                   ),
                 ),
@@ -1456,12 +1515,10 @@ class _AssignmentSubmissionsPageState
                       flex: 2,
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          final grade =
-                              int.tryParse(gradeController.text) ?? 0;
+                          final grade = int.tryParse(gradeController.text) ?? 0;
                           final feedback = feedbackController.text;
                           Navigator.pop(context);
-                          _gradeSubmission(
-                              submission['_id'], grade, feedback);
+                          _gradeSubmission(submission['_id'], grade, feedback);
                         },
                         icon: const Icon(Icons.check_circle_outline, size: 18),
                         label: const Text(
@@ -1511,86 +1568,87 @@ class _AssignmentSubmissionsPageState
               child: CircularProgressIndicator(color: AppColors.primary),
             )
           : _errorMessage != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline,
-                          size: 64, color: AppColors.error),
-                      const SizedBox(height: 16),
-                      Text(
-                        _errorMessage!,
-                        style: const TextStyle(color: AppColors.error),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        onPressed: _fetchSubmissions,
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Retry'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: AppColors.error,
                   ),
-                )
-              : _submissions.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withAlpha(25),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.inbox_outlined,
-                              size: 64,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          const Text(
-                            'No Submissions Yet',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textDark,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Students haven\'t submitted their work yet.',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: AppColors.textLight,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : RefreshIndicator(
-                      color: AppColors.primary,
-                      onRefresh: _fetchSubmissions,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _submissions.length,
-                        itemBuilder: (context, index) {
-                          return _buildSubmissionCard(_submissions[index]);
-                        },
-                      ),
+                  const SizedBox(height: 16),
+                  Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: AppColors.error),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: _fetchSubmissions,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
                     ),
+                  ),
+                ],
+              ),
+            )
+          : _submissions.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withAlpha(25),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.inbox_outlined,
+                      size: 64,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'No Submissions Yet',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Students haven\'t submitted their work yet.',
+                    style: TextStyle(fontSize: 14, color: AppColors.textLight),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              color: AppColors.primary,
+              onRefresh: _fetchSubmissions,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _submissions.length,
+                itemBuilder: (context, index) {
+                  return _buildSubmissionCard(_submissions[index]);
+                },
+              ),
+            ),
     );
   }
 
   Widget _buildSubmissionCard(Map<String, dynamic> submission) {
     final isGraded = submission['grade'] != null;
     final submittedAt = submission['submittedAt'] != null
-        ? DateFormat('MMM d, yyyy – h:mm a')
-            .format(DateTime.parse(submission['submittedAt']))
+        ? DateFormat(
+            'MMM d, yyyy – h:mm a',
+          ).format(DateTime.parse(submission['submittedAt']))
         : 'Unknown date';
 
     return Container(
@@ -1665,7 +1723,9 @@ class _AssignmentSubmissionsPageState
                     // Status badge
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
                       decoration: BoxDecoration(
                         color: isGraded
                             ? AppColors.success.withAlpha(25)
@@ -1691,9 +1751,7 @@ class _AssignmentSubmissionsPageState
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            isGraded
-                                ? '${submission['grade']} pts'
-                                : 'Pending',
+                            isGraded ? '${submission['grade']} pts' : 'Pending',
                             style: TextStyle(
                               color: isGraded
                                   ? AppColors.success
@@ -1737,7 +1795,11 @@ class _AssignmentSubmissionsPageState
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.attach_file, size: 16, color: Colors.grey.shade500),
+                      Icon(
+                        Icons.attach_file,
+                        size: 16,
+                        color: Colors.grey.shade500,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         'File attached',
@@ -1756,8 +1818,11 @@ class _AssignmentSubmissionsPageState
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.comment_outlined,
-                          size: 14, color: AppColors.primary),
+                      const Icon(
+                        Icons.comment_outlined,
+                        size: 14,
+                        color: AppColors.primary,
+                      ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
@@ -1791,8 +1856,9 @@ class _AssignmentSubmissionsPageState
                       style: const TextStyle(fontSize: 13),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          isGraded ? AppColors.primary : AppColors.success,
+                      backgroundColor: isGraded
+                          ? AppColors.primary
+                          : AppColors.success,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(

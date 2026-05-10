@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/screens/shared/course_card.dart';
 import 'package:tanga_acadamie/screens/shared/course_details_page.dart';
+import 'package:tanga_acadamie/screens/shared/blog_detail_page.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/models/blog.dart';
+import 'package:tanga_acadamie/services/blog_service.dart';
+import 'package:tanga_acadamie/widgets/blog_card.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -222,18 +226,8 @@ class _ExplorePageState extends State<ExplorePage>
                               }, childCount: filteredCourses.length),
                             ),
                     ),
-                    SliverToBoxAdapter(
-                      child: SizedBox(
-                        width: 500,
-                        height: 200,
-                        child: ClipRect(
-                          child: Image.asset(
-                            'public/banner1.png',
-                            fit: BoxFit.fill,
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Blog Section
+                    SliverToBoxAdapter(child: _buildBlogSection()),
                   ],
                 ),
               ),
@@ -532,6 +526,162 @@ class _ExplorePageState extends State<ExplorePage>
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBlogSection() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 24, 0, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.blueAccent.shade200,
+                        Colors.blueAccent.shade700,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.article_outlined,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isFr ? 'Derniers Articles' : 'Latest Articles',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        isFr
+                            ? 'Restez informé avec nos articles'
+                            : 'Stay informed with our articles',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Blog cards list
+          SizedBox(
+            height: 240,
+            child: FutureBuilder<List<Blog>>(
+              future: BlogService.fetchRecentBlogs(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.blueAccent,
+                      strokeWidth: 2.5,
+                    ),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.wifi_off,
+                          size: 32,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          isFr
+                              ? 'Impossible de charger les articles'
+                              : 'Could not load articles',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final blogs = snapshot.data ?? [];
+                if (blogs.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.article_outlined,
+                          size: 32,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          isFr
+                              ? 'Aucun article pour le moment'
+                              : 'No articles yet',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: blogs.length,
+                  itemBuilder: (context, index) {
+                    final blog = blogs[index];
+                    return BlogCard(
+                      blog: blog,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BlogDetailPage(
+                              slug: blog.slug,
+                              previewTitle: blog.title,
+                              previewImage: blog.featuredImage,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

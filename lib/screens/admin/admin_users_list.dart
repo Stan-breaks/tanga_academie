@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/core/utils/chat.dart';
 import 'package:tanga_acadamie/screens/shared/chat_page.dart';
-import 'package:tanga_acadamie/screens/shared/custom_appbar.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 
@@ -220,7 +219,9 @@ class _AdminUsersListState extends State<AdminUsersList> {
               controller: _searchController,
               onChanged: (_) => _filterUsers(),
               decoration: InputDecoration(
-                hintText: isFr ? 'Rechercher des utilisateurs...' : 'Search users...',
+                hintText: isFr
+                    ? 'Rechercher des utilisateurs...'
+                    : 'Search users...',
                 hintStyle: TextStyle(color: Colors.grey.shade500),
                 prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
                 suffixIcon: _searchController.text.isNotEmpty
@@ -276,7 +277,9 @@ class _AdminUsersListState extends State<AdminUsersList> {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.blueAccent : Colors.grey.shade100,
+                    color: isSelected
+                        ? Colors.blueAccent
+                        : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(25),
                     border: Border.all(
                       color: isSelected
@@ -364,7 +367,10 @@ class _AdminUsersListState extends State<AdminUsersList> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(color: Colors.blueAccent, strokeWidth: 3),
+          const CircularProgressIndicator(
+            color: Colors.blueAccent,
+            strokeWidth: 3,
+          ),
           const SizedBox(height: 20),
           Text(
             isFr ? 'Chargement des utilisateurs...' : 'Loading users...',
@@ -385,7 +391,9 @@ class _AdminUsersListState extends State<AdminUsersList> {
             Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
             const SizedBox(height: 16),
             Text(
-              isFr ? 'Erreur de chargement des utilisateurs' : 'Error loading users',
+              isFr
+                  ? 'Erreur de chargement des utilisateurs'
+                  : 'Error loading users',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -608,8 +616,12 @@ class _AdminUsersListState extends State<AdminUsersList> {
 
   Widget _buildEmptyState() {
     String message = _searchController.text.isNotEmpty
-        ? (isFr ? 'Aucun utilisateur trouvé' : 'No users found matching your search')
-        : (isFr ? 'Aucun ${_selectedRole == 'all' ? 'utilisateur' : _selectedRole} trouvé' : 'No ${_selectedRole == 'all' ? 'users' : '${_selectedRole}s'} found');
+        ? (isFr
+              ? 'Aucun utilisateur trouvé'
+              : 'No users found matching your search')
+        : (isFr
+              ? 'Aucun ${_selectedRole == 'all' ? 'utilisateur' : _selectedRole} trouvé'
+              : 'No ${_selectedRole == 'all' ? 'users' : '${_selectedRole}s'} found');
 
     return Center(
       child: Column(
@@ -729,13 +741,25 @@ class _AdminUsersListState extends State<AdminUsersList> {
             ),
             const SizedBox(height: 24),
 
-            _buildDetailRow(Icons.person_outlined, isFr ? 'Bio' : 'Bio', user.bio),
+            _buildDetailRow(
+              Icons.person_outlined,
+              isFr ? 'Bio' : 'Bio',
+              user.bio,
+            ),
             const SizedBox(height: 12),
             // Details
-            _buildDetailRow(Icons.email_outlined, isFr ? 'Email' : 'Email', user.email),
+            _buildDetailRow(
+              Icons.email_outlined,
+              isFr ? 'Email' : 'Email',
+              user.email,
+            ),
             const SizedBox(height: 12),
             if (formattedDate.isNotEmpty) ...[
-              _buildDetailRow(Icons.calendar_today, isFr ? 'Inscrit le' : 'Joined', formattedDate),
+              _buildDetailRow(
+                Icons.calendar_today,
+                isFr ? 'Inscrit le' : 'Joined',
+                formattedDate,
+              ),
               const SizedBox(height: 12),
             ],
 

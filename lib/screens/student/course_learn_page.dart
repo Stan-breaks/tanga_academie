@@ -1,13 +1,18 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/screens/home_page.dart';
+import 'package:tanga_acadamie/screens/student/assignment_submission_page.dart';
 import 'package:tanga_acadamie/screens/student/lesson_video_player_page.dart';
+import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class CourseLearnPage extends StatefulWidget {
@@ -21,17 +26,109 @@ class CourseLearnPage extends StatefulWidget {
 class _CourseLearnPageState extends State<CourseLearnPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  Set<String> _completedVideoIds = {};
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _loadProgress();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadProgress() async {
+    try {
+      final token = await getToken();
+      final res = await http.get(
+        Uri.parse(
+          '${ApiConfig.baseUrl}/api/progress/course/${widget.courseId}',
+        ),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (res.statusCode == 200 && mounted) {
+        final data = jsonDecode(res.body);
+        final videos =
+            data['completedVideos'] ??
+            data['data']?['completedVideos'] ??
+            [];
+        setState(() {
+          _completedVideoIds = Set<String>.from(
+            (videos as List).map((v) => v.toString()),
+          );
+        });
+      }
+    } catch (_) {}
+  }
+
+  List<Map<String, dynamic>> _buildFlatLessonList(
+    Map<String, dynamic> course,
+  ) {
+    final chapters = course['chapters'] as List? ?? [];
+    final result = <Map<String, dynamic>>[];
+    for (final chapter in chapters) {
+      final lessons = chapter['lessons'] as List? ?? [];
+      for (final lesson in lessons) {
+        result.add({
+          'chapter': chapter as Map<String, dynamic>,
+          'lesson': lesson as Map<String, dynamic>,
+        });
+      }
+    }
+    return result;
+  }
+
+  void _openLesson(
+    Map<String, dynamic> course,
+    Map<String, dynamic> chapter,
+    Map<String, dynamic> lesson,
+  ) {
+    final flat = _buildFlatLessonList(course);
+    final lessonId =
+        lesson['_id']?.toString() ?? lesson['id']?.toString() ?? '';
+    final idx = flat.indexWhere((e) {
+      final l = e['lesson'] as Map<String, dynamic>;
+      return l['_id']?.toString() == lessonId ||
+          l['id']?.toString() == lessonId;
+    });
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LessonVideoPlayerPage(
+          lesson: lesson,
+          chapter: chapter,
+          courseId: widget.courseId,
+          onComplete: () {
+            _loadProgress();
+          },
+          onNext: idx >= 0 && idx < flat.length - 1
+              ? () {
+                  Navigator.pop(context);
+                  _openLesson(
+                    course,
+                    flat[idx + 1]['chapter'] as Map<String, dynamic>,
+                    flat[idx + 1]['lesson'] as Map<String, dynamic>,
+                  );
+                }
+              : null,
+          onPrevious: idx > 0
+              ? () {
+                  Navigator.pop(context);
+                  _openLesson(
+                    course,
+                    flat[idx - 1]['chapter'] as Map<String, dynamic>,
+                    flat[idx - 1]['lesson'] as Map<String, dynamic>,
+                  );
+                }
+              : null,
+        ),
+      ),
+    );
   }
 
   Future<void> downloadAndOpen(String fileName, String url) async {
@@ -87,7 +184,9 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    isFr ? 'Erreur de chargement du cours' : 'Error loading course',
+                    isFr
+                        ? 'Erreur de chargement du cours'
+                        : 'Error loading course',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -212,7 +311,9 @@ class _CourseLearnPageState extends State<CourseLearnPage>
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (_) => const HomePage(isLoggedIn: true)),
+              MaterialPageRoute(
+                builder: (_) => const HomePage(isLoggedIn: true),
+              ),
             );
           },
         ),
@@ -268,10 +369,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withAlpha(80),
-                  ],
+                  colors: [Colors.transparent, Colors.black.withAlpha(80)],
                 ),
               ),
             ),
@@ -351,7 +449,8 @@ class _CourseLearnPageState extends State<CourseLearnPage>
   }
 
   Widget _buildContinueLearning(Map<String, dynamic> course) {
-    final currentLesson = _getCurrentLesson(course);
+    final current = _getCurrentLessonWithChapter(course);
+    final currentLesson = current?['lesson'] as Map<String, dynamic>?;
 
     if (currentLesson == null) return const SizedBox.shrink();
 
@@ -362,10 +461,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.blueAccent.shade400,
-            Colors.blueAccent.shade700,
-          ],
+          colors: [Colors.blueAccent.shade400, Colors.blueAccent.shade700],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -418,7 +514,14 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                // Navigate to lesson
+                final current = _getCurrentLessonWithChapter(course);
+                if (current != null) {
+                  _openLesson(
+                    course,
+                    current['chapter'] as Map<String, dynamic>,
+                    current['lesson'] as Map<String, dynamic>,
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -471,7 +574,9 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             ),
             const SizedBox(height: 8),
             Text(
-              isFr ? 'Les leçons apparaîtront bientôt' : 'Lessons will appear here soon',
+              isFr
+                  ? 'Les leçons apparaîtront bientôt'
+                  : 'Lessons will appear here soon',
               style: TextStyle(color: Colors.grey.shade500),
             ),
           ],
@@ -484,12 +589,16 @@ class _CourseLearnPageState extends State<CourseLearnPage>
       itemCount: chapters.length,
       itemBuilder: (context, index) {
         final chapter = chapters[index];
-        return _buildChapterCard(chapter, index + 1);
+        return _buildChapterCard(chapter, index + 1, course);
       },
     );
   }
 
-  Widget _buildChapterCard(Map<String, dynamic> chapter, int chapterNumber) {
+  Widget _buildChapterCard(
+    Map<String, dynamic> chapter,
+    int chapterNumber,
+    Map<String, dynamic> course,
+  ) {
     final lessons = chapter['lessons'] as List<dynamic>? ?? [];
     final isLocked = chapter['isLockedUntilQuizPass'] ?? false;
 
@@ -539,19 +648,13 @@ class _CourseLearnPageState extends State<CourseLearnPage>
         ),
         title: Text(
           chapter['title'] ?? 'Chapter $chapterNumber',
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 15,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4),
           child: Text(
             '${lessons.length} ${isFr ? (lessons.length == 1 ? 'leçon' : 'leçons') : (lessons.length == 1 ? 'lesson' : 'lessons')}',
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 13,
-            ),
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
           ),
         ),
         children: lessons.asMap().entries.map((entry) {
@@ -560,6 +663,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             entry.key + 1,
             isLocked,
             chapter,
+            course,
           );
         }).toList(),
       ),
@@ -571,30 +675,22 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     int lessonNumber,
     bool isChapterLocked,
     Map<String, dynamic> chapter,
+    Map<String, dynamic> course,
   ) {
     final hasVideo = lesson['video'] != null;
     final hasQuiz = lesson['quiz'] != null;
+    final videoId =
+        lesson['video']?['_id']?.toString() ??
+        lesson['video']?['id']?.toString();
+    final isCompleted =
+        videoId != null && _completedVideoIds.contains(videoId);
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: isChapterLocked
             ? null
-            : () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LessonVideoPlayerPage(
-                      lesson: lesson,
-                      chapter: chapter,
-                      courseId: widget.courseId,
-                      onComplete: () {},
-                      onNext: () {},
-                      onPrevious: () {},
-                    ),
-                  ),
-                );
-              },
+            : () => _openLesson(course, chapter, lesson),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
@@ -671,11 +767,17 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                 ),
               ),
               Icon(
-                isChapterLocked ? Icons.lock_outline : Icons.chevron_right,
+                isChapterLocked
+                    ? Icons.lock_outline
+                    : isCompleted
+                        ? Icons.check_circle
+                        : Icons.chevron_right,
                 size: 22,
                 color: isChapterLocked
                     ? Colors.grey.shade400
-                    : Colors.grey.shade500,
+                    : isCompleted
+                        ? Colors.green
+                        : Colors.grey.shade500,
               ),
             ],
           ),
@@ -684,20 +786,35 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     );
   }
 
+  bool _isCourseComplete(Map<String, dynamic> course) {
+    final chapters = course['chapters'] as List? ?? [];
+    if (chapters.isEmpty) return false;
+    for (final chapter in chapters) {
+      for (final lesson in (chapter['lessons'] as List? ?? [])) {
+        final videoId =
+            lesson['video']?['_id']?.toString() ??
+            lesson['video']?['id']?.toString();
+        if (videoId != null && !_completedVideoIds.contains(videoId)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   Widget _buildResourcesTab(Map<String, dynamic> course) {
     final pdfFiles = course['pdfFiles'] as List<dynamic>? ?? [];
     final certificateFile = course['certificateFile'];
+    final zoomLink = course['zoomLink']?.toString();
+    final hasContent =
+        pdfFiles.isNotEmpty || certificateFile != null || zoomLink != null;
 
-    if (pdfFiles.isEmpty && certificateFile == null) {
+    if (!hasContent) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.folder_outlined,
-              size: 64,
-              color: Colors.grey.shade400,
-            ),
+            Icon(Icons.folder_outlined, size: 64, color: Colors.grey.shade400),
             const SizedBox(height: 16),
             Text(
               isFr ? 'Aucune ressource disponible' : 'No resources available',
@@ -709,7 +826,9 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             ),
             const SizedBox(height: 8),
             Text(
-              isFr ? 'Les ressources seront ajoutées par l\'instructeur' : 'Resources will be added by the instructor',
+              isFr
+                  ? 'Les ressources seront ajoutées par l\'instructeur'
+                  : 'Resources will be added by the instructor',
               style: TextStyle(color: Colors.grey.shade500),
             ),
           ],
@@ -720,8 +839,23 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // Zoom live session
+        if (zoomLink != null) ...[
+          _buildResourcesHeader(
+            isFr ? 'Session en direct' : 'Live Session',
+            Icons.videocam,
+          ),
+          const SizedBox(height: 12),
+          _buildZoomCard(zoomLink),
+          const SizedBox(height: 8),
+        ],
+
         if (pdfFiles.isNotEmpty) ...[
-          _buildResourcesHeader(isFr ? 'Matériels de cours' : 'Course Materials', Icons.description),
+          if (zoomLink != null) const SizedBox(height: 16),
+          _buildResourcesHeader(
+            isFr ? 'Matériels de cours' : 'Course Materials',
+            Icons.description,
+          ),
           const SizedBox(height: 12),
           ...pdfFiles.map(
             (pdf) => _buildResourceCard(
@@ -738,24 +872,223 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             ),
           ),
         ],
+
         if (certificateFile != null) ...[
           const SizedBox(height: 24),
-          _buildResourcesHeader(isFr ? 'Certificat' : 'Certificate', Icons.workspace_premium),
-          const SizedBox(height: 12),
-          _buildResourceCard(
-            title: isFr ? 'Certificat du cours' : 'Course Certificate',
-            subtitle: isFr ? 'Terminez le cours pour débloquer' : 'Complete the course to unlock',
-            icon: Icons.workspace_premium,
-            color: Colors.amber,
-            onTap: () {
-              downloadAndOpen(
-                'Course Certificate',
-                "${ApiConfig.baseUrl}$certificateFile",
-              );
-            },
+          _buildResourcesHeader(
+            isFr ? 'Certificat' : 'Certificate',
+            Icons.workspace_premium,
           ),
+          const SizedBox(height: 12),
+          _buildCertificateCard(course, certificateFile),
         ],
       ],
+    );
+  }
+
+  Widget _buildZoomCard(String zoomLink) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.blue.shade700, Colors.blue.shade900],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withAlpha(60),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => launchUrl(
+            Uri.parse(zoomLink),
+            mode: LaunchMode.externalApplication,
+          ),
+          borderRadius: BorderRadius.circular(14),
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(40),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.videocam,
+                    color: Colors.white,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isFr ? 'Rejoindre la session Zoom' : 'Join Zoom Session',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        isFr
+                            ? 'Cliquez pour rejoindre la classe en direct'
+                            : 'Tap to join the live class',
+                        style: TextStyle(
+                          color: Colors.white.withAlpha(200),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.open_in_new,
+                  color: Colors.white.withAlpha(200),
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCertificateCard(
+    Map<String, dynamic> course,
+    String certificateFile,
+  ) {
+    final complete = _isCourseComplete(course);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(8),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () {
+            if (!complete) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      const Icon(Icons.lock, color: Colors.white, size: 18),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          isFr
+                              ? 'Terminez toutes les leçons pour débloquer le certificat'
+                              : 'Complete all lessons to unlock the certificate',
+                        ),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: Colors.orange.shade700,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              );
+              return;
+            }
+            downloadAndOpen(
+              'Course Certificate',
+              "${ApiConfig.baseUrl}$certificateFile",
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: complete
+                        ? Colors.amber.withAlpha(30)
+                        : Colors.grey.withAlpha(30),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    complete
+                        ? Icons.workspace_premium
+                        : Icons.lock_outline,
+                    color: complete ? Colors.amber : Colors.grey.shade500,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isFr ? 'Certificat du cours' : 'Course Certificate',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        complete
+                            ? (isFr ? 'Disponible — Télécharger' : 'Available — Tap to download')
+                            : (isFr
+                                ? 'Terminez le cours pour débloquer'
+                                : 'Complete the course to unlock'),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: complete
+                              ? Colors.green.shade600
+                              : Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: complete
+                        ? Colors.blueAccent.withAlpha(25)
+                        : Colors.grey.withAlpha(20),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    complete ? Icons.download : Icons.lock,
+                    color: complete ? Colors.blueAccent : Colors.grey.shade400,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -888,7 +1221,9 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             ),
             const SizedBox(height: 8),
             Text(
-              isFr ? 'Les devoirs seront ajoutés bientôt' : 'Assignments will appear here when added',
+              isFr
+                  ? 'Les devoirs seront ajoutés bientôt'
+                  : 'Assignments will appear here when added',
               style: TextStyle(color: Colors.grey.shade500),
             ),
           ],
@@ -921,10 +1256,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               height: 50,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Colors.orange.shade400,
-                    Colors.deepOrange.shade600,
-                  ],
+                  colors: [Colors.orange.shade400, Colors.deepOrange.shade600],
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -937,7 +1269,10 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.orange.shade50,
                   borderRadius: BorderRadius.circular(8),
@@ -954,7 +1289,15 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             ),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // Navigate to assignment
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AssignmentSubmissionPage(
+                    assignment: assignment,
+                    courseId: widget.courseId,
+                  ),
+                ),
+              );
             },
           ),
         );
@@ -966,19 +1309,37 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildAboutSection(isFr ? 'Description' : 'Description', course['description'], Icons.info_outline),
-        _buildAboutSection(isFr ? 'Ce que vous apprendrez' : 'What you\'ll learn', course['benefits'], Icons.lightbulb_outline),
-        _buildAboutSection(isFr ? 'Prérequis' : 'Requirements', course['requirements'], Icons.checklist),
+        _buildAboutSection(
+          isFr ? 'Description' : 'Description',
+          course['description'],
+          Icons.info_outline,
+        ),
+        _buildAboutSection(
+          isFr ? 'Ce que vous apprendrez' : 'What you\'ll learn',
+          course['benefits'],
+          Icons.lightbulb_outline,
+        ),
+        _buildAboutSection(
+          isFr ? 'Prérequis' : 'Requirements',
+          course['requirements'],
+          Icons.checklist,
+        ),
         if ((course['tags'] as List?)?.isNotEmpty ?? false) ...[
           const SizedBox(height: 24),
-          _buildResourcesHeader(isFr ? 'Étiquettes' : 'Tags', Icons.local_offer),
+          _buildResourcesHeader(
+            isFr ? 'Étiquettes' : 'Tags',
+            Icons.local_offer,
+          ),
           const SizedBox(height: 16),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: (course['tags'] as List).map((tag) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.blueAccent.withAlpha(25),
                   borderRadius: BorderRadius.circular(20),
@@ -1058,18 +1419,51 @@ class _CourseLearnPageState extends State<CourseLearnPage>
   }
 
   bool _hasInProgressContent(Map<String, dynamic> course) {
-    return true;
+    final chapters = course['chapters'] as List? ?? [];
+    if (chapters.isEmpty) return false;
+    for (final chapter in chapters) {
+      final lessons = chapter['lessons'] as List? ?? [];
+      for (final lesson in lessons) {
+        final videoId =
+            lesson['video']?['_id']?.toString() ??
+            lesson['video']?['id']?.toString();
+        if (videoId == null || !_completedVideoIds.contains(videoId)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
-  Map<String, dynamic>? _getCurrentLesson(Map<String, dynamic> course) {
-    final chapters = course['chapters'] as List<dynamic>? ?? [];
+  Map<String, dynamic>? _getCurrentLessonWithChapter(
+    Map<String, dynamic> course,
+  ) {
+    final chapters = course['chapters'] as List? ?? [];
     if (chapters.isEmpty) return null;
 
-    final firstChapter = chapters[0];
-    final lessons = firstChapter['lessons'] as List<dynamic>? ?? [];
-    if (lessons.isEmpty) return null;
+    for (final chapter in chapters) {
+      final lessons = chapter['lessons'] as List? ?? [];
+      for (final lesson in lessons) {
+        final videoId =
+            lesson['video']?['_id']?.toString() ??
+            lesson['video']?['id']?.toString();
+        if (videoId == null || !_completedVideoIds.contains(videoId)) {
+          return {
+            'chapter': chapter as Map<String, dynamic>,
+            'lesson': lesson as Map<String, dynamic>,
+          };
+        }
+      }
+    }
 
-    return lessons[0];
+    // All complete — return last lesson
+    final lastChapter = chapters.last as Map<String, dynamic>;
+    final lessons = lastChapter['lessons'] as List? ?? [];
+    if (lessons.isEmpty) return null;
+    return {
+      'chapter': lastChapter,
+      'lesson': lessons.last as Map<String, dynamic>,
+    };
   }
 
   String _formatDuration(dynamic duration) {
@@ -1097,10 +1491,7 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Container(
-      color: Colors.white,
-      child: tabBar,
-    );
+    return Container(color: Colors.white, child: tabBar);
   }
 
   @override

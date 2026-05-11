@@ -12,7 +12,7 @@ workflows:
       cocoapods: default
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.example.tangaAcadamie
+        bundle_identifier: com.tangaacadamie.app
       vars:
         BUNDLE_ID: com.tangaacadamie.app
 
@@ -42,7 +42,6 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
-        cancel_previous_submissions: true
       email:
         recipients:
           - stanleymwendwa03@gmail.com

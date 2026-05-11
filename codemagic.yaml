@@ -12,9 +12,9 @@ workflows:
       cocoapods: default
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.tangaacadamie.app
+        bundle_identifier: com.tangaacademie.app
       vars:
-        BUNDLE_ID: com.tangaacadamie.app
+        BUNDLE_ID: com.tangaacademie.app
 
     scripts:
       - name: Create .env

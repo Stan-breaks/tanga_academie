@@ -32,7 +32,8 @@ workflows:
         script: |
           flutter build ipa --release \
             --build-name=$(cat pubspec.yaml | grep "^version:" | awk '{print $2}' | cut -d+ -f1) \
-            --build-number=$BUILD_NUMBER
+            --build-number=$BUILD_NUMBER \
+            --export-options-plist=ios/ExportOptions.plist
 
     artifacts:
       - build/ios/ipa/*.ipa

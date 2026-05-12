@@ -1,12 +1,12 @@
 import 'package:hive/hive.dart';
 
 /// Global language variable: 'en' or 'fr'
-String currentLanguage = 'en';
+String currentLanguage = 'fr';
 
 /// Load saved language from storage. Call once in main().
 Future<void> initLanguage() async {
   final box = await Hive.openBox('settingsBox');
-  currentLanguage = box.get('language', defaultValue: 'en') as String;
+  currentLanguage = box.get('language', defaultValue: 'fr') as String;
   await box.close();
 }
 

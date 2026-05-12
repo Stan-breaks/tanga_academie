@@ -7,6 +7,8 @@ workflows:
       app_store_connect: Tanga Academie ASC Key
 
     environment:
+      groups:
+        - .env
       flutter: stable
       xcode: latest
       cocoapods: default

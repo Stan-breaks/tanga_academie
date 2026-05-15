@@ -23,6 +23,9 @@ workflows:
         script: |
           echo "API_URL=$API_URL" > .env
 
+      - name: Display .env
+        script: cat .env
+
       - name: Flutter pub get
         script: flutter pub get
 

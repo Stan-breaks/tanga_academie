@@ -21,7 +21,7 @@ workflows:
     scripts:
       - name: Create .env
         script: |
-          echo "API_URL=$API_URL" > .env
+          echo "API_URL=https://api.tangaacademie.com" > .env
 
       - name: Display .env
         script: cat .env

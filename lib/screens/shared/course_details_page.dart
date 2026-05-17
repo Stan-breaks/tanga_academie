@@ -114,7 +114,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
         });
       }
     } catch (error) {
-      _showSnackBar('Failed to enroll: ${error.toString()}');
+      _showSnackBar('${isFr ? 'Échec de l\'inscription' : 'Failed to enroll'}: ${error.toString()}');
     } finally {
       setState(() => _loading = false);
     }
@@ -146,7 +146,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
         await _launchPaymentGateway(response.data);
       }
     } catch (error) {
-      _showSnackBar('Payment failed: ${error.toString()}');
+      _showSnackBar('${isFr ? 'Paiement échoué' : 'Payment failed'}: ${error.toString()}');
     } finally {
       setState(() => _loading = false);
     }
@@ -340,7 +340,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     final instructor = course['instructor'];
     final instructorName = instructor != null
         ? '${instructor['firstName'] ?? ''} ${instructor['lastName'] ?? ''}'
-        : 'Unknown';
+        : (isFr ? 'Inconnu' : 'Unknown');
 
     return Container(
       color: Colors.white,
@@ -361,7 +361,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
 
           // Title
           Text(
-            course['title'] ?? 'Untitled Course',
+            course['title'] ?? (isFr ? 'Cours sans titre' : 'Untitled Course'),
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),

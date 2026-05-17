@@ -48,7 +48,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez entrer votre email")),
+        SnackBar(content: Text(isFr ? "Veuillez entrer votre email" : "Please enter your email")),
       );
       return;
     }

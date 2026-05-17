@@ -117,8 +117,8 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
         if (response.statusCode == 200) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Course deleted successfully'),
+              SnackBar(
+                content: Text(isFr ? 'Cours supprimé avec succès' : 'Course deleted successfully'),
                 backgroundColor: AppColors.success,
               ),
             );
@@ -127,8 +127,8 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
         } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Failed to delete course'),
+              SnackBar(
+                content: Text(isFr ? 'Échec de la suppression du cours' : 'Failed to delete course'),
                 backgroundColor: AppColors.error,
               ),
             );
@@ -138,7 +138,7 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error: ${e.toString()}'),
+              content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}'),
               backgroundColor: AppColors.error,
             ),
           );
@@ -458,15 +458,15 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: AppColors.primary),
-            SizedBox(height: 16),
+            const CircularProgressIndicator(color: AppColors.primary),
+            const SizedBox(height: 16),
             Text(
-              'Loading your courses...',
-              style: TextStyle(color: AppColors.textLight),
+              isFr ? 'Chargement de vos cours...' : 'Loading your courses...',
+              style: const TextStyle(color: AppColors.textLight),
             ),
           ],
         ),

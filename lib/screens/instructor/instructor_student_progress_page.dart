@@ -200,8 +200,8 @@ class _InstructorStudentProgressPageState
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to reset progress'),
+            SnackBar(
+              content: Text(isFr ? 'Échec de la réinitialisation du progrès' : 'Failed to reset progress'),
               backgroundColor: AppColors.error,
             ),
           );
@@ -211,7 +211,7 @@ class _InstructorStudentProgressPageState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}'),
             backgroundColor: AppColors.error,
           ),
         );

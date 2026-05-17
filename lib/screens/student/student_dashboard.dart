@@ -554,7 +554,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
               ),
               if (count > 0)
                 Text(
-                  '$count ${count == 1 ? 'item' : 'items'}',
+                  isFr ? '$count ${count == 1 ? 'élément' : 'éléments'}' : '$count ${count == 1 ? 'item' : 'items'}',
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
             ],

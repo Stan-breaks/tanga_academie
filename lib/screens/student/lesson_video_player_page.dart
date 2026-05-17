@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
-import 'package:vimeo_video_player/vimeo_video_player.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 class LessonVideoPlayerPage extends StatefulWidget {
   final Map<String, dynamic> lesson;
@@ -119,7 +121,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
       _videoType = 'none';
       _isLoading = false;
       _hasError = true;
-      _errorMessage = 'No valid video source found.';
+      _errorMessage = isFr ? 'Aucune source vidéo valide trouvée.' : 'No valid video source found.';
     });
   }
 
@@ -208,7 +210,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
         setState(() {
           _isLoading = false;
           _hasError = true;
-          _errorMessage = 'Failed to load video';
+          _errorMessage = isFr ? 'Échec du chargement de la vidéo' : 'Failed to load video';
         });
       }
     }
@@ -685,11 +687,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.play_circle_outline,
-                  color: Colors.white70,
-                  size: 64,
-                ),
+                const Icon(Icons.play_circle_outline, color: Colors.white70, size: 64),
                 const SizedBox(height: 16),
                 Text(
                   isFr ? 'Vidéo Vimeo' : 'Vimeo Video',
@@ -700,22 +698,14 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                   onPressed: () =>
                       launchUrl(vimeoUrl, mode: LaunchMode.externalApplication),
                   icon: const Icon(Icons.open_in_browser),
-                  label: Text(
-                    isFr ? 'Ouvrir dans le navigateur' : 'Open in browser',
-                  ),
+                  label: Text(isFr ? 'Ouvrir dans le navigateur' : 'Open in browser'),
                 ),
               ],
             ),
           ),
         );
       }
-      return VimeoVideoPlayer(
-        videoId: _vimeoId!,
-        isAutoPlay: true,
-        isMuted: false,
-        showControls: true,
-        enableFullScreenOnPlay: true,
-      );
+      return _buildVimeoWebView(_vimeoId!);
     }
 
     if (_chewieController != null) {
@@ -731,6 +721,47 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildVimeoWebView(String vimeoId) {
+    final PlatformWebViewControllerCreationParams params;
+    if (Platform.isIOS) {
+      params = WebKitWebViewControllerCreationParams(
+        allowsInlineMediaPlayback: true,
+        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
+      );
+    } else {
+      params = const PlatformWebViewControllerCreationParams();
+    }
+
+    final controller = WebViewController.fromPlatformCreationParams(params)
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(Colors.black)
+      ..loadHtmlString('''
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { background: #000; width: 100%; height: 100%; }
+            .container { position: relative; width: 100%; height: 100vh; }
+            iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <iframe
+              src="https://player.vimeo.com/video/$vimeoId?autoplay=0&playsinline=1&title=0&byline=0&portrait=0"
+              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </body>
+        </html>
+      ''');
+
+    return WebViewWidget(controller: controller);
   }
 
   String _formatDuration(dynamic duration) {

@@ -802,13 +802,15 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
           _buildInputField(
             controller: _descriptionController,
-            label: 'Description',
-            hint: 'Describe your course in detail (max 5000 characters)',
+            label: isFr ? 'Description' : 'Description',
+            hint: isFr
+                ? 'Décrivez votre cours en détail (max 5000 caractères)'
+                : 'Describe your course in detail (max 5000 characters)',
             icon: Icons.description,
             maxLines: 5,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Description is required';
+                return isFr ? 'La description est requise' : 'Description is required';
               }
               return null;
             },
@@ -818,8 +820,10 @@ class _EditCoursePageState extends State<EditCoursePage> {
           // Requirements Field
           _buildInputField(
             controller: _requirementsController,
-            label: 'Requirements',
-            hint: 'What should students know before taking this course?',
+            label: isFr ? 'Prérequis' : 'Requirements',
+            hint: isFr
+                ? 'Que doivent savoir les étudiants avant de suivre ce cours ?'
+                : 'What should students know before taking this course?',
             icon: Icons.checklist,
             maxLines: 3,
           ),
@@ -828,8 +832,10 @@ class _EditCoursePageState extends State<EditCoursePage> {
           // Benefits Field
           _buildInputField(
             controller: _benefitsController,
-            label: 'What Students Will Learn',
-            hint: 'List the key benefits and learning outcomes',
+            label: isFr ? 'Ce que les étudiants apprendront' : 'What Students Will Learn',
+            hint: isFr
+                ? 'Listez les avantages et résultats d\'apprentissage clés'
+                : 'List the key benefits and learning outcomes',
             icon: Icons.emoji_events,
             maxLines: 3,
           ),
@@ -837,7 +843,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
           _buildInputField(
             controller: _tagsController,
-            label: 'Tags (comma-separated)',
+            label: isFr ? 'Étiquettes (séparées par des virgules)' : 'Tags (comma-separated)',
             hint: 'e.g., programming, web development, flutter',
             icon: Icons.tag,
           ),
@@ -852,11 +858,11 @@ class _EditCoursePageState extends State<EditCoursePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Course Structure', Icons.menu_book),
+          _buildSectionHeader(isFr ? 'Structure du cours' : 'Course Structure', Icons.menu_book),
           const SizedBox(height: 8),
           Text(
-            'Edit chapters and lessons',
-            style: TextStyle(
+            isFr ? 'Modifier les chapitres et leçons' : 'Edit chapters and lessons',
+            style: const TextStyle(
               color: AppColors.textLight,
               fontSize: 14,
             ),
@@ -876,7 +882,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
           _buildAddButton(
             onPressed: _addChapter,
-            label: 'Add Chapter',
+            label: isFr ? 'Ajouter un chapitre' : 'Add Chapter',
             icon: Icons.add_box,
           ),
         ],
@@ -935,7 +941,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
               Expanded(
                 child: Text(
                   chapter.titleController.text.isEmpty
-                      ? 'Chapter ${chapter.order}'
+                      ? '${isFr ? 'Chapitre' : 'Chapter'} ${chapter.order}'
                       : chapter.titleController.text,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
@@ -959,8 +965,8 @@ class _EditCoursePageState extends State<EditCoursePage> {
                 children: [
                   _buildInputField(
                     controller: chapter.titleController,
-                    label: 'Chapter Title',
-                    hint: 'Enter chapter title',
+                    label: isFr ? 'Titre du chapitre' : 'Chapter Title',
+                    hint: isFr ? 'Entrez le titre du chapitre' : 'Enter chapter title',
                     icon: Icons.bookmark,
                     onChanged: (value) => setState(() {}),
                   ),
@@ -977,10 +983,10 @@ class _EditCoursePageState extends State<EditCoursePage> {
                       children: [
                         const Icon(Icons.lock, color: AppColors.primary, size: 20),
                         const SizedBox(width: 8),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Lock until quiz pass',
-                            style: TextStyle(
+                            isFr ? 'Verrouiller jusqu\'au succès au quiz' : 'Lock until quiz pass',
+                            style: const TextStyle(
                               color: AppColors.textDark,
                               fontWeight: FontWeight.w500,
                             ),
@@ -1000,13 +1006,13 @@ class _EditCoursePageState extends State<EditCoursePage> {
                   ),
                   const SizedBox(height: 16),
 
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.play_lesson, color: AppColors.textDark, size: 20),
-                      SizedBox(width: 8),
+                      const Icon(Icons.play_lesson, color: AppColors.textDark, size: 20),
+                      const SizedBox(width: 8),
                       Text(
-                        'Lessons',
-                        style: TextStyle(
+                        isFr ? 'Leçons' : 'Lessons',
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: AppColors.textDark,
                         ),
@@ -1028,7 +1034,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
                   _buildAddButton(
                     onPressed: () => _addLesson(chapterIndex),
-                    label: 'Add Lesson',
+                    label: isFr ? 'Ajouter une leçon' : 'Add Lesson',
                     icon: Icons.add_circle_outline,
                     compact: true,
                   ),
@@ -1064,7 +1070,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'Lesson ${lesson.order}',
+                  '${isFr ? 'Leçon' : 'Lesson'} ${lesson.order}',
                   style: const TextStyle(
                     color: AppColors.success,
                     fontWeight: FontWeight.w600,
@@ -1090,8 +1096,8 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
           _buildInputField(
             controller: lesson.titleController,
-            label: 'Lesson Title',
-            hint: 'Enter lesson title',
+            label: isFr ? 'Titre de la leçon' : 'Lesson Title',
+            hint: isFr ? 'Entrez le titre de la leçon' : 'Enter lesson title',
             icon: Icons.edit,
           ),
           const SizedBox(height: 12),
@@ -1114,15 +1120,15 @@ class _EditCoursePageState extends State<EditCoursePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Existing Video',
-                          style: TextStyle(
+                        Text(
+                          isFr ? 'Vidéo existante' : 'Existing Video',
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: AppColors.primary,
                           ),
                         ),
                         Text(
-                          'Duration: ${lesson.videoDuration}s',
+                          '${isFr ? 'Durée : ' : 'Duration: '}${lesson.videoDuration}s',
                           style: const TextStyle(
                             fontSize: 12,
                             color: AppColors.textLight,
@@ -1137,10 +1143,10 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
           _buildFilePickerButton(
             label: lesson.newVideoFile != null
-                ? 'New Video Selected ✓'
+                ? (isFr ? 'Nouvelle vidéo sélectionnée ✓' : 'New Video Selected ✓')
                 : lesson.existingVideoUrl != null
-                    ? 'Replace Video'
-                    : 'Upload Lesson Video',
+                    ? (isFr ? 'Remplacer la vidéo' : 'Replace Video')
+                    : (isFr ? 'Télécharger la vidéo' : 'Upload Lesson Video'),
             icon: Icons.video_library,
             onPressed: () => _pickLessonVideo(chapterIndex, lessonIndex),
             isSelected: lesson.newVideoFile != null,
@@ -1154,8 +1160,8 @@ class _EditCoursePageState extends State<EditCoursePage> {
             if (lesson.newVideoFile != null)
               const SizedBox(height: 12),
             _buildInputField(
-              label: 'Video Duration (seconds)',
-              hint: 'Enter video duration',
+              label: isFr ? 'Durée de la vidéo (secondes)' : 'Video Duration (seconds)',
+              hint: isFr ? 'Entrez la durée de la vidéo' : 'Enter video duration',
               icon: Icons.timer,
               keyboardType: TextInputType.number,
               initialValue: lesson.videoDuration.toString(),
@@ -1175,13 +1181,13 @@ class _EditCoursePageState extends State<EditCoursePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Course Files', Icons.folder_open),
+          _buildSectionHeader(isFr ? 'Fichiers du cours' : 'Course Files', Icons.folder_open),
           const SizedBox(height: 16),
 
           // Banner Image
           _buildFileSectionCard(
-            title: 'Banner Image',
-            description: 'The main image for your course',
+            title: isFr ? 'Image de bannière' : 'Banner Image',
+            description: isFr ? "L'image principale de votre cours" : 'The main image for your course',
             icon: Icons.image,
             child: Column(
               children: [
@@ -1203,10 +1209,10 @@ class _EditCoursePageState extends State<EditCoursePage> {
                   ),
                 _buildFilePickerButton(
                   label: _bannerImage != null
-                      ? 'New Image Selected ✓'
+                      ? (isFr ? 'Nouvelle image sélectionnée ✓' : 'New Image Selected ✓')
                       : _existingBannerUrl != null
-                          ? 'Change Image'
-                          : 'Select Banner Image',
+                          ? (isFr ? "Changer l'image" : 'Change Image')
+                          : (isFr ? 'Sélectionner une image' : 'Select Banner Image'),
                   icon: Icons.upload,
                   onPressed: _pickBannerImage,
                   isSelected: _bannerImage != null,
@@ -1218,8 +1224,8 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
           // Certificate File
           _buildFileSectionCard(
-            title: 'Certificate Template',
-            description: 'Upload a certificate template for course completion',
+            title: isFr ? 'Modèle de certificat' : 'Certificate Template',
+            description: isFr ? 'Télécharger un modèle de certificat pour la completion du cours' : 'Upload a certificate template for course completion',
             icon: Icons.workspace_premium,
             child: Column(
               children: [
@@ -1232,23 +1238,23 @@ class _EditCoursePageState extends State<EditCoursePage> {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.verified, color: AppColors.success),
-                        SizedBox(width: 8),
+                        const Icon(Icons.verified, color: AppColors.success),
+                        const SizedBox(width: 8),
                         Text(
-                          'Certificate template exists',
-                          style: TextStyle(color: AppColors.success),
+                          isFr ? 'Le modèle de certificat existe' : 'Certificate template exists',
+                          style: const TextStyle(color: AppColors.success),
                         ),
                       ],
                     ),
                   ),
                 _buildFilePickerButton(
                   label: _certificateFile != null
-                      ? 'New Certificate Selected ✓'
+                      ? (isFr ? 'Nouveau certificat sélectionné ✓' : 'New Certificate Selected ✓')
                       : _existingCertificateUrl != null
-                          ? 'Replace Certificate'
-                          : 'Upload Certificate',
+                          ? (isFr ? 'Remplacer le certificat' : 'Replace Certificate')
+                          : (isFr ? 'Télécharger le certificat' : 'Upload Certificate'),
                   icon: Icons.upload_file,
                   onPressed: _pickCertificateFile,
                   isSelected: _certificateFile != null,
@@ -1260,8 +1266,8 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
           // PDF Files
           _buildFileSectionCard(
-            title: 'Course Materials (PDFs)',
-            description: 'Add supplementary PDF materials',
+            title: isFr ? 'Matériaux du cours (PDFs)' : 'Course Materials (PDFs)',
+            description: isFr ? 'Ajouter des matériaux PDF supplémentaires' : 'Add supplementary PDF materials',
             icon: Icons.picture_as_pdf,
             child: Column(
               children: [
@@ -1277,9 +1283,9 @@ class _EditCoursePageState extends State<EditCoursePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Existing Files',
-                          style: TextStyle(
+                        Text(
+                          isFr ? 'Fichiers existants' : 'Existing Files',
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: AppColors.textDark,
                           ),
@@ -1317,9 +1323,9 @@ class _EditCoursePageState extends State<EditCoursePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'New Files',
-                          style: TextStyle(
+                        Text(
+                          isFr ? 'Nouveaux fichiers' : 'New Files',
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: AppColors.primary,
                           ),
@@ -1356,7 +1362,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
                     ),
                   ),
                 _buildFilePickerButton(
-                  label: 'Add PDF File',
+                  label: isFr ? 'Ajouter un fichier PDF' : 'Add PDF File',
                   icon: Icons.add_circle_outline,
                   onPressed: _pickPdfFiles,
                 ),
@@ -1374,7 +1380,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Review Changes', Icons.preview),
+          _buildSectionHeader(isFr ? 'Réviser les modifications' : 'Review Changes', Icons.preview),
           const SizedBox(height: 16),
 
           Container(
@@ -1394,41 +1400,43 @@ class _EditCoursePageState extends State<EditCoursePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildReviewItem('Title', _titleController.text),
-                _buildReviewItem('Price', ' ${_priceController.text}'),
-                _buildReviewItem('Chapters', '${_chapters.length}'),
+                _buildReviewItem(isFr ? 'Titre' : 'Title', _titleController.text),
+                _buildReviewItem(isFr ? 'Prix' : 'Price', ' ${_priceController.text}'),
+                _buildReviewItem(isFr ? 'Chapitres' : 'Chapters', '${_chapters.length}'),
                 _buildReviewItem(
-                  'Total Lessons', 
+                  isFr ? 'Total des leçons' : 'Total Lessons',
                   '${_chapters.fold(0, (sum, c) => sum + c.lessons.length)}',
                 ),
                 _buildReviewItem(
-                  'Banner Image', 
-                  _bannerImage != null 
-                      ? '✓ New image selected' 
-                      : _existingBannerUrl != null 
-                          ? '✓ Using existing' 
-                          : '✗ Not set',
+                  isFr ? 'Image de bannière' : 'Banner Image',
+                  _bannerImage != null
+                      ? (isFr ? '✓ Nouvelle image sélectionnée' : '✓ New image selected')
+                      : _existingBannerUrl != null
+                          ? (isFr ? '✓ Utilisation existante' : '✓ Using existing')
+                          : (isFr ? '✗ Non défini' : '✗ Not set'),
                 ),
                 _buildReviewItem(
-                  'Certificate', 
-                  _certificateFile != null 
-                      ? '✓ New file selected' 
-                      : _existingCertificateUrl != null 
-                          ? '✓ Using existing' 
-                          : '✗ Not set',
+                  isFr ? 'Certificat' : 'Certificate',
+                  _certificateFile != null
+                      ? (isFr ? '✓ Nouveau fichier sélectionné' : '✓ New file selected')
+                      : _existingCertificateUrl != null
+                          ? (isFr ? '✓ Utilisation existante' : '✓ Using existing')
+                          : (isFr ? '✗ Non défini' : '✗ Not set'),
                 ),
                 _buildReviewItem(
-                  'PDF Materials', 
-                  '${_existingPdfFiles.length} existing, ${_newPdfFiles.length} new',
+                  isFr ? 'Matériaux PDF' : 'PDF Materials',
+                  isFr
+                      ? '${_existingPdfFiles.length} existants, ${_newPdfFiles.length} nouveaux'
+                      : '${_existingPdfFiles.length} existing, ${_newPdfFiles.length} new',
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
 
-          const Text(
-            'Course Structure',
-            style: TextStyle(
+          Text(
+            isFr ? 'Structure du cours' : 'Course Structure',
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppColors.textDark,
@@ -1473,7 +1481,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
                       Expanded(
                         child: Text(
                           chapter.titleController.text.isEmpty
-                              ? 'Untitled Chapter'
+                              ? (isFr ? 'Chapitre sans titre' : 'Untitled Chapter')
                               : chapter.titleController.text,
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),

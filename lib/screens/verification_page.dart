@@ -21,7 +21,7 @@ class _VerificationPageState extends State<VerificationPage> {
     final token = _tokenController.text;
     if (token == "") {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez entrer le code complet")),
+        SnackBar(content: Text(isFr ? "Veuillez entrer le code complet" : "Please enter the full code")),
       );
       return;
     }

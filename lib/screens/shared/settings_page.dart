@@ -164,11 +164,11 @@ class _SettingsPageState extends State<SettingsPage> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 12),
-                Text('Profil mis à jour avec succès!'),
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Text(isFr ? 'Profil mis à jour avec succès !' : 'Profile updated successfully!'),
               ],
             ),
             backgroundColor: Colors.green,
@@ -187,7 +187,7 @@ class _SettingsPageState extends State<SettingsPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur: ${e.toString()}'),
+          content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}'),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -206,8 +206,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _sendVerificationCode() async {
     if (_email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Email non trouvé. Veuillez vous reconnecter.'),
+        SnackBar(
+          content: Text(isFr ? 'Email non trouvé. Veuillez vous reconnecter.' : 'Email not found. Please log in again.'),
         ),
       );
       return;
@@ -231,7 +231,7 @@ class _SettingsPageState extends State<SettingsPage> {
         setState(() => _codeSent = true);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Code envoyé à $_email'),
+            content: Text('${isFr ? 'Code envoyé à' : 'Code sent to'} $_email'),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -248,7 +248,7 @@ class _SettingsPageState extends State<SettingsPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Erreur: ${e.toString()}')));
+      ).showSnackBar(SnackBar(content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}')));
     } finally {
       if (mounted) setState(() => _isSendingCode = false);
     }
@@ -261,8 +261,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (code.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Veuillez entrer le code complet (6 chiffres)'),
+        SnackBar(
+          content: Text(isFr ? 'Veuillez entrer le code complet (6 chiffres)' : 'Enter the complete code (6 digits)'),
         ),
       );
       return;
@@ -270,22 +270,22 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (newPassword.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez remplir tous les champs')),
+        SnackBar(content: Text(isFr ? 'Veuillez remplir tous les champs' : 'Please fill in all fields')),
       );
       return;
     }
 
     if (newPassword != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Les mots de passe ne correspondent pas')),
+        SnackBar(content: Text(isFr ? 'Les mots de passe ne correspondent pas' : 'Passwords do not match')),
       );
       return;
     }
 
     if (newPassword.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Le mot de passe doit contenir au moins 6 caractères'),
+        SnackBar(
+          content: Text(isFr ? 'Le mot de passe doit contenir au moins 6 caractères' : 'Password must be at least 6 characters'),
         ),
       );
       return;
@@ -323,11 +323,11 @@ class _SettingsPageState extends State<SettingsPage> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 12),
-                Text('Mot de passe réinitialisé avec succès!'),
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Text(isFr ? 'Mot de passe réinitialisé avec succès !' : 'Password reset successfully!'),
               ],
             ),
             backgroundColor: Colors.green,
@@ -346,7 +346,7 @@ class _SettingsPageState extends State<SettingsPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Erreur: ${e.toString()}')));
+      ).showSnackBar(SnackBar(content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}')));
     } finally {
       if (mounted) setState(() => _isResettingPassword = false);
     }
@@ -838,7 +838,7 @@ class _SettingsPageState extends State<SettingsPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Code envoyé à $_email',
+                  '${isFr ? 'Code envoyé à' : 'Code sent to'} $_email',
                   style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
                 ),
               ),
@@ -848,9 +848,9 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 20),
 
         // Verification Code Label
-        const Text(
-          'Code de vérification',
-          style: TextStyle(
+        Text(
+          isFr ? 'Code de vérification' : 'Verification Code',
+          style: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 14,
             color: Colors.black87,

@@ -279,4 +279,64 @@ const Map<String, String> enToFr = {
   'No internet connection': 'Pas de connexion Internet',
   'Enrolling...': 'Inscription en cours...',
   'Processing...': 'Traitement en cours...',
+
+  // ── Errors / Feedback ──────────────────────────────────────────
+  'Error: ': 'Erreur : ',
+  'Failed to send message': 'Échec de l\'envoi du message',
+  'Error sending message': 'Erreur lors de l\'envoi du message',
+  'Chat options coming soon!': 'Options de chat bientôt disponibles !',
+  'Email not found. Please log in again.':
+      'Email non trouvé. Veuillez vous reconnecter.',
+  'Code sent to': 'Code envoyé à',
+  'Verification Code': 'Code de vérification',
+  'No date': 'Pas de date',
+  'Unknown date': 'Date inconnue',
+  'Pending': 'En attente',
+  'typing...': 'en train d\'écrire...',
+  'Clear chat': 'Effacer la discussion',
+  'Block user': 'Bloquer l\'utilisateur',
+  'coming soon!': 'bientôt disponible !',
+
+  // ── Assignment (extra) ─────────────────────────────────────────
+  'Failed to delete assignment': 'Échec de la suppression du devoir',
+  'Failed to update assignment': 'Échec de la mise à jour du devoir',
+  'Failed to load submissions': 'Échec du chargement des soumissions',
+  'Failed to grade submission': 'Échec de la notation de la soumission',
+  'Submission graded successfully': 'Soumission notée avec succès',
+  'No Submissions Yet': 'Aucune soumission pour le moment',
+  'Students haven\'t submitted their work yet.':
+      'Les étudiants n\'ont pas encore soumis leur travail.',
+  'Grade Submission': 'Noter la soumission',
+  'Student\'s Answer': 'Réponse de l\'étudiant',
+  'Enter grade': 'Entrez la note',
+  'Write feedback for the student...':
+      'Rédigez un commentaire pour l\'étudiant...',
+  'Assignment title': 'Titre du devoir',
+  'Assignment description': 'Description du devoir',
+
+  // ── Course (extra) ─────────────────────────────────────────────
+  'Course deleted successfully': 'Cours supprimé avec succès',
+  'Failed to delete course': 'Échec de la suppression du cours',
+  'Failed to update course': 'Échec de la mise à jour du cours',
+  'Loading your courses...': 'Chargement de vos cours...',
+  'approved': 'approuvé',
+
+  // ── Edit Course labels ─────────────────────────────────────────
+  'Describe your course in detail (max 5000 characters)':
+      'Décrivez votre cours en détail (max 5000 caractères)',
+  'What should students know before taking this course?':
+      'Que doivent savoir les étudiants avant de suivre ce cours ?',
+  'What Students Will Learn': 'Ce que les étudiants apprendront',
+  'List the key benefits and learning outcomes':
+      'Listez les avantages et résultats d\'apprentissage clés',
+  'Tags (comma-separated)': 'Étiquettes (séparées par des virgules)',
+  'Add Chapter': 'Ajouter un chapitre',
+  'Chapter Title': 'Titre du chapitre',
+  'Enter chapter title': 'Entrez le titre du chapitre',
+  'Add Lesson': 'Ajouter une leçon',
+  'Lesson Title': 'Titre de la leçon',
+  'Enter lesson title': 'Entrez le titre de la leçon',
+  'Video Duration (seconds)': 'Durée de la vidéo (secondes)',
+  'Enter video duration': 'Entrez la durée de la vidéo',
+  'Add PDF File': 'Ajouter un fichier PDF',
 };

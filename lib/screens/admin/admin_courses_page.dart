@@ -67,7 +67,9 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Course ${newStatus == 'published' ? 'approved' : newStatus} successfully!',
+              isFr
+                  ? 'Cours ${newStatus == 'published' ? 'approuvé' : newStatus} avec succès !'
+                  : 'Course ${newStatus == 'published' ? 'approved' : newStatus} successfully!',
             ),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
@@ -84,7 +86,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update course: $e'),
+            content: Text('${isFr ? 'Échec de la mise à jour du cours : ' : 'Failed to update course: '}$e'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(

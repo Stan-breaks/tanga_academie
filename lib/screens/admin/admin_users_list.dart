@@ -59,7 +59,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
       final token = await getToken();
       if (token == null) {
         setState(() {
-          _error = 'Not authenticated';
+          _error = isFr ? 'Non authentifié' : 'Not authenticated';
           _isLoading = false;
         });
         return;
@@ -84,7 +84,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
         });
       } else {
         setState(() {
-          _error = 'Failed to load users';
+          _error = isFr ? 'Échec du chargement des utilisateurs' : 'Failed to load users';
           _isLoading = false;
         });
       }
@@ -496,7 +496,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        fullName.isEmpty ? 'Unknown User' : fullName,
+                        fullName.isEmpty ? (isFr ? 'Utilisateur inconnu' : 'Unknown User') : fullName,
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -711,7 +711,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
 
             // Name
             Text(
-              fullName.isEmpty ? 'Unknown User' : fullName,
+              fullName.isEmpty ? (isFr ? 'Utilisateur inconnu' : 'Unknown User') : fullName,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -876,7 +876,7 @@ class User {
       email: json['email'] ?? '',
       role: json['role'] ?? '',
       profile: json['profile'] ?? '',
-      bio: json['bio'] ?? 'No bio yet',
+      bio: json['bio'] ?? (isFr ? 'Aucune bio pour le moment' : 'No bio yet'),
       createdAt: json['createdAt'] ?? '',
     );
   }

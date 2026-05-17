@@ -358,11 +358,11 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             children: [
               // Title row
-              const Row(
+              Row(
                 children: [
                   Text(
-                    'Profile',
-                    style: TextStyle(
+                    isFr ? 'Profil' : 'Profile',
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -415,7 +415,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
               // Name
               Text(
-                fullName.isNotEmpty ? fullName : 'User',
+                fullName.isNotEmpty ? fullName : (isFr ? 'Utilisateur' : 'User'),
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,

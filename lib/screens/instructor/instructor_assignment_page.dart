@@ -162,8 +162,10 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
             Text(isFr ? 'Supprimer le devoir' : 'Delete Assignment'),
           ],
         ),
-        content: const Text(
-          'Are you sure you want to delete this assignment? This action cannot be undone.',
+        content: Text(
+          isFr
+              ? 'Êtes-vous sûr de vouloir supprimer ce devoir ? Cette action ne peut pas être annulée.'
+              : 'Are you sure you want to delete this assignment? This action cannot be undone.',
         ),
         actions: [
           TextButton(
@@ -214,8 +216,8 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
         } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Failed to delete assignment'),
+              SnackBar(
+                content: Text(isFr ? 'Échec de la suppression du devoir' : 'Failed to delete assignment'),
                 backgroundColor: AppColors.error,
               ),
             );
@@ -225,7 +227,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error: ${e.toString()}'),
+              content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}'),
               backgroundColor: AppColors.error,
             ),
           );
@@ -275,8 +277,8 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to update assignment'),
+            SnackBar(
+              content: Text(isFr ? 'Échec de la mise à jour du devoir' : 'Failed to update assignment'),
               backgroundColor: AppColors.error,
             ),
           );
@@ -286,7 +288,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -360,9 +362,9 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Text(
-                          'Edit Assignment',
-                          style: TextStyle(
+                        Text(
+                          isFr ? 'Modifier le devoir' : 'Edit Assignment',
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textDark,
@@ -373,28 +375,28 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                     const SizedBox(height: 24),
 
                     // Title field
-                    _buildInputLabel('Title'),
+                    _buildInputLabel(isFr ? 'Titre' : 'Title'),
                     const SizedBox(height: 8),
                     _buildTextField(
                       controller: titleController,
-                      hint: 'Assignment title',
+                      hint: isFr ? 'Titre du devoir' : 'Assignment title',
                       icon: Icons.title,
                     ),
                     const SizedBox(height: 16),
 
                     // Description field
-                    _buildInputLabel('Description'),
+                    _buildInputLabel(isFr ? 'Description' : 'Description'),
                     const SizedBox(height: 8),
                     _buildTextField(
                       controller: descController,
-                      hint: 'Assignment description',
+                      hint: isFr ? 'Description du devoir' : 'Assignment description',
                       icon: Icons.description_outlined,
                       maxLines: 3,
                     ),
                     const SizedBox(height: 16),
 
                     // Due Date
-                    _buildInputLabel('Due Date'),
+                    _buildInputLabel(isFr ? 'Date d\'échéance' : 'Due Date'),
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () async {
@@ -460,7 +462,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                     const SizedBox(height: 16),
 
                     // Max Points
-                    _buildInputLabel('Max Points'),
+                    _buildInputLabel(isFr ? 'Points max' : 'Max Points'),
                     const SizedBox(height: 8),
                     _buildTextField(
                       controller: maxPointsController,
@@ -483,9 +485,9 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(
+                            child: Text(
+                              isFr ? 'Annuler' : 'Cancel',
+                              style: const TextStyle(
                                 color: AppColors.textLight,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -520,9 +522,9 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                               ),
                               elevation: 0,
                             ),
-                            child: const Text(
-                              'Save Changes',
-                              style: TextStyle(
+                            child: Text(
+                              isFr ? 'Enregistrer les modifications' : 'Save Changes',
+                              style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,
                               ),
@@ -573,15 +575,15 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
         foregroundColor: AppColors.textDark,
       ),
       body: _isLoading
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(color: AppColors.primary),
-                  SizedBox(height: 16),
+                  const CircularProgressIndicator(color: AppColors.primary),
+                  const SizedBox(height: 16),
                   Text(
-                    'Loading assignments...',
-                    style: TextStyle(color: AppColors.textLight),
+                    isFr ? 'Chargement des devoirs...' : 'Loading assignments...',
+                    style: const TextStyle(color: AppColors.textLight),
                   ),
                 ],
               ),
@@ -663,9 +665,9 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _selectedCourseId,
-                hint: const Text(
-                  'All Courses',
-                  style: TextStyle(
+                hint: Text(
+                  isFr ? 'Tous les cours' : 'All Courses',
+                  style: const TextStyle(
                     color: AppColors.textDark,
                     fontWeight: FontWeight.w500,
                   ),
@@ -676,11 +678,11 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                 ),
                 isExpanded: true,
                 items: [
-                  const DropdownMenuItem<String>(
+                  DropdownMenuItem<String>(
                     value: null,
                     child: Text(
-                      'All Courses',
-                      style: TextStyle(fontWeight: FontWeight.w500),
+                      isFr ? 'Tous les cours' : 'All Courses',
+                      style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                   ),
                   ..._courses.map<DropdownMenuItem<String>>((course) {
@@ -819,7 +821,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
     final isOverdue = dueDate != null && dueDate.isBefore(DateTime.now());
     final dueDateStr = dueDate != null
         ? DateFormat('MMM d, yyyy').format(dueDate)
-        : 'No date';
+        : (isFr ? 'Pas de date' : 'No date');
     final submissionCount = assignment['submissionCount'] ?? 0;
     final maxPoints = assignment['maxPoints'] ?? 100;
 
@@ -957,7 +959,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                     ),
                     _buildInfoChip(
                       Icons.people_outline,
-                      '$submissionCount submissions',
+                      '$submissionCount ${isFr ? 'soumissions' : 'submissions'}',
                       Colors.teal,
                     ),
                   ],
@@ -1256,8 +1258,8 @@ class _AssignmentSubmissionsPageState
       if (response.statusCode == 200) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Submission graded successfully'),
+            SnackBar(
+              content: Text(isFr ? 'Soumission notée avec succès' : 'Submission graded successfully'),
               backgroundColor: AppColors.success,
             ),
           );
@@ -1266,8 +1268,8 @@ class _AssignmentSubmissionsPageState
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to grade submission'),
+            SnackBar(
+              content: Text(isFr ? 'Échec de la notation de la soumission' : 'Failed to grade submission'),
               backgroundColor: AppColors.error,
             ),
           );
@@ -1277,7 +1279,7 @@ class _AssignmentSubmissionsPageState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -1347,9 +1349,9 @@ class _AssignmentSubmissionsPageState
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Grade Submission',
-                            style: TextStyle(
+                          Text(
+                            isFr ? 'Noter la soumission' : 'Grade Submission',
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: AppColors.textDark,
@@ -1372,9 +1374,9 @@ class _AssignmentSubmissionsPageState
                 // Student's answer / file
                 if (submission['content'] != null &&
                     submission['content'].toString().isNotEmpty) ...[
-                  const Text(
-                    'Student\'s Answer',
-                    style: TextStyle(
+                  Text(
+                    isFr ? 'Réponse de l\'étudiant' : 'Student\'s Answer',
+                    style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                       color: AppColors.textDark,
@@ -1402,9 +1404,9 @@ class _AssignmentSubmissionsPageState
                 ],
 
                 // Grade field
-                const Text(
-                  'Grade',
-                  style: TextStyle(
+                Text(
+                  isFr ? 'Note' : 'Grade',
+                  style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                     color: AppColors.textDark,
@@ -1415,7 +1417,7 @@ class _AssignmentSubmissionsPageState
                   controller: gradeController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    hintText: 'Enter grade',
+                    hintText: isFr ? 'Entrez la note' : 'Enter grade',
                     hintStyle: TextStyle(color: Colors.grey.shade400),
                     prefixIcon: const Icon(
                       Icons.stars_outlined,
@@ -1444,9 +1446,9 @@ class _AssignmentSubmissionsPageState
                 const SizedBox(height: 16),
 
                 // Feedback field
-                const Text(
-                  'Feedback',
-                  style: TextStyle(
+                Text(
+                  isFr ? 'Commentaire' : 'Feedback',
+                  style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                     color: AppColors.textDark,
@@ -1457,7 +1459,7 @@ class _AssignmentSubmissionsPageState
                   controller: feedbackController,
                   maxLines: 3,
                   decoration: InputDecoration(
-                    hintText: 'Write feedback for the student...',
+                    hintText: isFr ? 'Rédigez un commentaire pour l\'étudiant...' : 'Write feedback for the student...',
                     hintStyle: TextStyle(color: Colors.grey.shade400),
                     prefixIcon: const Padding(
                       padding: EdgeInsets.only(bottom: 48),
@@ -1501,9 +1503,9 @@ class _AssignmentSubmissionsPageState
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text(
-                          'Cancel',
-                          style: TextStyle(
+                        child: Text(
+                          isFr ? 'Annuler' : 'Cancel',
+                          style: const TextStyle(
                             color: AppColors.textLight,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1521,9 +1523,9 @@ class _AssignmentSubmissionsPageState
                           _gradeSubmission(submission['_id'], grade, feedback);
                         },
                         icon: const Icon(Icons.check_circle_outline, size: 18),
-                        label: const Text(
-                          'Submit Grade',
-                          style: TextStyle(
+                        label: Text(
+                          isFr ? 'Soumettre la note' : 'Submit Grade',
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 15,
                           ),
@@ -1586,7 +1588,7 @@ class _AssignmentSubmissionsPageState
                   ElevatedButton.icon(
                     onPressed: _fetchSubmissions,
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
+                    label: Text(isFr ? 'Réessayer' : 'Retry'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -1613,18 +1615,20 @@ class _AssignmentSubmissionsPageState
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'No Submissions Yet',
-                    style: TextStyle(
+                  Text(
+                    isFr ? 'Aucune soumission pour le moment' : 'No Submissions Yet',
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textDark,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Students haven\'t submitted their work yet.',
-                    style: TextStyle(fontSize: 14, color: AppColors.textLight),
+                  Text(
+                    isFr
+                        ? 'Les étudiants n\'ont pas encore soumis leur travail.'
+                        : 'Students haven\'t submitted their work yet.',
+                    style: const TextStyle(fontSize: 14, color: AppColors.textLight),
                   ),
                 ],
               ),
@@ -1649,7 +1653,7 @@ class _AssignmentSubmissionsPageState
         ? DateFormat(
             'MMM d, yyyy – h:mm a',
           ).format(DateTime.parse(submission['submittedAt']))
-        : 'Unknown date';
+        : (isFr ? 'Date inconnue' : 'Unknown date');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1751,7 +1755,7 @@ class _AssignmentSubmissionsPageState
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            isGraded ? '${submission['grade']} pts' : 'Pending',
+                            isGraded ? '${submission['grade']} pts' : (isFr ? 'En attente' : 'Pending'),
                             style: TextStyle(
                               color: isGraded
                                   ? AppColors.success
@@ -1852,7 +1856,9 @@ class _AssignmentSubmissionsPageState
                       size: 16,
                     ),
                     label: Text(
-                      isGraded ? 'Update Grade' : 'Grade Now',
+                      isGraded
+                          ? (isFr ? 'Mettre à jour la note' : 'Update Grade')
+                          : (isFr ? 'Noter maintenant' : 'Grade Now'),
                       style: const TextStyle(fontSize: 13),
                     ),
                     style: ElevatedButton.styleFrom(

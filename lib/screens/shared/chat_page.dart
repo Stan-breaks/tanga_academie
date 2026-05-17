@@ -323,7 +323,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             _messages.removeWhere((m) => m.id == tempMessage.id);
           });
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to send message')),
+            SnackBar(content: Text(isFr ? 'Échec de l\'envoi du message' : 'Failed to send message')),
           );
         }
       }
@@ -336,7 +336,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         });
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Error sending message')));
+        ).showSnackBar(SnackBar(content: Text(isFr ? 'Erreur lors de l\'envoi du message' : 'Error sending message')));
       }
     }
   }
@@ -538,7 +538,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             icon: const Icon(Icons.more_vert),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Chat options coming soon!')),
+                SnackBar(content: Text(isFr ? 'Options de chat bientôt disponibles !' : 'Chat options coming soon!')),
               );
             },
           ),

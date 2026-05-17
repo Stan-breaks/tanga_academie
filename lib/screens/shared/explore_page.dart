@@ -265,7 +265,7 @@ class _ExplorePageState extends State<ExplorePage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Explore Courses',
+                      isFr ? 'Explorer les cours' : 'Explore Courses',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -448,7 +448,7 @@ class _ExplorePageState extends State<ExplorePage>
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'Grid',
+                  isFr ? 'Grille' : 'Grid',
                   style: TextStyle(
                     color: Colors.blueAccent.shade400,
                     fontWeight: FontWeight.w600,

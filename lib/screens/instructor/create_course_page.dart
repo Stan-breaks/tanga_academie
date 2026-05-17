@@ -344,7 +344,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         }
       } else {
         setState(() {
-          _errorMessage = response.data['message'] ?? 'Failed to create course';
+          _errorMessage = response.data['message'] ?? (isFr ? 'Échec de la création du cours' : 'Failed to create course');
         });
       }
     } catch (e) {
@@ -601,7 +601,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                       return isFr ? 'Le prix est requis' : 'Price is required';
                     }
                     if (double.tryParse(value) == null) {
-                      return 'Enter a valid price';
+                      return isFr ? 'Entrez un prix valide' : 'Enter a valid price';
                     }
                     return null;
                   },
@@ -618,7 +618,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                   validator: (value) {
                     if (value != null && value.isNotEmpty) {
                       if (double.tryParse(value) == null) {
-                        return 'Enter a valid price';
+                        return isFr ? 'Entrez un prix valide' : 'Enter a valid price';
                       }
                     }
                     return null;
@@ -813,7 +813,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
               Expanded(
                 child: Text(
                   chapter.titleController.text.isEmpty
-                      ? 'Chapter ${chapter.order}'
+                      ? '${isFr ? 'Chapitre' : 'Chapter'} ${chapter.order}'
                       : chapter.titleController.text,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
@@ -946,7 +946,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'Lesson ${lesson.order}',
+                  '${isFr ? 'Leçon' : 'Lesson'} ${lesson.order}',
                   style: TextStyle(
                     color: AppColors.success,
                     fontWeight: FontWeight.w600,
@@ -1227,7 +1227,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                       Expanded(
                         child: Text(
                           chapter.titleController.text.isEmpty
-                              ? 'Untitled Chapter'
+                              ? (isFr ? 'Chapitre sans titre' : 'Untitled Chapter')
                               : chapter.titleController.text,
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
@@ -1265,7 +1265,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
                             const SizedBox(width: 4),
                             Text(
                               lesson.titleController.text.isEmpty
-                                  ? 'Lesson ${lesson.order}'
+                                  ? '${isFr ? 'Leçon' : 'Lesson'} ${lesson.order}'
                                   : lesson.titleController.text,
                               style: TextStyle(
                                 fontSize: 12,

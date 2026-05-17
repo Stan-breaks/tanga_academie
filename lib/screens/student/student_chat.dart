@@ -434,7 +434,7 @@ class _StudentChatPageState extends State<StudentChatPage>
                         ),
                         const SizedBox(height: 20),
                         Text(
-                          'Loading messages...',
+                          isFr ? 'Chargement des messages...' : 'Loading messages...',
                           style: TextStyle(color: Colors.grey.shade600),
                         ),
                       ],
@@ -549,7 +549,7 @@ class _StudentChatPageState extends State<StudentChatPage>
                     const SizedBox(width: 6),
                     Text(
                       _isTyping
-                          ? 'typing...'
+                          ? (isFr ? 'en train d\'écrire...' : 'typing...')
                           : (_isConnected
                                 ? (isFr ? 'En ligne' : 'Online')
                                 : (isFr ? 'Hors ligne' : 'Offline')),
@@ -576,7 +576,7 @@ class _StudentChatPageState extends State<StudentChatPage>
         IconButton(
           icon: const Icon(Icons.refresh, color: Colors.blueAccent),
           onPressed: _fetchChatMessages,
-          tooltip: 'Refresh',
+          tooltip: isFr ? 'Actualiser' : 'Refresh',
         ),
         PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert, color: Colors.black54),
@@ -586,7 +586,7 @@ class _StudentChatPageState extends State<StudentChatPage>
           onSelected: (value) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('$value coming soon!'),
+                content: Text('$value ${isFr ? 'bientôt disponible !' : 'coming soon!'}'),
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -595,8 +595,8 @@ class _StudentChatPageState extends State<StudentChatPage>
             );
           },
           itemBuilder: (context) => [
-            const PopupMenuItem(value: 'Clear chat', child: Text('Clear chat')),
-            const PopupMenuItem(value: 'Block', child: Text('Block user')),
+            PopupMenuItem(value: 'Clear chat', child: Text(isFr ? 'Effacer la discussion' : 'Clear chat')),
+            PopupMenuItem(value: 'Block', child: Text(isFr ? 'Bloquer l\'utilisateur' : 'Block user')),
           ],
         ),
         const SizedBox(width: 4),

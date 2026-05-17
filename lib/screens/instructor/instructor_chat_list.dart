@@ -108,7 +108,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
         ).then((_) => _fetchUserChats());
       }
     } else {
-      _showErrorSnackbar(result.error ?? 'Failed to start chat');
+      _showErrorSnackbar(result.error ?? (isFr ? 'Échec du démarrage du chat' : 'Failed to start chat'));
     }
   }
 

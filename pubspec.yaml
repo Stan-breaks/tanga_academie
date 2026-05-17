@@ -43,7 +43,7 @@ dependencies:
   video_player: ^2.10.1
   chewie: ^1.13.0
   webview_flutter: ^4.13.1
-  vimeo_video_player: ^1.0.0
+  webview_flutter_wkwebview: ^3.22.0
   dio: ^5.9.0
   open_filex: ^4.7.0
   path_provider: ^2.1.5

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/core/theme/app_colors.dart';
 import 'package:tanga_acadamie/core/theme/app_theme.dart';
+import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 /// Standard error state widget
 class ErrorState extends StatelessWidget {
@@ -51,7 +52,7 @@ class ErrorState extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Try Again'),
+                label: Text(isFr ? 'Réessayer' : 'Try Again'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,

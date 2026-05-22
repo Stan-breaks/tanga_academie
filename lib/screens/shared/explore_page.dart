@@ -7,6 +7,7 @@ import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/models/blog.dart';
 import 'package:tanga_acadamie/services/blog_service.dart';
 import 'package:tanga_acadamie/widgets/blog_card.dart';
+import 'package:tanga_acadamie/core/utils/responsive.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -170,12 +171,12 @@ class _ExplorePageState extends State<ExplorePage>
                     // Header Section
                     SliverToBoxAdapter(
                       child: SizedBox(
-                        width: 500,
+                        width: double.infinity,
                         height: 200,
                         child: ClipRect(
                           child: Image.asset(
                             'public/banner1.png',
-                            fit: BoxFit.fill,
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
@@ -200,8 +201,8 @@ class _ExplorePageState extends State<ExplorePage>
                           ? SliverToBoxAdapter(child: _buildEmptyState())
                           : SliverGrid(
                               gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: Responsive.gridColumns(context),
                                     childAspectRatio: 0.95,
                                     crossAxisSpacing: 14,
                                     mainAxisSpacing: 14,

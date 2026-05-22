@@ -451,7 +451,7 @@ class _StudentChatListState extends State<StudentChatList>
             )
           else
             ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 280),
+              constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.35),
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: _instructors.length,

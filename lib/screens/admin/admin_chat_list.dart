@@ -251,7 +251,7 @@ class _AdminChatListState extends State<AdminChatList> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      constraints: const BoxConstraints(maxHeight: 350),
+      constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.42),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

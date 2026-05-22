@@ -16,10 +16,13 @@ class BlogCard extends StatelessWidget {
     final hasImage = imageUrl.isNotEmpty;
     final date = _formatDate(blog.createdAt);
 
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final cardWidth = (screenWidth * 0.62).clamp(200.0, 320.0);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 260,
+        width: cardWidth,
         margin: const EdgeInsets.only(right: 14),
         decoration: BoxDecoration(
           color: Colors.white,

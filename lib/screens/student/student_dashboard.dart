@@ -7,6 +7,7 @@ import 'package:tanga_acadamie/screens/student/course_learn_page.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/responsive.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
@@ -484,7 +485,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   Widget _buildStatsGrid(Map<String, dynamic> data) {
     return GridView.count(
-      crossAxisCount: 2,
+      crossAxisCount: Responsive.adaptive(context, mobile: 2, tablet: 4),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       childAspectRatio: 1.3,
@@ -603,8 +604,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: Responsive.gridColumns(context),
         childAspectRatio: 0.95,
         crossAxisSpacing: 14,
         mainAxisSpacing: 14,

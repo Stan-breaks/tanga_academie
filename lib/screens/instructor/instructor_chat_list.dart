@@ -321,7 +321,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      constraints: const BoxConstraints(maxHeight: 400),
+      constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.45),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -519,7 +519,7 @@ class _InstructorChatListState extends State<InstructorChatList> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      constraints: const BoxConstraints(maxHeight: 300),
+      constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.35),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

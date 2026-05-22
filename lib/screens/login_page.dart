@@ -119,32 +119,28 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.white),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.white, Colors.white, Colors.white],
-            stops: const [0.0, 0.3, 1.0],
-          ),
-        ),
+        decoration: const BoxDecoration(color: Colors.white),
         child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              children: [
-                // Logo Section
-                _buildLogoSection(),
-                const SizedBox(height: 40),
-
-                // Login Card
-                _buildLoginCard(),
-                const SizedBox(height: 24),
-
-                // Sign Up Link
-                _buildSignUpLink(),
-                const SizedBox(height: 40),
-              ],
-            ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth >= 600;
+              final horizontalPad = isWide
+                  ? ((constraints.maxWidth - 520) / 2).clamp(24.0, double.infinity)
+                  : 24.0;
+              return SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPad),
+                child: Column(
+                  children: [
+                    _buildLogoSection(),
+                    const SizedBox(height: 40),
+                    _buildLoginCard(),
+                    const SizedBox(height: 24),
+                    _buildSignUpLink(),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -154,10 +150,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildLogoSection() {
     return Column(
       children: [
-        // Logo Container
-        SizedBox(
-          width: 300,
-          height: 200,
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 300, maxHeight: 180),
           child: ClipRect(
             child: Image.asset('public/logo.jpeg', fit: BoxFit.contain),
           ),

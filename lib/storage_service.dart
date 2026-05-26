@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-import 'package:tanga_acadamie/data_fetcher.dart';
 
 Future<void> saveToken(String token) async {
   var box = await Hive.openBox("authBox");
@@ -51,17 +50,6 @@ Future<Map<String, dynamic>> getUser() async {
   return user;
 }
 
-Future<Map<String, dynamic>> getStudentDash() async {
-  var box = await Hive.openBox("authBox");
-  final data = <String, dynamic>{
-    "username": box.get("username"),
-    "enrolledCourses": await fetchEnrolled(),
-    "investment": await fetchInvestment(),
-    "announcements": await fetchAnnouncements(),
-  };
-  await box.close();
-  return data;
-}
 
 Future<void> logout() async {
   var box = await Hive.openBox("authBox");

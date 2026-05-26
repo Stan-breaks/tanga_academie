@@ -9,7 +9,6 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
-import 'package:tanga_acadamie/screens/home_page.dart';
 import 'package:tanga_acadamie/screens/student/assignment_submission_page.dart';
 import 'package:tanga_acadamie/screens/student/lesson_video_player_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
@@ -26,12 +25,14 @@ class CourseLearnPage extends StatefulWidget {
 class _CourseLearnPageState extends State<CourseLearnPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late Future<Map<String, dynamic>> _courseFuture;
   Set<String> _completedVideoIds = {};
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _courseFuture = fetchCourse(widget.courseId);
     _loadProgress();
   }
 
@@ -133,22 +134,37 @@ class _CourseLearnPageState extends State<CourseLearnPage>
 
   Future<void> downloadAndOpen(String fileName, String url) async {
     final dio = Dio();
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final filePath = '${dir.path}/$fileName';
 
-    final dir = await getApplicationDocumentsDirectory();
-    final filePath = '${dir.path}/$fileName';
+      final file = File(filePath);
+      if (!await file.exists()) {
+        await dio.download(url, filePath);
+      }
 
-    final file = File(filePath);
-    if (!await file.exists()) {
-      await dio.download(url, filePath);
+      await OpenFilex.open(filePath);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isFr
+                  ? 'Erreur de téléchargement. Vérifiez votre connexion.'
+                  : 'Download failed. Check your connection.',
+            ),
+            backgroundColor: Colors.red.shade400,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
-
-    await OpenFilex.open(filePath);
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: fetchCourse(widget.courseId),
+      future: _courseFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
@@ -308,14 +324,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
         ),
         child: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const HomePage(isLoggedIn: true),
-              ),
-            );
-          },
+          onPressed: () => Navigator.maybePop(context),
         ),
       ),
       flexibleSpace: FlexibleSpaceBar(

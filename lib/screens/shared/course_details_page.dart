@@ -40,7 +40,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     try {
       final token = await getToken();
 
-      if (token!.isEmpty) {
+      if (token == null || token.isEmpty) {
         setState(() => _checkingAccess = false);
         return;
       }

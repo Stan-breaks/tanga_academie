@@ -16,7 +16,7 @@ class ChatService {
   Future<void> initialize() async {
     _token = await getToken();
     final user = await getUser();
-    _currentUserId = user['id']?.toString();
+    _currentUserId = user['userId']?.toString();
   }
 
   String? get currentUserId => _currentUserId;

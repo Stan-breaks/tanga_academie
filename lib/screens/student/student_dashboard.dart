@@ -5,7 +5,7 @@ import 'package:tanga_acadamie/screens/shared/course_card.dart';
 import 'package:tanga_acadamie/screens/signup_page.dart';
 import 'package:tanga_acadamie/screens/student/course_learn_page.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
-import 'package:tanga_acadamie/storage_service.dart';
+import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/utils/responsive.dart';
 

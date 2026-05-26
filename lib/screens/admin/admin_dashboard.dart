@@ -73,7 +73,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   String _formatMoney(dynamic amount) {
     if (amount == null) return '\$0';
-    final value = amount is int ? amount.toDouble() : (amount as double);
+    final value = (amount is num)
+        ? amount.toDouble()
+        : double.tryParse(amount.toString()) ?? 0.0;
     return NumberFormat.currency(symbol: '\$', decimalDigits: 0).format(value);
   }
 

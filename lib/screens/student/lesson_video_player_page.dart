@@ -42,6 +42,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
   String? _vimeoId;
   bool _isLoading = true;
   bool _isCompleted = false;
+  bool _isMarkingComplete = false;
   bool _hasError = false;
   String _errorMessage = '';
   String _videoType = 'none';
@@ -375,72 +376,99 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
-                              onPressed: _isCompleted
+                              onPressed: (_isCompleted || _isMarkingComplete)
                                   ? null
                                   : () async {
-                                      final token = await getToken();
-                                      final videoId =
-                                          widget.lesson['video']?['_id']?.toString() ??
-                                          widget.lesson['video']?['id']?.toString() ??
-                                          widget.lesson['_id']?.toString() ??
-                                          widget.lesson['id']?.toString() ?? '';
-                                      final chapterId =
-                                          widget.chapter['_id']?.toString() ??
-                                          widget.chapter['id']?.toString() ?? '';
-                                      final response = await post(
-                                        Uri.parse(
-                                          '${ApiConfig.baseUrl}/api/progress/complete-video',
-                                        ),
-                                        headers: {
-                                          "Authorization": "Bearer $token",
-                                          "Content-Type": "application/json",
-                                        },
-                                        body: jsonEncode({
-                                          "videoId": videoId,
-                                          "chapterId": chapterId,
-                                        }),
-                                      );
-                                      if (response.statusCode == 200) {
-                                        setState(() {
-                                          _isCompleted = true;
-                                        });
-                                        widget.onComplete?.call();
+                                      setState(() => _isMarkingComplete = true);
+                                      try {
+                                        final token = await getToken();
+                                        if (token == null) {
+                                          if (!context.mounted) return;
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(isFr ? 'Non authentifié' : 'Not authenticated'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                          setState(() => _isMarkingComplete = false);
+                                          return;
+                                        }
+                                        final videoId =
+                                            widget.lesson['video']?['_id']?.toString() ??
+                                            widget.lesson['video']?['id']?.toString() ??
+                                            widget.lesson['_id']?.toString() ??
+                                            widget.lesson['id']?.toString() ?? '';
+                                        final chapterId =
+                                            widget.chapter['_id']?.toString() ??
+                                            widget.chapter['id']?.toString() ?? '';
+                                        final response = await post(
+                                          Uri.parse(
+                                            '${ApiConfig.baseUrl}/api/progress/complete-video',
+                                          ),
+                                          headers: {
+                                            "Authorization": "Bearer $token",
+                                            "Content-Type": "application/json",
+                                          },
+                                          body: jsonEncode({
+                                            "videoId": videoId,
+                                            "chapterId": chapterId,
+                                          }),
+                                        );
                                         if (!context.mounted) return;
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
+                                        if (response.statusCode == 200 || response.statusCode == 201) {
+                                          setState(() {
+                                            _isCompleted = true;
+                                            _isMarkingComplete = false;
+                                          });
+                                          widget.onComplete?.call();
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Row(
+                                                children: [
+                                                  const Icon(Icons.check_circle, color: Colors.white),
+                                                  const SizedBox(width: 12),
+                                                  Text(isFr ? 'Leçon terminée !' : 'Lesson completed!'),
+                                                ],
+                                              ),
+                                              backgroundColor: Colors.green.shade600,
+                                              behavior: SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                          setState(() => _isMarkingComplete = false);
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(isFr ? 'Échec de la mise à jour' : 'Failed to mark complete'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        if (mounted) setState(() => _isMarkingComplete = false);
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(
-                                            content: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.check_circle,
-                                                  color: Colors.white,
-                                                ),
-                                                SizedBox(width: 12),
-                                                Text(
-                                                  isFr
-                                                      ? 'Leçon terminée !'
-                                                      : 'Lesson completed!',
-                                                ),
-                                              ],
-                                            ),
-                                            backgroundColor:
-                                                Colors.green.shade600,
-                                            behavior: SnackBarBehavior.floating,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
+                                            content: Text(isFr ? 'Erreur réseau' : 'Network error'),
+                                            backgroundColor: Colors.red,
                                           ),
                                         );
                                       }
                                     },
-                              icon: Icon(
-                                _isCompleted
-                                    ? Icons.check_circle
-                                    : Icons.check_circle_outline,
-                                size: 22,
-                              ),
+                              icon: _isMarkingComplete
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                    )
+                                  : Icon(
+                                      _isCompleted
+                                          ? Icons.check_circle
+                                          : Icons.check_circle_outline,
+                                      size: 22,
+                                    ),
                               label: Text(
                                 isFr
                                     ? (_isCompleted

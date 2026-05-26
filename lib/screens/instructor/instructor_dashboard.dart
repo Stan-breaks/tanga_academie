@@ -4,13 +4,30 @@ import 'package:tanga_acadamie/screens/shared/_stat_card.dart';
 import 'package:intl/intl.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 
-class InstructorDashboard extends StatelessWidget {
+class InstructorDashboard extends StatefulWidget {
   const InstructorDashboard({super.key});
+
+  @override
+  State<InstructorDashboard> createState() => _InstructorDashboardState();
+}
+
+class _InstructorDashboardState extends State<InstructorDashboard> {
+  late Future<Map<String, dynamic>> _dashFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _dashFuture = getInstructorDash();
+  }
+
+  void _refresh() {
+    setState(() => _dashFuture = getInstructorDash());
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getInstructorDash(),
+      future: _dashFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
@@ -81,8 +98,7 @@ class InstructorDashboard extends StatelessWidget {
             body: RefreshIndicator(
               color: Colors.blueAccent,
               onRefresh: () async {
-                // Trigger a rebuild by returning a future
-                await Future.delayed(const Duration(milliseconds: 500));
+                _refresh();
               },
               child: ListView(
                 padding: const EdgeInsets.all(20),

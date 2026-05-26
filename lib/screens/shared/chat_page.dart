@@ -501,7 +501,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                         width: 6,
                         height: 6,
                         decoration: BoxDecoration(
-                          color: _isConnected ? null : Colors.orange,
+                          color: _isConnected ? Colors.green : Colors.orange,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -957,15 +957,20 @@ class Message {
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
+    // sender can be a Map or a plain ID string
+    final senderData = json['sender'];
+    final senderId = (senderData is Map)
+        ? (senderData['_id']?.toString() ?? senderData['id']?.toString() ?? '')
+        : (senderData?.toString() ?? json['senderId']?.toString() ?? '');
+
     return Message(
-      id: json['_id'] ?? json['id'] ?? '',
-      senderId: json['sender']['_id'] ?? '',
-      content: json['content'] ?? '',
-      timestamp: DateTime.parse(
-        json['timestamp'] ??
-            json['createdAt'] ??
-            DateTime.now().toIso8601String(),
-      ),
+      id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
+      senderId: senderId,
+      content: json['content']?.toString() ?? '',
+      timestamp: DateTime.tryParse(
+            (json['timestamp'] ?? json['createdAt'] ?? '').toString(),
+          ) ??
+          DateTime.now(),
       readBy:
           (json['readBy'] as List<dynamic>?)
               ?.map((e) => e.toString())

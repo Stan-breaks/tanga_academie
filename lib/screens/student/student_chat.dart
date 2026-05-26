@@ -25,7 +25,7 @@ class StudentChatPage extends StatefulWidget {
 
 class _StudentChatPageState extends State<StudentChatPage>
     with TickerProviderStateMixin {
-  late Socket socket;
+  Socket? socket;
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<Message> _messages = [];
@@ -81,24 +81,24 @@ class _StudentChatPageState extends State<StudentChatPage>
             .build(),
       );
 
-      socket.onConnect((_) {
+      socket!.onConnect((_) {
         debugPrint('Socket connected');
         if (mounted) {
           setState(() => _isConnected = true);
         }
 
-        socket.emit('authenticate', {'userId': widget.userId, 'token': _token});
-        socket.emit('join_chat', widget.chatId);
+        socket!.emit('authenticate', {'userId': widget.userId, 'token': _token});
+        socket!.emit('join_chat', widget.chatId);
       });
 
-      socket.onDisconnect((_) {
+      socket!.onDisconnect((_) {
         debugPrint('Socket disconnected');
         if (mounted) {
           setState(() => _isConnected = false);
         }
       });
 
-      socket.onConnectError((error) {
+      socket!.onConnectError((error) {
         debugPrint('Socket connection error: $error');
         if (mounted) {
           setState(() => _isConnected = false);
@@ -106,11 +106,11 @@ class _StudentChatPageState extends State<StudentChatPage>
       });
 
       // Listen for new messages on multiple events for compatibility
-      socket.on('new_message', _handleNewMessage);
-      socket.on('receive_message', _handleNewMessage);
-      socket.on('message', _handleNewMessage);
+      socket!.on('new_message', _handleNewMessage);
+      socket!.on('receive_message', _handleNewMessage);
+      socket!.on('message', _handleNewMessage);
 
-      socket.on('user_typing', (data) {
+      socket!.on('user_typing', (data) {
         if (data['userId'] != widget.userId && mounted) {
           setState(() => _isTyping = true);
           // Auto-reset typing after 3 seconds
@@ -122,13 +122,13 @@ class _StudentChatPageState extends State<StudentChatPage>
         }
       });
 
-      socket.on('user_stopped_typing', (data) {
+      socket!.on('user_stopped_typing', (data) {
         if (data['userId'] != widget.userId && mounted) {
           setState(() => _isTyping = false);
         }
       });
 
-      socket.connect();
+      socket!.connect();
     } catch (e) {
       debugPrint('Socket initialization error: $e');
     }
@@ -258,7 +258,7 @@ class _StudentChatPageState extends State<StudentChatPage>
         });
 
         if (_isConnected) {
-          socket.emit('send_message', {
+          socket?.emit('send_message', {
             'chatId': widget.chatId,
             'content': messageText,
             'senderId': widget.userId,
@@ -386,12 +386,12 @@ class _StudentChatPageState extends State<StudentChatPage>
 
   void _onTypingChanged(String text) {
     if (text.isNotEmpty && _isConnected) {
-      socket.emit('typing_start', {
+      socket?.emit('typing_start', {
         'chatId': widget.chatId,
         'userId': widget.userId,
       });
     } else if (_isConnected) {
-      socket.emit('typing_stop', {
+      socket?.emit('typing_stop', {
         'chatId': widget.chatId,
         'userId': widget.userId,
       });
@@ -401,14 +401,14 @@ class _StudentChatPageState extends State<StudentChatPage>
   @override
   void dispose() {
     if (_isConnected) {
-      socket.emit('leave_chat', widget.chatId);
-      socket.emit('typing_stop', {
+      socket?.emit('leave_chat', widget.chatId);
+      socket?.emit('typing_stop', {
         'chatId': widget.chatId,
         'userId': widget.userId,
       });
     }
-    socket.disconnect();
-    socket.dispose();
+    socket?.disconnect();
+    socket?.dispose();
     _messageController.dispose();
     _scrollController.dispose();
     _fadeController.dispose();
@@ -1017,14 +1017,13 @@ class Message {
     }
 
     return Message(
-      id: json['_id'] ?? '',
+      id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       senderId: senderId,
-      content: json['content'] ?? '',
-      timestamp: DateTime.parse(
-        json['timestamp'] ??
-            json['createdAt'] ??
-            DateTime.now().toIso8601String(),
-      ),
+      content: json['content']?.toString() ?? '',
+      timestamp: DateTime.tryParse(
+            (json['timestamp'] ?? json['createdAt'] ?? '').toString(),
+          ) ??
+          DateTime.now(),
       readBy:
           (json['readBy'] as List<dynamic>?)
               ?.map((e) => e.toString())

@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
@@ -16,24 +17,80 @@ class VerificationPage extends StatefulWidget {
 
 class _VerificationPageState extends State<VerificationPage> {
   final _tokenController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _tokenController.dispose();
+    super.dispose();
+  }
+
+  void _showMessage(String message, {bool isError = true}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red.shade400 : Colors.green.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
 
   Future<void> _verifyToken() async {
-    final token = _tokenController.text;
-    if (token == "") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isFr ? "Veuillez entrer le code complet" : "Please enter the full code")),
-      );
+    final token = _tokenController.text.trim();
+    if (token.isEmpty) {
+      _showMessage(isFr ? 'Veuillez entrer le code complet' : 'Please enter the full code');
       return;
     }
 
     final apiUrl = dotenv.env['API_URL'];
-    final response = await get(Uri.parse('$apiUrl/api/verify-email/$token'));
-    if (response.statusCode == 200) {
+    if (apiUrl == null) {
+      _showMessage('API configuration error. Contact support.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await get(
+        Uri.parse('$apiUrl/api/verify-email/$token'),
+      ).timeout(const Duration(seconds: 15));
+
       if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginPage()),
+
+      if (response.statusCode == 200) {
+        _showMessage(
+          isFr ? 'Email vérifié avec succès !' : 'Email verified successfully!',
+          isError: false,
+        );
+        await Future.delayed(const Duration(milliseconds: 800));
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+        );
+      } else {
+        String errorMsg;
+        try {
+          final decoded = jsonDecode(response.body);
+          errorMsg = decoded['message']?.toString() ??
+              (isFr ? 'Code invalide ou expiré' : 'Invalid or expired code');
+        } catch (_) {
+          errorMsg = isFr ? 'Code invalide ou expiré' : 'Invalid or expired code';
+        }
+        _showMessage(errorMsg);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      _showMessage(
+        isFr
+            ? 'Erreur réseau. Vérifiez votre connexion.'
+            : 'Network error. Check your connection.',
       );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -105,14 +162,14 @@ class _VerificationPageState extends State<VerificationPage> {
               const SizedBox(height: 30),
               SizedBox(
                 width: double.infinity,
+                height: 54,
                 child: ElevatedButton(
-                  onPressed: (){
-                    _verifyToken();
-                  },
+                  onPressed: _isLoading ? null : _verifyToken,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: Colors.blueAccent,
                     foregroundColor: Colors.white,
+                    disabledBackgroundColor: Colors.blueAccent.withAlpha(150),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -121,7 +178,16 @@ class _VerificationPageState extends State<VerificationPage> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  child: Text(isFr ? 'Vérifier' : 'Verify'),
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : Text(isFr ? 'Vérifier' : 'Verify'),
                 ),
               ),
               const SizedBox(height: 20),

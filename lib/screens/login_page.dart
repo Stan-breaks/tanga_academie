@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -53,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
         Uri.parse('$apiUrl/api/auth/login'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"emailOrUsername": email, "password": password}),
-      );
+      ).timeout(const Duration(seconds: 15));
 
       if (!mounted) return;
 
@@ -90,11 +91,16 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } catch (e) {
-      _showError(
-        isFr
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('timeout') || msg.contains('socketexception') || msg.contains('connection')) {
+        _showError(isFr
+            ? 'Impossible de se connecter au serveur. Vérifiez votre connexion.'
+            : 'Cannot reach server. Check your connection.');
+      } else {
+        _showError(isFr
             ? 'Une erreur est survenue. Veuillez réessayer.'
-            : 'An error occurred. Please try again.',
-      );
+            : 'An error occurred. Please try again.');
+      }
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);

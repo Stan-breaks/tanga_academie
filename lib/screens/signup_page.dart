@@ -78,8 +78,8 @@ class _SignupPageState extends State<SignupPage> {
         ..fields["email"] = email
         ..fields["role"] = _role
         ..fields["password"] = password
-        ..fields["confirmPassword"] = confirmPassword
-        ..headers["Content-Type"] = "application/json";
+        ..fields["confirmPassword"] = confirmPassword;
+      // NOTE: do NOT set Content-Type header — multipart sets its own boundary automatically
 
       if (_selectedImage != null) {
         request.files.add(
@@ -91,7 +91,8 @@ class _SignupPageState extends State<SignupPage> {
 
       if (!mounted) return;
 
-      if (response.statusCode == 200) {
+      // Accept 200 or 201 (Created)
+      if (response.statusCode == 200 || response.statusCode == 201) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -100,8 +101,21 @@ class _SignupPageState extends State<SignupPage> {
         );
       } else {
         final responseBody = await response.stream.bytesToString();
-        final decoded = jsonDecode(responseBody);
-        _showError('Registration failed: ${decoded['errors'] ?? decoded['message'] ?? 'Unknown error'}');
+        String errorMsg;
+        try {
+          final decoded = jsonDecode(responseBody);
+          final errors = decoded['errors'];
+          if (errors is List) {
+            errorMsg = errors.map((e) => e is Map ? e['msg'] ?? e.toString() : e.toString()).join(', ');
+          } else if (errors is String) {
+            errorMsg = errors;
+          } else {
+            errorMsg = decoded['message']?.toString() ?? 'Unknown error';
+          }
+        } catch (_) {
+          errorMsg = 'Registration failed (${response.statusCode})';
+        }
+        _showError(errorMsg);
       }
     } catch (e) {
       _showError(isFr ? 'Une erreur est survenue. Veuillez réessayer.' : 'An error occurred. Please try again.');

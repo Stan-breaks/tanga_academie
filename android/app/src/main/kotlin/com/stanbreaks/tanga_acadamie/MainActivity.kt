@@ -1,4 +1,4 @@
-package com.tanga_academie.app
+package com.stanbreaks.tanga_acadamie
 
 import io.flutter.embedding.android.FlutterActivity
 

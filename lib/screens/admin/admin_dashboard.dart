@@ -46,19 +46,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
       final user = await getUser();
       _username = user['username'] ?? user['firstName'] ?? 'Admin';
 
-      final results = await Future.wait([
-        getAdminDashboardStats(),
-        getTopInstructors(),
-        getAdminNotices(),
-        getAdminCourses(),
-      ]);
+      // Run all requests independently — one failing (e.g. 401) won't crash the whole dashboard
+      final statsResult = await getAdminDashboardStats().catchError((_) => <String, dynamic>{});
+      final instructorsResult = await getTopInstructors().catchError((_) => <dynamic>[]);
+      final noticesResult = await getAdminNotices().catchError((_) => <dynamic>[]);
+      final coursesResult = await getAdminCourses().catchError((_) => <String, dynamic>{});
 
       setState(() {
-        _stats = results[0] as Map<String, dynamic>?;
-        _topInstructors = (results[1] as List<dynamic>).take(5).toList();
-        _notices = (results[2] as List<dynamic>).take(5).toList();
-        final coursesData = results[3] as Map<String, dynamic>;
-        _recentCourses = (coursesData['data'] as List<dynamic>? ?? [])
+        _stats = statsResult.isNotEmpty ? statsResult : null;
+        _topInstructors = instructorsResult.take(5).toList();
+        _notices = noticesResult.take(5).toList();
+        _recentCourses = (coursesResult['data'] as List<dynamic>? ?? [])
             .take(6)
             .toList();
         _isLoading = false;

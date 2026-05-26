@@ -61,10 +61,14 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data["token"];
+        final refreshToken = data["refreshToken"];
         final user = data["user"];
 
         await saveUser(user);
         await saveToken(token);
+        if (refreshToken != null) {
+          await saveRefreshToken(refreshToken.toString());
+        }
 
         if (!mounted) return;
 

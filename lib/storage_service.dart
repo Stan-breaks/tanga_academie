@@ -6,6 +6,20 @@ Future<void> saveToken(String token) async {
   await box.close();
 }
 
+Future<void> saveRefreshToken(String token) async {
+  var box = await Hive.openBox("authBox");
+  await box.put("refreshToken", token);
+  await box.close();
+}
+
+Future<String?> getRefreshToken() async {
+  var box = await Hive.openBox("authBox");
+  final token = box.get("refreshToken");
+  await box.close();
+  return token;
+}
+
+
 Future<void> saveUser(Map<String, dynamic> user) async {
   var box = await Hive.openBox("authBox");
   await box.put("userId", user['_id']);
@@ -54,6 +68,7 @@ Future<Map<String, dynamic>> getUser() async {
 Future<void> logout() async {
   var box = await Hive.openBox("authBox");
   await box.delete("jwt");
+  await box.delete("refreshToken");
   await box.delete("userId");
   await box.delete("role");
   await box.delete("email");

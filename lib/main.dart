@@ -9,6 +9,7 @@ import 'package:tanga_acadamie/screens/instructor/instructor_assignment_page.dar
 import 'package:tanga_acadamie/screens/instructor/instructor_quiz_page.dart';
 import 'package:tanga_acadamie/screens/instructor/instructor_student_progress_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
+import 'package:tanga_acadamie/auth_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 Future<void> main() async {
@@ -16,6 +17,9 @@ Future<void> main() async {
   await Hive.initFlutter();
   await dotenv.load(fileName: ".env");
   await initLanguage();
+
+  // Silently refresh access token if near expiry before deciding auth state
+  await ensureFreshToken();
 
   final token = await getToken();
   final user = await getUser();

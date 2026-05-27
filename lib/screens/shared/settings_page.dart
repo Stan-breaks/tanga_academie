@@ -47,6 +47,11 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _codeSent = false;
   bool _passwordChanged = false;
 
+  // ── Delete Account Section ──
+  final _deletePasswordController = TextEditingController();
+  bool _isDeletingAccount = false;
+  bool _isDeleteObscure = true;
+
   // Field length limits (matching backend)
   static const _limits = {
     'firstName': 50,
@@ -72,6 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _bioController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _deletePasswordController.dispose();
     for (var c in _codeControllers) {
       c.dispose();
     }
@@ -428,6 +434,17 @@ class _SettingsPageState extends State<SettingsPage> {
                   const SizedBox(height: 16),
                   _buildLanguageSection(),
                   const SizedBox(height: 32),
+
+                  // ══════════════════════════════════════
+                  // SECTION 4: DANGER ZONE
+                  // ══════════════════════════════════════
+                  _buildSectionHeader(
+                    isFr ? 'Zone de danger' : 'Danger Zone',
+                    Icons.warning_amber_rounded,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildDangerZoneSection(),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -1166,6 +1183,210 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // DANGER ZONE SECTION
+  // ══════════════════════════════════════════════════════════
+
+  Future<void> _handleDeleteAccount() async {
+    final password = _deletePasswordController.text;
+    if (password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(isFr
+            ? 'Veuillez entrer votre mot de passe'
+            : 'Please enter your password'),
+        backgroundColor: Colors.red.shade400,
+        behavior: SnackBarBehavior.floating,
+      ));
+      return;
+    }
+
+    // Confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(isFr ? 'Supprimer le compte ?' : 'Delete account?'),
+        content: Text(isFr
+            ? 'Cette action est irréversible. Toutes vos données seront supprimées définitivement.'
+            : 'This action is permanent and cannot be undone. All your data will be deleted.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(isFr ? 'Annuler' : 'Cancel'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(isFr ? 'Supprimer' : 'Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() => _isDeletingAccount = true);
+
+    try {
+      final token = await getToken();
+      if (token == null || !mounted) return;
+
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/users/delete-account'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'password': password}),
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        await logout();
+        if (!mounted) return;
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+      } else {
+        final data = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(data['message'] ??
+              (isFr ? 'Erreur lors de la suppression' : 'Deletion failed')),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+        ));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(isFr
+              ? 'Impossible de contacter le serveur'
+              : 'Cannot reach server'),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+        ));
+      }
+    } finally {
+      if (mounted) setState(() => _isDeletingAccount = false);
+    }
+  }
+
+  Widget _buildDangerZoneSection() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.red.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Warning banner
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.red.shade200),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.warning_amber_rounded,
+                    color: Colors.red.shade600, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    isFr
+                        ? 'La suppression du compte est permanente et irréversible.'
+                        : 'Account deletion is permanent and cannot be undone.',
+                    style: TextStyle(
+                        color: Colors.red.shade700,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Password field
+          Text(
+            isFr ? 'Confirmez votre mot de passe' : 'Confirm your password',
+            style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.red.shade200),
+            ),
+            child: TextField(
+              controller: _deletePasswordController,
+              obscureText: _isDeleteObscure,
+              style: const TextStyle(fontSize: 15),
+              decoration: InputDecoration(
+                hintText: isFr ? 'Mot de passe' : 'Password',
+                hintStyle:
+                    TextStyle(color: Colors.grey.shade500, fontSize: 14),
+                prefixIcon: Icon(Icons.lock_outline,
+                    color: Colors.red.shade400, size: 20),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isDeleteObscure
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: Colors.grey.shade500,
+                    size: 20,
+                  ),
+                  onPressed: () =>
+                      setState(() => _isDeleteObscure = !_isDeleteObscure),
+                ),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 16),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Delete button
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton.icon(
+              onPressed: _isDeletingAccount ? null : _handleDeleteAccount,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red.shade600,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: Colors.red.shade300,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 0,
+              ),
+              icon: _isDeletingAccount
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2),
+                    )
+                  : const Icon(Icons.delete_forever_rounded, size: 20),
+              label: Text(
+                isFr ? 'Supprimer mon compte' : 'Delete My Account',
+                style: const TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

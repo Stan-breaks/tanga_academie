@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tanga_acadamie/screens/home_page.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
@@ -13,7 +14,9 @@ import 'package:tanga_acadamie/auth_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: binding);
+
   await Hive.initFlutter();
   await dotenv.load(fileName: ".env");
   await initLanguage();
@@ -30,6 +33,7 @@ Future<void> main() async {
       user['email'].isNotEmpty &&
       user['role'] != null &&
       user['role'].isNotEmpty;
+  FlutterNativeSplash.remove();
   runApp(MyApp(isLoggedIn: isLoggedIn, user: user));
 }
 

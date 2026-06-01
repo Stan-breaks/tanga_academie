@@ -29,6 +29,40 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   bool _codeSent = false;
   String _userEmail = '';
 
+  void _showError(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Row(children: [
+          const Icon(Icons.error_outline, color: Colors.white, size: 20),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
+        ]),
+        backgroundColor: Colors.red.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 4),
+      ));
+  }
+
+  void _showSuccess(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Row(children: [
+          const Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
+        ]),
+        backgroundColor: Colors.green.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 3),
+      ));
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -47,22 +81,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     final email = _emailController.text.trim();
 
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isFr ? "Veuillez entrer votre email" : "Please enter your email")),
-      );
+      _showError(isFr ? "Veuillez entrer votre email" : "Please enter your email");
       return;
     }
 
     if (!_isValidEmail(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isFr
-                ? 'Veuillez entrer un email valide'
-                : 'Please enter a valid email',
-          ),
-        ),
-      );
+      _showError(isFr ? 'Veuillez entrer un email valide' : 'Please enter a valid email');
       return;
     }
 
@@ -89,33 +113,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           _codeSent = true;
           _userEmail = email;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isFr
-                  ? 'Code de vérification envoyé à votre email'
-                  : 'Verification code sent to your email',
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
+        _showSuccess(isFr ? 'Code de vérification envoyé à votre email' : 'Verification code sent to your email');
       } else {
         final error = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              error['message'] ?? (isFr ? 'Erreur inconnue' : 'Unknown error'),
-            ),
-          ),
-        );
+        _showError(error['message'] ?? (isFr ? 'Erreur inconnue' : 'Unknown error'));
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("${isFr ? 'Erreur' : 'Error'}: ${e.toString()}"),
-        ),
-      );
+      _showError(isFr ? 'Impossible de contacter le serveur. Vérifiez votre connexion.' : 'Cannot reach server. Check your connection.');
     } finally {
       if (mounted) {
         setState(() {
@@ -131,54 +136,22 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     final confirmPassword = _confirmPasswordController.text;
 
     if (code.length != 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isFr
-                ? 'Veuillez entrer le code complet'
-                : 'Please enter the full code',
-          ),
-        ),
-      );
+      _showError(isFr ? 'Veuillez entrer le code complet' : 'Please enter the full code');
       return;
     }
 
     if (newPassword.isEmpty || confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isFr
-                ? 'Veuillez remplir tous les champs'
-                : 'Please fill in all fields',
-          ),
-        ),
-      );
+      _showError(isFr ? 'Veuillez remplir tous les champs' : 'Please fill in all fields');
       return;
     }
 
     if (newPassword != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isFr
-                ? 'Les mots de passe ne correspondent pas'
-                : 'Passwords do not match',
-          ),
-        ),
-      );
+      _showError(isFr ? 'Les mots de passe ne correspondent pas' : 'Passwords do not match');
       return;
     }
 
     if (newPassword.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isFr
-                ? 'Le mot de passe doit contenir au moins 6 caractères'
-                : 'Password must be at least 6 characters',
-          ),
-        ),
-      );
+      _showError(isFr ? 'Le mot de passe doit contenir au moins 6 caractères' : 'Password must be at least 6 characters');
       return;
     }
 
@@ -205,18 +178,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       if (!mounted) return;
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isFr
-                  ? 'Mot de passe réinitialisé avec succès!'
-                  : 'Password reset successfully!',
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-        // Navigate back to login page
+        _showSuccess(isFr ? 'Mot de passe réinitialisé avec succès!' : 'Password reset successfully!');
         await Future.delayed(const Duration(seconds: 1));
         if (!mounted) return;
         Navigator.pushReplacement(
@@ -225,21 +187,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         );
       } else {
         final error = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              error['message'] ?? (isFr ? 'Code invalide' : 'Invalid code'),
-            ),
-          ),
-        );
+        _showError(error['message'] ?? (isFr ? 'Code invalide' : 'Invalid code'));
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("${isFr ? 'Erreur' : 'Error'}: ${e.toString()}"),
-        ),
-      );
+      _showError(isFr ? 'Impossible de contacter le serveur.' : 'Cannot reach server. Check your connection.');
     } finally {
       if (mounted) {
         setState(() {

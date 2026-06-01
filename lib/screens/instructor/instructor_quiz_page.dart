@@ -127,7 +127,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
       final token = await getToken();
       final response = await http.get(
         Uri.parse(
-            '${ApiConfig.baseUrl}/api/courses/$_selectedCourseId/lessons/$lessonId/quiz'),
+            '${ApiConfig.baseUrl}/api/quizes/$_selectedCourseId/quiz/$lessonId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -234,7 +234,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
 
       final method = _existingQuiz ? 'PUT' : 'POST';
       final uri = Uri.parse(
-          '${ApiConfig.baseUrl}/api/courses/$_selectedCourseId/lessons/$_selectedLessonId/quiz');
+          '${ApiConfig.baseUrl}/api/quizes/$_selectedCourseId/quiz/$_selectedLessonId');
 
       http.Response response;
       if (method == 'PUT') {
@@ -272,7 +272,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
         _showError('Failed to save quiz');
       }
     } catch (e) {
-      _showError('Error: ${e.toString()}');
+      _showError(isFr ? 'Une erreur est survenue' : 'An error occurred');
     }
 
     setState(() => _isSaving = false);

@@ -87,6 +87,23 @@ class _SettingsPageState extends State<SettingsPage> {
     super.dispose();
   }
 
+  void _showError(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Row(children: [
+          const Icon(Icons.error_outline, color: Colors.white, size: 20),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
+        ]),
+        backgroundColor: Colors.red.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 4),
+      ));
+  }
+
   Future<void> _loadUserData() async {
     final user = await getUser();
     setState(() {
@@ -191,17 +208,7 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}'),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: const EdgeInsets.all(16),
-        ),
-      );
+      _showError(isFr ? 'Erreur lors de la mise à jour du profil' : 'Failed to update profile');
     } finally {
       if (mounted) setState(() => _isSavingProfile = false);
     }
@@ -252,9 +259,7 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}')));
+      _showError(isFr ? 'Impossible de contacter le serveur' : 'Cannot reach server. Check your connection.');
     } finally {
       if (mounted) setState(() => _isSendingCode = false);
     }
@@ -275,16 +280,12 @@ class _SettingsPageState extends State<SettingsPage> {
     }
 
     if (newPassword.isEmpty || confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isFr ? 'Veuillez remplir tous les champs' : 'Please fill in all fields')),
-      );
+      _showError(isFr ? 'Veuillez remplir tous les champs' : 'Please fill in all fields');
       return;
     }
 
     if (newPassword != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isFr ? 'Les mots de passe ne correspondent pas' : 'Passwords do not match')),
-      );
+      _showError(isFr ? 'Les mots de passe ne correspondent pas' : 'Passwords do not match');
       return;
     }
 
@@ -350,9 +351,7 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}')));
+      _showError(isFr ? 'Impossible de contacter le serveur' : 'Cannot reach server. Check your connection.');
     } finally {
       if (mounted) setState(() => _isResettingPassword = false);
     }

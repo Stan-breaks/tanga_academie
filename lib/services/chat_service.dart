@@ -134,7 +134,7 @@ class ChatService {
   /// Fetch user's chat list
   Future<List<ChatItem>> fetchUserChats() async {
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/chats'),
+      Uri.parse('${ApiConfig.baseUrl}/api/chats/user-chats'),
       headers: {
         'Authorization': 'Bearer $_token',
         'Content-Type': 'application/json',
@@ -184,7 +184,7 @@ class ChatService {
   /// Fetch instructor contacts (for students)
   Future<List<InstructorContact>> fetchInstructorContacts() async {
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/chats/contacts/instructors'),
+      Uri.parse('${ApiConfig.baseUrl}/api/chats/student/contacts'),
       headers: {
         'Authorization': 'Bearer $_token',
         'Content-Type': 'application/json',
@@ -203,7 +203,7 @@ class ChatService {
   /// Fetch student contacts (for instructors)
   Future<List<CourseWithStudents>> fetchStudentContacts() async {
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/chats/contacts/students'),
+      Uri.parse('${ApiConfig.baseUrl}/api/chats/instructor/contacts'),
       headers: {
         'Authorization': 'Bearer $_token',
         'Content-Type': 'application/json',
@@ -222,7 +222,7 @@ class ChatService {
   /// Fetch admin contacts
   Future<List<AdminContact>> fetchAdminContacts() async {
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/chats/contacts/admins'),
+      Uri.parse('${ApiConfig.baseUrl}/api/chats/admin/contacts'),
       headers: {
         'Authorization': 'Bearer $_token',
         'Content-Type': 'application/json',

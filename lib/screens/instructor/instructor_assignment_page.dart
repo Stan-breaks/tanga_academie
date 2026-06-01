@@ -227,7 +227,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}'),
+              content: Text(isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.'),
               backgroundColor: AppColors.error,
             ),
           );
@@ -288,7 +288,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}'),
+            content: Text(isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -1208,7 +1208,7 @@ class _AssignmentSubmissionsPageState
       final token = await getToken();
       final response = await http.get(
         Uri.parse(
-          '${ApiConfig.baseUrl}/api/courses/assignments/${widget.assignmentId}/submissions',
+          '${ApiConfig.baseUrl}/api/submissions/assignment/${widget.assignmentId}',
         ),
         headers: {
           'Authorization': 'Bearer $token',
@@ -1244,9 +1244,9 @@ class _AssignmentSubmissionsPageState
   ) async {
     try {
       final token = await getToken();
-      final response = await http.put(
+      final response = await http.post(
         Uri.parse(
-          '${ApiConfig.baseUrl}/api/courses/assignments/submissions/$submissionId/grade',
+          '${ApiConfig.baseUrl}/api/submissions/$submissionId/grade',
         ),
         headers: {
           'Authorization': 'Bearer $token',
@@ -1279,7 +1279,7 @@ class _AssignmentSubmissionsPageState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}'),
+            content: Text(isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.'),
             backgroundColor: AppColors.error,
           ),
         );

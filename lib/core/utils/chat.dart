@@ -141,7 +141,7 @@ Future<ChatResult> fetchStudentContacts() async {
     }
 
     final response = await get(
-      Uri.parse('${ApiConfig.baseUrl}/api/chats/instructor/students'),
+      Uri.parse('${ApiConfig.baseUrl}/api/chats/instructor/contacts'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -169,7 +169,7 @@ Future<ChatResult> fetchAdminsForInstructor() async {
     }
 
     final response = await get(
-      Uri.parse('${ApiConfig.baseUrl}/api/chats/admins'),
+      Uri.parse('${ApiConfig.baseUrl}/api/chats/instructor/admin-contacts'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -197,7 +197,7 @@ Future<ChatResult> fetchInstructorContacts() async {
     }
 
     final response = await get(
-      Uri.parse('${ApiConfig.baseUrl}/api/chats/student/instructors'),
+      Uri.parse('${ApiConfig.baseUrl}/api/chats/student/contacts'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',

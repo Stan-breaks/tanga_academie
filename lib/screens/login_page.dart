@@ -10,6 +10,7 @@ import 'package:tanga_acadamie/screens/signup_page.dart';
 import 'package:tanga_acadamie/screens/verification_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/core.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,7 +20,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _emailController = TextEditingController();
+  final _emailController    = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isObscure = true;
   bool _isLoading = false;
@@ -32,13 +33,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _handleLogin() async {
-    final email = _emailController.text.trim();
+    final email    = _emailController.text.trim();
     final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      _showError(
-        isFr ? 'Veuillez remplir tous les champs' : 'Please fill in all fields',
-      );
+      _showError(isFr ? 'Veuillez remplir tous les champs' : 'Please fill in all fields');
       return;
     }
 
@@ -46,9 +45,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final apiUrl = dotenv.env['API_URL'];
-      if (apiUrl == null) {
-        throw Exception("API_URL not found in .env file");
-      }
+      if (apiUrl == null) throw Exception("API_URL not found in .env file");
 
       final response = await post(
         Uri.parse('$apiUrl/api/auth/login'),
@@ -59,25 +56,21 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final token = data["token"];
+        final data         = jsonDecode(response.body);
+        final token        = data["token"];
         final refreshToken = data["refreshToken"];
-        final user = data["user"];
+        final user         = data["user"];
 
         await saveUser(user);
         await saveToken(token);
-        if (refreshToken != null) {
-          await saveRefreshToken(refreshToken.toString());
-        }
+        if (refreshToken != null) await saveRefreshToken(refreshToken.toString());
 
         if (!mounted) return;
 
         if (user['isVerified']) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (_) => HomePage(isLoggedIn: true, user: user),
-            ),
+            MaterialPageRoute(builder: (_) => HomePage(isLoggedIn: true, user: user)),
           );
         } else {
           Navigator.pushReplacement(
@@ -87,12 +80,8 @@ class _LoginPageState extends State<LoginPage> {
         }
       } else {
         final errorData = jsonDecode(response.body);
-        _showError(
-          errorData['message'] ??
-              (isFr
-                  ? 'Échec de connexion. Veuillez réessayer.'
-                  : 'Login failed. Please try again.'),
-        );
+        _showError(errorData['message'] ??
+            (isFr ? 'Échec de connexion. Veuillez réessayer.' : 'Login failed. Please try again.'));
       }
     } catch (e) {
       final msg = e.toString().toLowerCase();
@@ -101,317 +90,188 @@ class _LoginPageState extends State<LoginPage> {
             ? 'Impossible de se connecter au serveur. Vérifiez votre connexion.'
             : 'Cannot reach server. Check your connection.');
       } else {
-        _showError(isFr
-            ? 'Une erreur est survenue. Veuillez réessayer.'
-            : 'An error occurred. Please try again.');
+        _showError(isFr ? 'Une erreur est survenue. Veuillez réessayer.' : 'An error occurred. Please try again.');
       }
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red.shade400,
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Row(children: [
+          const Icon(Icons.error_outline, color: Colors.white, size: 20),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message, style: AppTheme.buttonTextStyle.copyWith(fontWeight: FontWeight.w500))),
+        ]),
+        backgroundColor: AppColors.error,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
+        margin: const EdgeInsets.all(AppTheme.spaceLg),
+        duration: const Duration(seconds: 4),
+      ));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.white),
-      body: Container(
-        decoration: const BoxDecoration(color: Colors.white),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth >= 600;
-              final horizontalPad = isWide
-                  ? ((constraints.maxWidth - 520) / 2).clamp(24.0, double.infinity)
-                  : 24.0;
-              return SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: horizontalPad),
-                child: Column(
-                  children: [
-                    _buildLogoSection(),
-                    const SizedBox(height: 40),
-                    _buildLoginCard(),
-                    const SizedBox(height: 24),
-                    _buildSignUpLink(),
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              );
-            },
-          ),
+      backgroundColor: Colors.white,
+      appBar: AppBar(backgroundColor: Colors.white, elevation: 0),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 600;
+            final hPad = isWide
+                ? ((constraints.maxWidth - 520) / 2).clamp(24.0, double.infinity)
+                : AppTheme.spaceXxl;
+            return SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: hPad),
+              child: Column(
+                children: [
+                  const SizedBox(height: AppTheme.spaceXxl),
+                  _buildLogo(),
+                  const SizedBox(height: AppTheme.space3xl),
+                  _buildCard(),
+                  const SizedBox(height: AppTheme.spaceXxl),
+                  _buildFooter(),
+                  const SizedBox(height: AppTheme.space3xl),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildLogoSection() {
+  Widget _buildLogo() {
     return Column(
       children: [
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 300, maxHeight: 180),
-          child: ClipRect(
-            child: Image.asset('public/logo.jpeg', fit: BoxFit.contain),
-          ),
+          child: ClipRect(child: Image.asset('public/logo.jpeg', fit: BoxFit.contain)),
         ),
-
-        const SizedBox(height: 24),
-        // Subtitle
+        const SizedBox(height: AppTheme.spaceXxl),
         Text(
           isFr
               ? 'Connectez-vous pour continuer votre apprentissage'
               : 'Sign in to continue your learning journey',
-          style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+          textAlign: TextAlign.center,
+          style: AppTheme.bodySecondaryStyle,
         ),
       ],
     );
   }
 
-  Widget _buildLoginCard() {
+  Widget _buildCard() {
     return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(15),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
+      padding: AppTheme.cardPadding,
+      decoration: AppTheme.elevatedCardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Welcome Text
-          Text(
-            isFr ? 'Bon retour !' : 'Welcome back!',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 8),
+          Text(isFr ? 'Bon retour !' : 'Welcome back!', style: AppTheme.headlineStyle),
+          const SizedBox(height: AppTheme.spaceSm),
           Text(
             isFr
                 ? 'Entrez vos identifiants pour accéder à votre compte'
                 : 'Enter your credentials to access your account',
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            style: AppTheme.bodySecondaryStyle,
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: AppTheme.spaceXxl),
 
-          // Email Field
-          _buildInputField(
+          AppInputField(
             controller: _emailController,
             label: isFr ? 'E-mail ou nom d\'utilisateur' : 'Email or Username',
             icon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppTheme.spaceLg),
 
-          // Password Field
-          _buildInputField(
+          AppInputField(
             controller: _passwordController,
             label: isFr ? 'Mot de passe' : 'Password',
             icon: Icons.lock_outline,
-            isPassword: true,
+            obscureText: _isObscure,
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isObscure ? Icons.visibility_off : Icons.visibility,
+                color: Colors.grey.shade500,
+                size: 20,
+              ),
+              onPressed: () => setState(() => _isObscure = !_isObscure),
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppTheme.spaceMd),
 
-          // Forgot Password
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ForgotPasswordPage()),
-                );
-              },
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ForgotPasswordPage()),
+              ),
               style: TextButton.styleFrom(
-                foregroundColor: Colors.blueAccent,
+                foregroundColor: AppColors.primary,
                 padding: EdgeInsets.zero,
               ),
               child: Text(
                 isFr ? 'Mot de passe oublié ?' : 'Forgot Password?',
-                style: const TextStyle(
+                style: AppTheme.labelStyle.copyWith(
+                  color: AppColors.primary,
                   fontWeight: FontWeight.w600,
-                  fontSize: 14,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppTheme.spaceXxl),
 
-          // Login Button
-          _buildLoginButton(),
+          AppPrimaryButton(
+            label: isFr ? 'Se connecter' : 'Sign In',
+            icon: Icons.login_rounded,
+            isLoading: _isLoading,
+            onPressed: _handleLogin,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildInputField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    TextInputType? keyboardType,
-    bool isPassword = false,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: isPassword ? _isObscure : false,
-        keyboardType: keyboardType,
-        style: const TextStyle(fontSize: 16),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 15),
-          prefixIcon: Icon(icon, color: Colors.blueAccent, size: 22),
-          suffixIcon: isPassword
-              ? IconButton(
-                  icon: Icon(
-                    _isObscure ? Icons.visibility_off : Icons.visibility,
-                    color: Colors.grey.shade500,
-                    size: 22,
-                  ),
-                  onPressed: () {
-                    setState(() => _isObscure = !_isObscure);
-                  },
-                )
-              : null,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 18,
-          ),
-          floatingLabelBehavior: FloatingLabelBehavior.auto,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoginButton() {
-    return SizedBox(
-      height: 56,
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : _handleLogin,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blueAccent,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          elevation: 0,
-          disabledBackgroundColor: Colors.blueAccent.withAlpha(150),
-        ),
-        child: _isLoading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2.5,
-                ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.login_rounded, size: 22),
-                  const SizedBox(width: 10),
-                  Text(
-                    isFr ? 'Se connecter' : 'Sign In',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-
-  Widget _buildSignUpLink() {
+  Widget _buildFooter() {
     return Column(
       children: [
         Row(
           children: [
             Expanded(child: Divider(color: Colors.grey.shade300)),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                isFr ? 'ou' : 'or',
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceLg),
+              child: Text(isFr ? 'ou' : 'or', style: AppTheme.bodySecondaryStyle),
             ),
             Expanded(child: Divider(color: Colors.grey.shade300)),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppTheme.spaceXl),
 
-        // Sign Up Button
-        OutlinedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const SignupPage()),
-            );
-          },
-          style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.blueAccent,
-            side: const BorderSide(color: Colors.blueAccent, width: 1.5),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.person_add_outlined, size: 22),
-              const SizedBox(width: 10),
-              Text(
-                isFr ? 'Créer un nouveau compte' : 'Create New Account',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-            ],
+        AppOutlineButton(
+          label: isFr ? 'Créer un nouveau compte' : 'Create New Account',
+          icon: Icons.person_add_outlined,
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SignupPage()),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppTheme.spaceLg),
 
-        // Skip for now
         TextButton(
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const HomePage(isLoggedIn: false),
-              ),
-            );
-          },
+          onPressed: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomePage(isLoggedIn: false)),
+          ),
           child: Text(
             isFr ? 'Continuer en tant qu\'invité' : 'Continue as Guest',
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+            style: AppTheme.bodySecondaryStyle,
           ),
         ),
       ],

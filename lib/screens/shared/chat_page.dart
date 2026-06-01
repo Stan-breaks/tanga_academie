@@ -322,9 +322,20 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           setState(() {
             _messages.removeWhere((m) => m.id == tempMessage.id);
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(isFr ? 'Échec de l\'envoi du message' : 'Failed to send message')),
-          );
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(SnackBar(
+              content: Row(children: [
+                const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Text(isFr ? 'Échec de l\'envoi du message' : 'Failed to send message'),
+              ]),
+              backgroundColor: Colors.red.shade600,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              margin: const EdgeInsets.all(16),
+              duration: const Duration(seconds: 3),
+            ));
         }
       }
     } catch (e) {
@@ -334,9 +345,20 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         setState(() {
           _messages.removeWhere((m) => m.id == tempMessage.id);
         });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(isFr ? 'Erreur lors de l\'envoi du message' : 'Error sending message')));
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(
+            content: Row(children: [
+              const Icon(Icons.error_outline, color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Text(isFr ? 'Erreur lors de l\'envoi du message' : 'Error sending message'),
+            ]),
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 3),
+          ));
       }
     }
   }
@@ -448,7 +470,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 1,
+        elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         title: Row(
@@ -537,9 +559,20 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           IconButton(
             icon: const Icon(Icons.more_vert),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(isFr ? 'Options de chat bientôt disponibles !' : 'Chat options coming soon!')),
-              );
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(SnackBar(
+                  content: Row(children: [
+                    const Icon(Icons.info_outline, color: Colors.white, size: 20),
+                    const SizedBox(width: 10),
+                    Text(isFr ? 'Options de chat bientôt disponibles !' : 'Chat options coming soon!'),
+                  ]),
+                  backgroundColor: Colors.blueAccent,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  margin: const EdgeInsets.all(16),
+                  duration: const Duration(seconds: 3),
+                ));
             },
           ),
         ],

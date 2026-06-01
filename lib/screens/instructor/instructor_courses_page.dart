@@ -138,7 +138,7 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${isFr ? 'Erreur : ' : 'Error: '}${e.toString()}'),
+              content: Text(isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.'),
               backgroundColor: AppColors.error,
             ),
           );

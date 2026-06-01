@@ -8,7 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class CourseDetailsPage extends StatefulWidget {
-  final Map<String, dynamic>? course;
+  final Map<String, dynamic> course;
 
   const CourseDetailsPage({super.key, required this.course});
 
@@ -47,7 +47,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
 
       final dio = Dio();
       final response = await dio.get(
-        '${ApiConfig.baseUrl}/api/payments/check-access/${widget.course!["_id"]}',
+        '${ApiConfig.baseUrl}/api/payments/check-access/${widget.course["_id"]}',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
@@ -173,17 +173,27 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => CourseLearnPage(courseId: widget.course!["_id"]),
+        builder: (_) => CourseLearnPage(courseId: widget.course["_id"]),
       ),
     );
   }
 
-  void _showSnackBar(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-    }
+  void _showSnackBar(String message, {bool isError = true}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Row(children: [
+          Icon(isError ? Icons.error_outline : Icons.info_outline, color: Colors.white, size: 20),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
+        ]),
+        backgroundColor: isError ? Colors.red.shade600 : Colors.blueAccent,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 4),
+      ));
   }
 
   void _navigateToLogin(String message) {
@@ -253,14 +263,14 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
       body: CustomScrollView(
         slivers: [
           // App Bar with Course Banner
-          _buildAppBar(widget.course!),
+          _buildAppBar(widget.course),
 
           // Course Details Content
           SliverToBoxAdapter(
             child: Column(
               children: [
-                _buildCourseHeader(widget.course!),
-                _buildPriceAndEnrollment(widget.course!),
+                _buildCourseHeader(widget.course),
+                _buildPriceAndEnrollment(widget.course),
               ],
             ),
           ),
@@ -293,9 +303,9 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildOverviewTab(widget.course!),
-                _buildCurriculumTab(widget.course!),
-                _buildReviewsTab(widget.course!),
+                _buildOverviewTab(widget.course),
+                _buildCurriculumTab(widget.course),
+                _buildReviewsTab(widget.course),
               ],
             ),
           ),

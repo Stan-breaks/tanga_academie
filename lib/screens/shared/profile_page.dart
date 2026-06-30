@@ -853,8 +853,79 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ],
               ),
+              const SizedBox(height: 32),
+
+              // Language picker
+              _buildGuestLanguagePicker(),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuestLanguagePicker() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: Divider(color: Colors.grey.shade300)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Icon(Icons.translate_rounded, color: Colors.grey.shade400, size: 18),
+            ),
+            Expanded(child: Divider(color: Colors.grey.shade300)),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildLangChip('en', '🇬🇧', 'English'),
+            const SizedBox(width: 12),
+            _buildLangChip('fr', '🇫🇷', 'Français'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLangChip(String code, String flag, String label) {
+    final isSelected = currentLanguage == code;
+    return GestureDetector(
+      onTap: () async {
+        await setLanguage(code);
+        if (mounted) setState(() {});
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blueAccent.withAlpha(20) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Colors.blueAccent : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(flag, style: const TextStyle(fontSize: 20)),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected ? Colors.blueAccent : Colors.black87,
+              ),
+            ),
+            if (isSelected) ...[
+              const SizedBox(width: 6),
+              const Icon(Icons.check_circle, color: Colors.blueAccent, size: 16),
+            ],
+          ],
         ),
       ),
     );

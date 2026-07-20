@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/screens/student/course_learn_page.dart';
+import 'package:tanga_acadamie/screens/student/lesson_video_player_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
@@ -17,23 +18,34 @@ class CourseDetailsPage extends StatefulWidget {
 }
 
 class _CourseDetailsPageState extends State<CourseDetailsPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
   bool _hasAccess = false;
   bool _loading = false;
   bool _checkingAccess = true;
+  bool _pendingPayment = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addObserver(this);
     _checkCourseAccess();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tabController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _pendingPayment && !_hasAccess) {
+      _pendingPayment = false;
+      _checkCourseAccess();
+    }
   }
 
   Future<void> _checkCourseAccess() async {
@@ -163,6 +175,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     );
 
     if (await canLaunchUrl(uri)) {
+      _pendingPayment = true;
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       _showSnackBar('Could not launch payment gateway');
@@ -874,6 +887,65 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     );
   }
 
+  List<Map<String, dynamic>> _buildFlatLessonList(Map<String, dynamic> course) {
+    final chapters = course['chapters'] as List? ?? [];
+    final result = <Map<String, dynamic>>[];
+    for (final chapter in chapters) {
+      final lessons = chapter['lessons'] as List? ?? [];
+      for (final lesson in lessons) {
+        result.add({
+          'chapter': chapter as Map<String, dynamic>,
+          'lesson': lesson as Map<String, dynamic>,
+        });
+      }
+    }
+    return result;
+  }
+
+  void _openLesson(
+    Map<String, dynamic> course,
+    Map<String, dynamic> chapter,
+    Map<String, dynamic> lesson,
+  ) {
+    final flat = _buildFlatLessonList(course);
+    final lessonId = lesson['_id']?.toString() ?? lesson['id']?.toString() ?? '';
+    final idx = flat.indexWhere((e) {
+      final l = e['lesson'] as Map<String, dynamic>;
+      return l['_id']?.toString() == lessonId || l['id']?.toString() == lessonId;
+    });
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LessonVideoPlayerPage(
+          lesson: lesson,
+          chapter: chapter,
+          courseId: widget.course['_id']?.toString() ?? '',
+          onNext: idx >= 0 && idx < flat.length - 1
+              ? () {
+                  Navigator.pop(context);
+                  _openLesson(
+                    course,
+                    flat[idx + 1]['chapter'] as Map<String, dynamic>,
+                    flat[idx + 1]['lesson'] as Map<String, dynamic>,
+                  );
+                }
+              : null,
+          onPrevious: idx > 0
+              ? () {
+                  Navigator.pop(context);
+                  _openLesson(
+                    course,
+                    flat[idx - 1]['chapter'] as Map<String, dynamic>,
+                    flat[idx - 1]['lesson'] as Map<String, dynamic>,
+                  );
+                }
+              : null,
+        ),
+      ),
+    );
+  }
+
   Widget _buildCurriculumTab(Map<String, dynamic> course) {
     final chapters = course['chapters'] as List<dynamic>? ?? [];
 
@@ -890,12 +962,12 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
       itemCount: chapters.length,
       itemBuilder: (context, index) {
         final chapter = chapters[index];
-        return _buildChapterCard(chapter, index + 1);
+        return _buildChapterCard(chapter, index + 1, course);
       },
     );
   }
 
-  Widget _buildChapterCard(Map<String, dynamic> chapter, int chapterNumber) {
+  Widget _buildChapterCard(Map<String, dynamic> chapter, int chapterNumber, Map<String, dynamic> course) {
     final lessons = chapter['lessons'] as List<dynamic>? ?? [];
     final isLocked = chapter['isLockedUntilQuizPass'] ?? false;
 
@@ -921,7 +993,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
         ),
         subtitle: Text('${lessons.length} ${isFr ? 'leçons' : 'lessons'}'),
         children: lessons.asMap().entries.map((entry) {
-          return _buildLessonTile(entry.value, entry.key + 1, isLocked);
+          return _buildLessonTile(entry.value, entry.key + 1, isLocked, chapter, course);
         }).toList(),
       ),
     );
@@ -931,6 +1003,8 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     Map<String, dynamic> lesson,
     int lessonNumber,
     bool isLocked,
+    Map<String, dynamic> chapter,
+    Map<String, dynamic> course,
   ) {
     final hasVideo = lesson['video'] != null;
     final hasQuiz = lesson['quiz'] != null;
@@ -966,7 +1040,16 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
       onTap: isLocked
           ? null
           : () {
-              // TODO: Navigate to lesson
+              if (_hasAccess) {
+                _openLesson(course, chapter, lesson);
+              } else {
+                _showSnackBar(
+                  isFr
+                      ? 'Inscrivez-vous au cours pour accéder à cette leçon'
+                      : 'Enroll in this course to access this lesson',
+                  isError: false,
+                );
+              }
             },
     );
   }

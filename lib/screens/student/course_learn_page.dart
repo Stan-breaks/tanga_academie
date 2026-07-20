@@ -66,6 +66,14 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     } catch (_) {}
   }
 
+  void _onLessonComplete() {
+    _loadProgress();
+    // Re-fetch course so chapter lock states (isLockedUntilQuizPass) update after quiz pass
+    setState(() {
+      _courseFuture = fetchCourse(widget.courseId);
+    });
+  }
+
   List<Map<String, dynamic>> _buildFlatLessonList(
     Map<String, dynamic> course,
   ) {
@@ -104,9 +112,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
           lesson: lesson,
           chapter: chapter,
           courseId: widget.courseId,
-          onComplete: () {
-            _loadProgress();
-          },
+          onComplete: _onLessonComplete,
           onNext: idx >= 0 && idx < flat.length - 1
               ? () {
                   Navigator.pop(context);

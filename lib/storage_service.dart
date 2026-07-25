@@ -47,18 +47,18 @@ Future<String?> getToken() async {
 Future<Map<String, dynamic>> getUser() async {
   var box = await Hive.openBox("authBox");
   final user = <String, dynamic>{
-    "userId": await box.get("userId"),
-    "firstName": await box.get("firstName"),
-    "lastName": await box.get("lastName"),
-    "username": await box.get("username"),
-    "email": await box.get("email"),
-    "role": await box.get("role"),
-    "isVerified": await box.get("isVerified"),
-    "isActive": await box.get("isActive"),
-    "profile": await box.get("profile"),
-    "phoneNumber": await box.get("phoneNumber"),
-    "skill": await box.get("skill"),
-    "bio": await box.get("bio"),
+    "userId": box.get("userId"),
+    "firstName": box.get("firstName"),
+    "lastName": box.get("lastName"),
+    "username": box.get("username"),
+    "email": box.get("email"),
+    "role": box.get("role"),
+    "isVerified": box.get("isVerified"),
+    "isActive": box.get("isActive"),
+    "profile": box.get("profile"),
+    "phoneNumber": box.get("phoneNumber"),
+    "skill": box.get("skill"),
+    "bio": box.get("bio"),
   };
   await box.close();
   return user;
@@ -67,19 +67,6 @@ Future<Map<String, dynamic>> getUser() async {
 
 Future<void> logout() async {
   var box = await Hive.openBox("authBox");
-  await box.delete("jwt");
-  await box.delete("refreshToken");
-  await box.delete("userId");
-  await box.delete("role");
-  await box.delete("email");
-  await box.delete("firstName");
-  await box.delete("lastName");
-  await box.delete("username");
-  await box.delete("isVerified");
-  await box.delete("isActive");
-  await box.delete("profile");
-  await box.delete("phoneNumber");
-  await box.delete("skill");
-  await box.delete("bio");
+  await box.clear();
   await box.close();
 }

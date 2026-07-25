@@ -141,7 +141,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         title: Text(
-          isFr ? 'Quiz' : 'Quiz',
+          'Quiz',
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.white,
@@ -435,46 +435,37 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
     );
   }
 
-  Widget _buildNoAttemptScreen() {
+  Widget _buildInfoScreen({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.lock_clock, size: 72, color: Colors.orange.shade400),
-            const SizedBox(height: 24),
+            Icon(icon, size: 64, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
             Text(
-              isFr
-                  ? 'Tentative non autorisée'
-                  : 'No More Attempts Allowed',
+              title,
               style: const TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(
-              isFr
-                  ? 'Vous avez épuisé vos tentatives pour ce quiz.'
-                  : 'You have used all your attempts for this quiz.',
-              style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+              subtitle,
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
             OutlinedButton(
               onPressed: () => Navigator.pop(context),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 14,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
               child: Text(isFr ? 'Retour' : 'Go Back'),
             ),
           ],
@@ -483,44 +474,19 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
     );
   }
 
-  Widget _buildNoQuizScreen() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.quiz_outlined, size: 72, color: Colors.grey.shade400),
-          const SizedBox(height: 24),
-          Text(
-            isFr ? 'Aucun quiz disponible' : 'No Quiz Available',
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            isFr
-                ? 'Ce cours n\'a pas encore de quiz.'
-                : 'This lesson has no quiz yet.',
-            style: TextStyle(color: Colors.grey.shade600),
-          ),
-          const SizedBox(height: 32),
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 32,
-                vertical: 14,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Text(isFr ? 'Retour' : 'Go Back'),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildNoAttemptScreen() => _buildInfoScreen(
+        icon: Icons.lock_clock,
+        title: isFr ? 'Tentative non autorisée' : 'No More Attempts Allowed',
+        subtitle: isFr
+            ? 'Vous avez épuisé vos tentatives pour ce quiz.'
+            : 'You have used all your attempts for this quiz.',
+      );
+
+  Widget _buildNoQuizScreen() => _buildInfoScreen(
+        icon: Icons.quiz_outlined,
+        title: isFr ? 'Aucun quiz disponible' : 'No Quiz Available',
+        subtitle: isFr
+            ? 'Ce cours n\'a pas encore de quiz.'
+            : 'This lesson has no quiz yet.',
+      );
 }

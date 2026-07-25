@@ -249,15 +249,15 @@ class _InstructorStudentProgressPageState
         foregroundColor: AppColors.textDark,
       ),
       body: _isLoading
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(color: AppColors.primary),
-                  SizedBox(height: 16),
+                  const CircularProgressIndicator(color: AppColors.primary),
+                  const SizedBox(height: 16),
                   Text(
-                    'Loading student progress...',
-                    style: TextStyle(color: AppColors.textLight),
+                    isFr ? 'Chargement de la progression...' : 'Loading student progress...',
+                    style: const TextStyle(color: AppColors.textLight),
                   ),
                 ],
               ),

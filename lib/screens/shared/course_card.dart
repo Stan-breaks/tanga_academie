@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class CourseCard extends StatelessWidget {
@@ -32,10 +32,7 @@ class CourseCard extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context, double imageHeight) {
-    final apiUrl = dotenv.env["API_URL"];
-    if (apiUrl == null) throw Exception("API_URL not found in .env file");
-
-    final String imageUrl = "$apiUrl${course['bannerImage']}";
+    final imageUrl = ApiConfig.getImageUrl(course['bannerImage']?.toString() ?? '');
     final bool hasValidImage =
         imageUrl.isNotEmpty && Uri.tryParse(imageUrl)?.hasAbsolutePath == true;
     final progress = ((course['progress'] ?? 0) / 100).clamp(0.0, 1.0);

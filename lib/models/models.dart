@@ -1,6 +1,4 @@
-/// Barrel file for model exports
-library;
-
+// Barrel file for model exports
 export 'message.dart';
 export 'chat_item.dart';
 export 'contact.dart';

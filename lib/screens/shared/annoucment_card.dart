@@ -12,6 +12,7 @@ class AnnouncementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final priority = announcement['priority'] ?? 'medium';
+    final priorityColor = _getPriorityColor(priority);
     final isRead = announcement['isRead'] ?? false;
     final createdAt = announcement['createdAt'];
 
@@ -21,7 +22,7 @@ class AnnouncementCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _getPriorityColor(priority).withAlpha(50),
+          color: priorityColor.withAlpha(50),
           width: 1.5,
         ),
         boxShadow: [
@@ -50,7 +51,7 @@ class AnnouncementCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: _getPriorityColor(priority).withAlpha(25),
+                      color: priorityColor.withAlpha(25),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(
@@ -59,7 +60,7 @@ class AnnouncementCard extends StatelessWidget {
                         Icon(
                           _getPriorityIcon(priority),
                           size: 14,
-                          color: _getPriorityColor(priority),
+                          color: priorityColor,
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -67,7 +68,7 @@ class AnnouncementCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: _getPriorityColor(priority),
+                            color: priorityColor,
                           ),
                         ),
                       ],
@@ -181,7 +182,11 @@ class AnnouncementCard extends StatelessWidget {
         initialChildSize: 0.6,
         maxChildSize: 0.9,
         minChildSize: 0.4,
-        builder: (_, scrollController) => Container(
+        builder: (_, scrollController) {
+          final detailPriorityColor = _getPriorityColor(
+            announcement['priority'] ?? 'medium',
+          );
+          return Container(
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -210,9 +215,7 @@ class AnnouncementCard extends StatelessWidget {
                             vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: _getPriorityColor(
-                              announcement['priority'] ?? 'medium',
-                            ).withAlpha(25),
+                            color: detailPriorityColor.withAlpha(25),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -222,9 +225,7 @@ class AnnouncementCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: _getPriorityColor(
-                                announcement['priority'] ?? 'medium',
-                              ),
+                              color: detailPriorityColor,
                             ),
                           ),
                         ),
@@ -286,7 +287,8 @@ class AnnouncementCard extends StatelessWidget {
               ),
             ],
           ),
-        ),
+        );
+        },
       ),
     );
   }

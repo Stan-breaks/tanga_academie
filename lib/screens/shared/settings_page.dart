@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:tanga_acadamie/api_config.dart';
@@ -229,11 +228,8 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() => _isSendingCode = true);
 
     try {
-      final apiUrl = dotenv.env['API_URL'];
-      if (apiUrl == null) throw Exception('API_URL not found');
-
       final response = await http.post(
-        Uri.parse('$apiUrl/api/auth/forgotPasswordCode'),
+        Uri.parse('${ApiConfig.baseUrl}/api/auth/forgotPasswordCode'),
         body: jsonEncode({'email': _email}),
         headers: {'Content-Type': 'application/json'},
       );
@@ -301,11 +297,8 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() => _isResettingPassword = true);
 
     try {
-      final apiUrl = dotenv.env['API_URL'];
-      if (apiUrl == null) throw Exception('API_URL not found');
-
       final response = await http.post(
-        Uri.parse('$apiUrl/api/auth/resetPassword'),
+        Uri.parse('${ApiConfig.baseUrl}/api/auth/resetPassword'),
         body: jsonEncode({
           'email': _email,
           'code': code,
@@ -675,44 +668,39 @@ class _SettingsPageState extends State<SettingsPage> {
     bool showCounter = false,
     TextInputType? keyboardType,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextField(
-          controller: controller,
-          maxLength: showCounter ? maxLength : null,
-          maxLines: maxLines,
-          keyboardType: keyboardType,
-          style: const TextStyle(fontSize: 14),
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-            prefixIcon: Icon(icon, size: 20, color: Colors.blueAccent),
-            filled: true,
-            fillColor: Colors.grey.shade50,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
-            counterText: showCounter ? null : '',
-          ),
-          inputFormatters: maxLength != null && !showCounter
-              ? [LengthLimitingTextInputFormatter(maxLength)]
-              : null,
+    return TextField(
+      controller: controller,
+      maxLength: showCounter ? maxLength : null,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      style: const TextStyle(fontSize: 14),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+        prefixIcon: Icon(icon, size: 20, color: Colors.blueAccent),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
-      ],
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        counterText: showCounter ? null : '',
+      ),
+      inputFormatters: maxLength != null && !showCounter
+          ? [LengthLimitingTextInputFormatter(maxLength)]
+          : null,
     );
   }
 

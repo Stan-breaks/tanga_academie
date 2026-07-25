@@ -62,6 +62,10 @@ class _StudentChatPageState extends State<StudentChatPage>
     _token = await getToken();
   }
 
+  void _setConnected(bool value) {
+    if (mounted) setState(() => _isConnected = value);
+  }
+
   void _initSocket() {
     if (_token == null) {
       return;
@@ -83,9 +87,7 @@ class _StudentChatPageState extends State<StudentChatPage>
 
       socket!.onConnect((_) {
         debugPrint('Socket connected');
-        if (mounted) {
-          setState(() => _isConnected = true);
-        }
+        _setConnected(true);
 
         socket!.emit('authenticate', {'userId': widget.userId, 'token': _token});
         socket!.emit('join_chat', widget.chatId);
@@ -93,16 +95,12 @@ class _StudentChatPageState extends State<StudentChatPage>
 
       socket!.onDisconnect((_) {
         debugPrint('Socket disconnected');
-        if (mounted) {
-          setState(() => _isConnected = false);
-        }
+        _setConnected(false);
       });
 
       socket!.onConnectError((error) {
         debugPrint('Socket connection error: $error');
-        if (mounted) {
-          setState(() => _isConnected = false);
-        }
+        _setConnected(false);
       });
 
       // Listen for new messages on multiple events for compatibility
@@ -267,10 +265,6 @@ class _StudentChatPageState extends State<StudentChatPage>
         }
 
         _scrollToBottom();
-
-        Future.delayed(const Duration(milliseconds: 500), () {
-          _fetchChatMessages();
-        });
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

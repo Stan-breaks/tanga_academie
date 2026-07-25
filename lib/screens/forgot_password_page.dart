@@ -27,7 +27,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   bool _isPasswordObscure = true;
   bool _isConfirmPasswordObscure = true;
   bool _codeSent = false;
-  String _userEmail = '';
 
   void _showError(String message) {
     ScaffoldMessenger.of(context)
@@ -111,7 +110,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       if (response.statusCode == 200) {
         setState(() {
           _codeSent = true;
-          _userEmail = email;
         });
         _showSuccess(isFr ? 'Code de vérification envoyé à votre email' : 'Verification code sent to your email');
       } else {
@@ -168,7 +166,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       final response = await http.post(
         Uri.parse('$apiUrl/api/auth/resetPassword'),
         body: jsonEncode({
-          'email': _userEmail,
+          'email': _emailController.text.trim(),
           'code': code,
           'newPassword': newPassword,
         }),
@@ -272,8 +270,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               Text(
                 _codeSent
                     ? (isFr
-                          ? 'Entrez le code à 6 chiffres envoyé à $_userEmail et votre nouveau mot de passe'
-                          : 'Enter the 6-digit code sent to $_userEmail and your new password')
+                          ? 'Entrez le code à 6 chiffres envoyé à ${_emailController.text} et votre nouveau mot de passe'
+                          : 'Enter the 6-digit code sent to ${_emailController.text} and your new password')
                     : (isFr
                           ? 'Pas de soucis! Entrez votre adresse email et nous vous enverrons un code de vérification.'
                           : 'No worries! Enter your email and we\'ll send you a verification code.'),
@@ -483,32 +481,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
               ],
 
-              const SizedBox(height: 20),
-
-              // Back to Login
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.arrow_back, size: 16, color: Colors.grey[600]),
-                  TextButton(
-                    onPressed: () => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginPage()),
-                    ),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                    ),
-                    child: Text(
-                      isFr ? 'Retour à la connexion' : 'Back to Login',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.blueAccent,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         ),

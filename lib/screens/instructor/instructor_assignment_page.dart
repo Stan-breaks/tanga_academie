@@ -66,7 +66,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
           _isLoading = false;
         });
         // If no course selected yet, fetch all instructor assignments
-        _fetchAllAssignments();
+        _fetchAssignments();
       } else {
         setState(() {
           _errorMessage = 'Failed to load courses';
@@ -81,19 +81,22 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
     }
   }
 
-  // ── Fetch ALL assignments across instructor's courses ─────────────
-  Future<void> _fetchAllAssignments() async {
+  // ── Fetch assignments (all courses or a specific one) ────────────
+  Future<void> _fetchAssignments([String? courseId]) async {
     setState(() => _isLoadingAssignments = true);
     try {
       final token = await getToken();
+      final url = courseId != null
+          ? '${ApiConfig.baseUrl}/api/courses/$courseId/assignments'
+          : '${ApiConfig.baseUrl}/api/courses/instructor/assignments';
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/courses/instructor/assignments'),
+        Uri.parse(url),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
-
+      if (!mounted) return;
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
@@ -102,50 +105,10 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
         });
         _animController.forward(from: 0);
       } else {
-        setState(() {
-          _assignments = [];
-          _isLoadingAssignments = false;
-        });
+        setState(() { _assignments = []; _isLoadingAssignments = false; });
       }
-    } catch (e) {
-      setState(() {
-        _assignments = [];
-        _isLoadingAssignments = false;
-      });
-    }
-  }
-
-  // ── Fetch assignments for a specific course ───────────────────────
-  Future<void> _fetchCourseAssignments(String courseId) async {
-    setState(() => _isLoadingAssignments = true);
-    try {
-      final token = await getToken();
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/courses/$courseId/assignments'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          _assignments = data['data'] ?? [];
-          _isLoadingAssignments = false;
-        });
-        _animController.forward(from: 0);
-      } else {
-        setState(() {
-          _assignments = [];
-          _isLoadingAssignments = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _assignments = [];
-        _isLoadingAssignments = false;
-      });
+    } catch (_) {
+      if (mounted) setState(() { _assignments = []; _isLoadingAssignments = false; });
     }
   }
 
@@ -700,11 +663,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                   setState(() {
                     _selectedCourseId = value;
                   });
-                  if (value == null) {
-                    _fetchAllAssignments();
-                  } else {
-                    _fetchCourseAssignments(value);
-                  }
+                  _fetchAssignments(value);
                 },
               ),
             ),
@@ -793,13 +752,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
 
     return RefreshIndicator(
       color: AppColors.primary,
-      onRefresh: () async {
-        if (_selectedCourseId != null) {
-          await _fetchCourseAssignments(_selectedCourseId!);
-        } else {
-          await _fetchAllAssignments();
-        }
-      },
+      onRefresh: () => _fetchAssignments(_selectedCourseId),
       child: FadeTransition(
         opacity: _fadeAnim,
         child: ListView.builder(

@@ -694,9 +694,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
   ) {
     final hasVideo = lesson['video'] != null;
     final hasQuiz = lesson['quiz'] != null;
-    final videoId =
-        lesson['video']?['_id']?.toString() ??
-        lesson['video']?['id']?.toString();
+    final videoId = _videoIdOf(lesson);
     final isCompleted =
         videoId != null && _completedVideoIds.contains(videoId);
 
@@ -806,9 +804,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     if (chapters.isEmpty) return false;
     for (final chapter in chapters) {
       for (final lesson in (chapter['lessons'] as List? ?? [])) {
-        final videoId =
-            lesson['video']?['_id']?.toString() ??
-            lesson['video']?['id']?.toString();
+        final videoId = _videoIdOf(lesson as Map<String, dynamic>);
         if (videoId != null && !_completedVideoIds.contains(videoId)) {
           return false;
         }
@@ -1439,9 +1435,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     for (final chapter in chapters) {
       final lessons = chapter['lessons'] as List? ?? [];
       for (final lesson in lessons) {
-        final videoId =
-            lesson['video']?['_id']?.toString() ??
-            lesson['video']?['id']?.toString();
+        final videoId = _videoIdOf(lesson as Map<String, dynamic>);
         if (videoId == null || !_completedVideoIds.contains(videoId)) {
           return true;
         }
@@ -1459,13 +1453,11 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     for (final chapter in chapters) {
       final lessons = chapter['lessons'] as List? ?? [];
       for (final lesson in lessons) {
-        final videoId =
-            lesson['video']?['_id']?.toString() ??
-            lesson['video']?['id']?.toString();
+        final videoId = _videoIdOf(lesson as Map<String, dynamic>);
         if (videoId == null || !_completedVideoIds.contains(videoId)) {
           return {
             'chapter': chapter as Map<String, dynamic>,
-            'lesson': lesson as Map<String, dynamic>,
+            'lesson': lesson,
           };
         }
       }
@@ -1486,6 +1478,9 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     final minutes = (duration / 60).floor();
     return '${minutes}min';
   }
+
+  String? _videoIdOf(Map<String, dynamic> lesson) =>
+      lesson['video']?['_id']?.toString() ?? lesson['video']?['id']?.toString();
 }
 
 // Sticky Tab Bar Delegate

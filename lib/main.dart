@@ -12,6 +12,7 @@ import 'package:tanga_acadamie/screens/instructor/instructor_student_progress_pa
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/auth_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 Future<void> main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +52,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Tanga Academie',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         useMaterial3: true,
       ),
       home: HomePage(isLoggedIn: isLoggedIn, user: user),

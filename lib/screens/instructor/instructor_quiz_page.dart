@@ -232,30 +232,16 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
         };
       }).toList();
 
-      final method = _existingQuiz ? 'PUT' : 'POST';
       final uri = Uri.parse(
           '${ApiConfig.baseUrl}/api/quizes/$_selectedCourseId/quiz/$_selectedLessonId');
-
-      http.Response response;
-      if (method == 'PUT') {
-        response = await http.put(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: json.encode({'questions': questionsPayload}),
-        );
-      } else {
-        response = await http.post(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: json.encode({'questions': questionsPayload}),
-        );
-      }
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      };
+      final body = json.encode({'questions': questionsPayload});
+      final response = _existingQuiz
+          ? await http.put(uri, headers: headers, body: body)
+          : await http.post(uri, headers: headers, body: body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         setState(() => _existingQuiz = true);
@@ -804,7 +790,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  isFr ? 'Question ${index + 1}' : 'Question ${index + 1}',
+                  'Question ${index + 1}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
@@ -877,7 +863,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isFr ? 'Options' : 'Options',
+                  'Options',
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,

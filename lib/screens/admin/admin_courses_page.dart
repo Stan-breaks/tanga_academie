@@ -56,7 +56,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
 
   int _getCategoryCount(String category) {
     if (category == 'all') return _courses.length;
-    return _courses.where((c) => c['status'] == category).toList().length;
+    return _courses.where((c) => c['status'] == category).length;
   }
 
   Future<void> _updateStatus(String courseId, String newStatus) async {

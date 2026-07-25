@@ -119,11 +119,6 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
               : 'Successfully enrolled in free course!',
         );
         setState(() => _hasAccess = true);
-
-        await Future.delayed(const Duration(milliseconds: 1500));
-        setState(() {
-          _hasAccess = true;
-        });
       }
     } catch (error) {
       _showSnackBar('${isFr ? 'Échec de l\'inscription' : 'Failed to enroll'}: ${error.toString()}');

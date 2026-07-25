@@ -554,12 +554,12 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
             const SizedBox(height: 12),
             Row(
               children: [
-                _buildCourseInfo(
+                _buildInfoRow(
                   Icons.people_outline,
                   'Students: ${course['enrollmentCount'] ?? 0}',
                 ),
                 const SizedBox(width: 16),
-                _buildCourseInfo(
+                _buildInfoRow(
                   Icons.attach_money,
                   'Price: \$${course['price'] ?? 0}',
                 ),
@@ -571,8 +571,9 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
     );
   }
 
-  Widget _buildCourseInfo(IconData icon, String text) {
+  Widget _buildInfoRow(IconData icon, String text) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 16, color: Colors.grey.shade600),
         const SizedBox(width: 4),
@@ -629,16 +630,16 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
               spacing: 16,
               runSpacing: 8,
               children: [
-                _buildAssignmentInfo(
+                _buildInfoRow(
                   Icons.assignment_outlined,
                   'Submissions: ${assignment['submissionCount'] ?? 0}',
                 ),
-                _buildAssignmentInfo(
+                _buildInfoRow(
                   Icons.stars_outlined,
                   'Max Points: ${assignment['maxPoints'] ?? 'Not set'}',
                 ),
                 if (dueDateStr != null)
-                  _buildAssignmentInfo(
+                  _buildInfoRow(
                     Icons.calendar_today_outlined,
                     'Due: $dueDateStr',
                   ),
@@ -650,16 +651,6 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
     );
   }
 
-  Widget _buildAssignmentInfo(IconData icon, String text) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 16, color: Colors.grey.shade600),
-        const SizedBox(width: 4),
-        Text(text, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
-      ],
-    );
-  }
 
   Widget _buildEmptyState(String title, String subtitle, IconData icon) {
     return Container(

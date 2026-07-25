@@ -87,8 +87,12 @@ class AdminBlogService {
     return Blog.fromJson(data['blog']);
   }
 
-  /// Create a new blog post (multipart for image upload).
-  static Future<Blog> createBlog({
+  /// Shared multipart helper used by [createBlog] and [updateBlog].
+  static Future<Blog> _submitBlog({
+    required String method,
+    required String url,
+    required int successCode,
+    required String failureMessage,
     required String title,
     required String content,
     String excerpt = '',
@@ -101,14 +105,9 @@ class AdminBlogService {
     File? featuredImage,
   }) async {
     final token = await getToken();
-    if (token == null || token.isEmpty) {
-      throw Exception('Not authenticated');
-    }
+    if (token == null || token.isEmpty) throw Exception('Not authenticated');
 
-    final request = http.MultipartRequest(
-      'POST',
-      Uri.parse('$_baseUrl/api/admin/blogs'),
-    );
+    final request = http.MultipartRequest(method, Uri.parse(url));
     request.headers['Authorization'] = 'Bearer $token';
     request.fields['title'] = title;
     request.fields['content'] = content;
@@ -133,17 +132,42 @@ class AdminBlogService {
     final streamedRes = await request.send();
     final res = await http.Response.fromStream(streamedRes);
 
-    if (res.statusCode != 201) {
-      throw Exception('Failed to create blog: ${res.statusCode}');
+    if (res.statusCode != successCode) {
+      throw Exception('$failureMessage: ${res.statusCode}');
     }
-
     final data = jsonDecode(res.body);
-    if (data['success'] != true) {
-      throw Exception(data['message'] ?? 'Failed to create blog');
-    }
-
+    if (data['success'] != true) throw Exception(data['message'] ?? failureMessage);
     return Blog.fromJson(data['blog']);
   }
+
+  /// Create a new blog post (multipart for image upload).
+  static Future<Blog> createBlog({
+    required String title,
+    required String content,
+    String excerpt = '',
+    String category = '',
+    String tags = '',
+    String status = 'draft',
+    String metaTitle = '',
+    String metaDescription = '',
+    bool isCommentEnabled = true,
+    File? featuredImage,
+  }) => _submitBlog(
+        method: 'POST',
+        url: '$_baseUrl/api/admin/blogs',
+        successCode: 201,
+        failureMessage: 'Failed to create blog',
+        title: title,
+        content: content,
+        excerpt: excerpt,
+        category: category,
+        tags: tags,
+        status: status,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
+        isCommentEnabled: isCommentEnabled,
+        featuredImage: featuredImage,
+      );
 
   /// Update an existing blog post (multipart for image upload).
   static Future<Blog> updateBlog({
@@ -158,51 +182,22 @@ class AdminBlogService {
     String metaDescription = '',
     bool isCommentEnabled = true,
     File? featuredImage,
-  }) async {
-    final token = await getToken();
-    if (token == null || token.isEmpty) {
-      throw Exception('Not authenticated');
-    }
-
-    final request = http.MultipartRequest(
-      'PUT',
-      Uri.parse('$_baseUrl/api/admin/blogs/$id'),
-    );
-    request.headers['Authorization'] = 'Bearer $token';
-    request.fields['title'] = title;
-    request.fields['content'] = content;
-    request.fields['excerpt'] = excerpt;
-    request.fields['category'] = category;
-    request.fields['tags'] = tags;
-    request.fields['status'] = status;
-    request.fields['metaTitle'] = metaTitle;
-    request.fields['metaDescription'] = metaDescription;
-    request.fields['isCommentEnabled'] = isCommentEnabled.toString();
-
-    if (featuredImage != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'featuredImage',
-          featuredImage.path,
-          contentType: _resolveMediaType(featuredImage.path),
-        ),
+  }) => _submitBlog(
+        method: 'PUT',
+        url: '$_baseUrl/api/admin/blogs/$id',
+        successCode: 200,
+        failureMessage: 'Failed to update blog',
+        title: title,
+        content: content,
+        excerpt: excerpt,
+        category: category,
+        tags: tags,
+        status: status,
+        metaTitle: metaTitle,
+        metaDescription: metaDescription,
+        isCommentEnabled: isCommentEnabled,
+        featuredImage: featuredImage,
       );
-    }
-
-    final streamedRes = await request.send();
-    final res = await http.Response.fromStream(streamedRes);
-
-    if (res.statusCode != 200) {
-      throw Exception('Failed to update blog: ${res.statusCode}');
-    }
-
-    final data = jsonDecode(res.body);
-    if (data['success'] != true) {
-      throw Exception(data['message'] ?? 'Failed to update blog');
-    }
-
-    return Blog.fromJson(data['blog']);
-  }
 
   /// Delete a blog post by ID.
   static Future<void> deleteBlog(String id) async {

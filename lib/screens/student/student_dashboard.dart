@@ -484,6 +484,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
   }
 
   Widget _buildStatsGrid(Map<String, dynamic> data) {
+    final courses = data['enrolledCourses']?['data'];
     return GridView.count(
       crossAxisCount: Responsive.adaptive(context, mobile: 2, tablet: 4),
       shrinkWrap: true,
@@ -494,7 +495,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
       children: [
         StatCard(
           title: isFr ? 'Cours inscrits' : 'Enrolled Courses',
-          value: "${data['enrolledCourses']?['data']?['all']?.length ?? 0}",
+          value: "${courses?['all']?.length ?? 0}",
           icon: Icons.library_books,
           gradientColors: [
             Colors.blueAccent.shade200,
@@ -503,14 +504,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
         ),
         StatCard(
           title: isFr ? 'Terminés' : 'Completed',
-          value:
-              "${data['enrolledCourses']?['data']?['completed']?.length ?? 0}",
+          value: "${courses?['completed']?.length ?? 0}",
           icon: Icons.check_circle,
           gradientColors: [Colors.green.shade400, Colors.green.shade700],
         ),
         StatCard(
           title: isFr ? 'En cours' : 'In Progress',
-          value: "${data['enrolledCourses']?['data']?['active']?.length ?? 0}",
+          value: "${courses?['active']?.length ?? 0}",
           icon: Icons.trending_up,
           gradientColors: [Colors.orange.shade400, Colors.deepOrange.shade600],
         ),

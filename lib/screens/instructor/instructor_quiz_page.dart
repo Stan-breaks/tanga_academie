@@ -3,6 +3,7 @@ import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/theme/app_colors.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -186,12 +187,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
 
   void _removeQuestion(int index) {
     if (_questions.length <= 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isFr ? 'Un quiz doit avoir au moins une question' : 'A quiz must have at least one question'),
-          backgroundColor: AppColors.warning,
-        ),
-      );
+      AppSnackBar.showError(context, isFr ? 'Un quiz doit avoir au moins une question' : 'A quiz must have at least one question');
       return;
     }
     setState(() {
@@ -246,12 +242,9 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
       if (response.statusCode == 200 || response.statusCode == 201) {
         setState(() => _existingQuiz = true);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                  _existingQuiz ? (isFr ? 'Quiz mis à jour avec succès' : 'Quiz updated successfully') : (isFr ? 'Quiz créé avec succès' : 'Quiz created successfully')),
-              backgroundColor: AppColors.success,
-            ),
+          AppSnackBar.showSuccess(
+            context,
+            _existingQuiz ? (isFr ? 'Quiz mis à jour avec succès' : 'Quiz updated successfully') : (isFr ? 'Quiz créé avec succès' : 'Quiz created successfully'),
           );
         }
       } else {
@@ -266,12 +259,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
 
   void _showError(String message) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppSnackBar.showError(context, message);
     }
   }
 

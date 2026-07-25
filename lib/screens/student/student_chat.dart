@@ -8,6 +8,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class StudentChatPage extends StatefulWidget {
   final String chatId;
@@ -267,48 +268,16 @@ class _StudentChatPageState extends State<StudentChatPage>
         _scrollToBottom();
       } else {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.error_outline, color: Colors.white),
-                SizedBox(width: 12),
-                Text(
-                  isFr
-                      ? 'Échec de l\'envoi du message'
-                      : 'Failed to send message',
-                ),
-              ],
-            ),
-            backgroundColor: Colors.red.shade600,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+        AppSnackBar.showError(
+          context,
+          isFr ? 'Échec de l\'envoi du message' : 'Failed to send message',
         );
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.error_outline, color: Colors.white),
-              SizedBox(width: 12),
-              Text(
-                isFr
-                    ? 'Erreur lors de l\'envoi du message'
-                    : 'Error sending message',
-              ),
-            ],
-          ),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
+      AppSnackBar.showError(
+        context,
+        isFr ? 'Erreur lors de l\'envoi du message' : 'Error sending message',
       );
     }
   }
@@ -578,15 +547,7 @@ class _StudentChatPageState extends State<StudentChatPage>
             borderRadius: BorderRadius.circular(12),
           ),
           onSelected: (value) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('$value ${isFr ? 'bientôt disponible !' : 'coming soon!'}'),
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            );
+            AppSnackBar.showSuccess(context, '$value ${isFr ? 'bientôt disponible !' : 'coming soon!'}');
           },
           itemBuilder: (context) => [
             PopupMenuItem(value: 'Clear chat', child: Text(isFr ? 'Effacer la discussion' : 'Clear chat')),

@@ -13,6 +13,7 @@ import 'package:tanga_acadamie/screens/student/assignment_submission_page.dart';
 import 'package:tanga_acadamie/screens/student/lesson_video_player_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class CourseLearnPage extends StatefulWidget {
   final String courseId;
@@ -152,16 +153,11 @@ class _CourseLearnPageState extends State<CourseLearnPage>
       await OpenFilex.open(filePath);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isFr
-                  ? 'Erreur de téléchargement. Vérifiez votre connexion.'
-                  : 'Download failed. Check your connection.',
-            ),
-            backgroundColor: Colors.red.shade400,
-            behavior: SnackBarBehavior.floating,
-          ),
+        AppSnackBar.showError(
+          context,
+          isFr
+              ? 'Erreur de téléchargement. Vérifiez votre connexion.'
+              : 'Download failed. Check your connection.',
         );
       }
     }
@@ -1002,27 +998,11 @@ class _CourseLearnPageState extends State<CourseLearnPage>
           borderRadius: BorderRadius.circular(14),
           onTap: () {
             if (!complete) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(Icons.lock, color: Colors.white, size: 18),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          isFr
-                              ? 'Terminez toutes les leçons pour débloquer le certificat'
-                              : 'Complete all lessons to unlock the certificate',
-                        ),
-                      ),
-                    ],
-                  ),
-                  backgroundColor: Colors.orange.shade700,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+              AppSnackBar.showError(
+                context,
+                isFr
+                    ? 'Terminez toutes les leçons pour débloquer le certificat'
+                    : 'Complete all lessons to unlock the certificate',
               );
               return;
             }

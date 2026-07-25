@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class VerificationPage extends StatefulWidget {
   final String email;
@@ -27,15 +28,11 @@ class _VerificationPageState extends State<VerificationPage> {
 
   void _showMessage(String message, {bool isError = true}) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red.shade600 : Colors.green.shade600,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
+    if (isError) {
+      AppSnackBar.showError(context, message);
+    } else {
+      AppSnackBar.showSuccess(context, message);
+    }
   }
 
   Future<void> _verifyToken() async {

@@ -7,6 +7,7 @@ import 'package:tanga_acadamie/screens/student/lesson_video_player_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class CourseDetailsPage extends StatefulWidget {
   final Map<String, dynamic> course;
@@ -188,20 +189,11 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
 
   void _showSnackBar(String message, {bool isError = true}) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-        content: Row(children: [
-          Icon(isError ? Icons.error_outline : Icons.info_outline, color: Colors.white, size: 20),
-          const SizedBox(width: 10),
-          Expanded(child: Text(message, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
-        ]),
-        backgroundColor: isError ? Colors.red.shade600 : Colors.blueAccent,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 4),
-      ));
+    if (isError) {
+      AppSnackBar.showError(context, message);
+    } else {
+      AppSnackBar.showSuccess(context, message);
+    }
   }
 
   void _navigateToLogin(String message) {

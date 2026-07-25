@@ -6,6 +6,7 @@ import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/theme/app_colors.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class EditCoursePage extends StatefulWidget {
   final Map<String, dynamic> course;
@@ -411,12 +412,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
       if (response.statusCode == 200) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(isFr ? 'Cours mis à jour avec succès !' : 'Course updated successfully!'),
-              backgroundColor: AppColors.success,
-            ),
-          );
+          AppSnackBar.showSuccess(context, isFr ? 'Cours mis à jour avec succès !' : 'Course updated successfully!');
           Navigator.pop(context, true); // Return true to indicate update
         }
       } else {

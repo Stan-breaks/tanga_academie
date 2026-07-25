@@ -5,6 +5,7 @@ import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/models/blog.dart';
 import 'package:tanga_acadamie/services/admin_blog_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 /// Create or edit a blog post.
 class AdminBlogFormPage extends StatefulWidget {
@@ -190,37 +191,18 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_isEditMode
-                ? (isFr
-                    ? 'Article mis à jour avec succès'
-                    : 'Blog updated successfully')
-                : (isFr
-                    ? 'Article créé avec succès'
-                    : 'Blog created successfully')),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            margin: const EdgeInsets.all(16),
-          ),
+        AppSnackBar.showSuccess(
+          context,
+          _isEditMode
+              ? (isFr ? 'Article mis à jour avec succès' : 'Blog updated successfully')
+              : (isFr ? 'Article créé avec succès' : 'Blog created successfully'),
         );
         Navigator.pop(context, true);
       }
     } catch (e) {
       setState(() => _isSaving = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${isFr ? 'Erreur' : 'Error'}: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            margin: const EdgeInsets.all(16),
-          ),
-        );
+        AppSnackBar.showError(context, '${isFr ? 'Erreur' : 'Error'}: $e');
       }
     }
   }

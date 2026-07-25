@@ -11,6 +11,7 @@ import 'package:tanga_acadamie/screens/verification_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/core.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -98,20 +99,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-        content: Row(children: [
-          const Icon(Icons.error_outline, color: Colors.white, size: 20),
-          const SizedBox(width: 10),
-          Expanded(child: Text(message, style: AppTheme.buttonTextStyle.copyWith(fontWeight: FontWeight.w500))),
-        ]),
-        backgroundColor: AppColors.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
-        margin: const EdgeInsets.all(AppTheme.spaceLg),
-        duration: const Duration(seconds: 4),
-      ));
+    AppSnackBar.showError(context, message);
   }
 
   @override

@@ -6,6 +6,7 @@ import 'package:tanga_acadamie/core/theme/app_colors.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class InstructorCoursesPage extends StatefulWidget {
   const InstructorCoursesPage({super.key});
@@ -116,32 +117,17 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
 
         if (response.statusCode == 200) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(isFr ? 'Cours supprimé avec succès' : 'Course deleted successfully'),
-                backgroundColor: AppColors.success,
-              ),
-            );
+            AppSnackBar.showSuccess(context, isFr ? 'Cours supprimé avec succès' : 'Course deleted successfully');
             _fetchCourses();
           }
         } else {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(isFr ? 'Échec de la suppression du cours' : 'Failed to delete course'),
-                backgroundColor: AppColors.error,
-              ),
-            );
+            AppSnackBar.showError(context, isFr ? 'Échec de la suppression du cours' : 'Failed to delete course');
           }
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.'),
-              backgroundColor: AppColors.error,
-            ),
-          );
+          AppSnackBar.showError(context, isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.');
         }
       }
     }
@@ -228,26 +214,15 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
       }
 
       if ((res.statusCode == 200 || res.statusCode == 201) && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              result == '__remove__'
-                  ? (isFr ? 'Lien Zoom supprimé' : 'Zoom link removed')
-                  : (isFr ? 'Lien Zoom enregistré' : 'Zoom link saved'),
-            ),
-            backgroundColor:
-                result == '__remove__' ? Colors.orange : Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
+        AppSnackBar.showSuccess(
+          context,
+          result == '__remove__'
+              ? (isFr ? 'Lien Zoom supprimé' : 'Zoom link removed')
+              : (isFr ? 'Lien Zoom enregistré' : 'Zoom link saved'),
         );
         _fetchCourses();
       } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(isFr ? 'Erreur' : 'Failed'),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        AppSnackBar.showError(context, isFr ? 'Erreur' : 'Failed');
       }
     } catch (_) {}
   }

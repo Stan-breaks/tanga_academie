@@ -6,6 +6,7 @@ import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/theme/app_colors.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class CreateCoursePage extends StatefulWidget {
   const CreateCoursePage({super.key});
@@ -334,12 +335,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(isFr ? 'Cours créé avec succès !' : 'Course created successfully!'),
-              backgroundColor: AppColors.success,
-            ),
-          );
+          AppSnackBar.showSuccess(context, isFr ? 'Cours créé avec succès !' : 'Course created successfully!');
           Navigator.pop(context);
         }
       } else {

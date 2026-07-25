@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/screens/shared/course_card.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class AdminCoursesPage extends StatefulWidget {
   const AdminCoursesPage({super.key});
@@ -64,36 +65,20 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
       await updateCourseStatus(courseId, newStatus);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isFr
-                  ? 'Cours ${newStatus == 'published' ? 'approuvé' : newStatus} avec succès !'
-                  : 'Course ${newStatus == 'published' ? 'approved' : newStatus} successfully!',
-            ),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.all(16),
-          ),
+        AppSnackBar.showSuccess(
+          context,
+          isFr
+              ? 'Cours ${newStatus == 'published' ? 'approuvé' : newStatus} avec succès !'
+              : 'Course ${newStatus == 'published' ? 'approved' : newStatus} successfully!',
         );
       }
 
       _fetchCourses();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${isFr ? 'Échec de la mise à jour du cours : ' : 'Failed to update course: '}$e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.all(16),
-          ),
+        AppSnackBar.showError(
+          context,
+          '${isFr ? 'Échec de la mise à jour du cours : ' : 'Failed to update course: '}$e',
         );
       }
     }

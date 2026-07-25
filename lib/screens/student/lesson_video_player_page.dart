@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
@@ -250,15 +251,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
             IconButton(
               icon: const Icon(Icons.settings, color: Colors.white70),
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(isFr ? 'Paramètres vidéo' : 'Video settings'),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                );
+                AppSnackBar.showSuccess(context, isFr ? 'Paramètres vidéo' : 'Video settings');
               },
             ),
           const SizedBox(width: 4),
@@ -384,12 +377,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                         final token = await getToken();
                                         if (token == null) {
                                           if (!context.mounted) return;
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text(isFr ? 'Non authentifié' : 'Not authenticated'),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
+                                          AppSnackBar.showError(context, isFr ? 'Non authentifié' : 'Not authenticated');
                                           setState(() => _isMarkingComplete = false);
                                           return;
                                         }
@@ -421,40 +409,15 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                             _isMarkingComplete = false;
                                           });
                                           widget.onComplete?.call();
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Row(
-                                                children: [
-                                                  const Icon(Icons.check_circle, color: Colors.white),
-                                                  const SizedBox(width: 12),
-                                                  Text(isFr ? 'Leçon terminée !' : 'Lesson completed!'),
-                                                ],
-                                              ),
-                                              backgroundColor: Colors.green.shade600,
-                                              behavior: SnackBarBehavior.floating,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                          );
+                                          AppSnackBar.showSuccess(context, isFr ? 'Leçon terminée !' : 'Lesson completed!');
                                         } else {
                                           setState(() => _isMarkingComplete = false);
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text(isFr ? 'Échec de la mise à jour' : 'Failed to mark complete'),
-                                              backgroundColor: Colors.red,
-                                            ),
-                                          );
+                                          AppSnackBar.showError(context, isFr ? 'Échec de la mise à jour' : 'Failed to mark complete');
                                         }
                                       } catch (e) {
                                         if (mounted) setState(() => _isMarkingComplete = false);
                                         if (!context.mounted) return;
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text(isFr ? 'Erreur réseau' : 'Network error'),
-                                            backgroundColor: Colors.red,
-                                          ),
-                                        );
+                                        AppSnackBar.showError(context, isFr ? 'Erreur réseau' : 'Network error');
                                       }
                                     },
                               icon: _isMarkingComplete

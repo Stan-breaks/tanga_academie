@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class AssignmentSubmissionPage extends StatefulWidget {
   final Map<String, dynamic> assignment;
@@ -96,16 +97,9 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
 
   Future<void> _submitAssignment() async {
     if (_selectedFiles.isEmpty && _noteController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isFr
-                ? 'Ajoutez des fichiers ou une note'
-                : 'Add files or a note first',
-          ),
-          backgroundColor: Colors.orange,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppSnackBar.showError(
+        context,
+        isFr ? 'Ajoutez des fichiers ou une note' : 'Add files or a note first',
       );
       return;
     }
@@ -145,34 +139,12 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
 
       if (res.statusCode == 200 || res.statusCode == 201) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 12),
-                Text(
-                  isFr ? 'Devoir soumis !' : 'Assignment submitted!',
-                ),
-              ],
-            ),
-            backgroundColor: Colors.green.shade600,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        AppSnackBar.showSuccess(context, isFr ? 'Devoir soumis !' : 'Assignment submitted!');
         Navigator.pop(context, true);
       } else {
         setState(() => _isSubmitting = false);
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isFr ? 'Échec de la soumission' : 'Submission failed',
-            ),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        AppSnackBar.showError(context, isFr ? 'Échec de la soumission' : 'Submission failed');
       }
     } catch (_) {
       setState(() => _isSubmitting = false);

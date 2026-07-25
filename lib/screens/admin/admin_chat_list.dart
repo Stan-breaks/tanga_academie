@@ -4,6 +4,7 @@ import 'package:tanga_acadamie/core/utils/chat.dart';
 import 'package:tanga_acadamie/models/models.dart';
 import 'package:tanga_acadamie/screens/shared/chat_page.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class AdminChatList extends StatefulWidget {
   const AdminChatList({super.key});
@@ -86,15 +87,7 @@ class _AdminChatListState extends State<AdminChatList> {
   }
 
   void _showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
+    AppSnackBar.showError(context, message);
   }
 
   void _openChat(ChatItem chat) {

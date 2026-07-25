@@ -3,6 +3,7 @@ import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/theme/app_colors.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'dart:convert';
@@ -165,34 +166,24 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
             _assignments.removeWhere((a) => a['_id'] == assignmentId);
           });
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  isFr
-                      ? 'Devoir supprimé avec succès'
-                      : 'Assignment deleted successfully',
-                ),
-                backgroundColor: AppColors.success,
-              ),
+            AppSnackBar.showSuccess(
+              context,
+              isFr ? 'Devoir supprimé avec succès' : 'Assignment deleted successfully',
             );
           }
         } else {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(isFr ? 'Échec de la suppression du devoir' : 'Failed to delete assignment'),
-                backgroundColor: AppColors.error,
-              ),
+            AppSnackBar.showError(
+              context,
+              isFr ? 'Échec de la suppression du devoir' : 'Failed to delete assignment',
             );
           }
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.'),
-              backgroundColor: AppColors.error,
-            ),
+          AppSnackBar.showError(
+            context,
+            isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.',
           );
         }
       }
@@ -226,34 +217,24 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
           }
         });
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                isFr
-                    ? 'Devoir mis à jour avec succès'
-                    : 'Assignment updated successfully',
-              ),
-              backgroundColor: AppColors.success,
-            ),
+          AppSnackBar.showSuccess(
+            context,
+            isFr ? 'Devoir mis à jour avec succès' : 'Assignment updated successfully',
           );
         }
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(isFr ? 'Échec de la mise à jour du devoir' : 'Failed to update assignment'),
-              backgroundColor: AppColors.error,
-            ),
+          AppSnackBar.showError(
+            context,
+            isFr ? 'Échec de la mise à jour du devoir' : 'Failed to update assignment',
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.'),
-            backgroundColor: AppColors.error,
-          ),
+        AppSnackBar.showError(
+          context,
+          isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.',
         );
       }
     }
@@ -1210,31 +1191,25 @@ class _AssignmentSubmissionsPageState
 
       if (response.statusCode == 200) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(isFr ? 'Soumission notée avec succès' : 'Submission graded successfully'),
-              backgroundColor: AppColors.success,
-            ),
+          AppSnackBar.showSuccess(
+            context,
+            isFr ? 'Soumission notée avec succès' : 'Submission graded successfully',
           );
         }
         _fetchSubmissions();
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(isFr ? 'Échec de la notation de la soumission' : 'Failed to grade submission'),
-              backgroundColor: AppColors.error,
-            ),
+          AppSnackBar.showError(
+            context,
+            isFr ? 'Échec de la notation de la soumission' : 'Failed to grade submission',
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.'),
-            backgroundColor: AppColors.error,
-          ),
+        AppSnackBar.showError(
+          context,
+          isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.',
         );
       }
     }

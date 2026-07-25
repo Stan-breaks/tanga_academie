@@ -3,6 +3,7 @@ import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/theme/app_colors.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'dart:convert';
@@ -187,33 +188,27 @@ class _InstructorStudentProgressPageState
 
       if (response.statusCode == 200) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(chapterId != null
-                  ? (isFr ? 'Progression du chapitre réinitialisée' : 'Chapter progress reset successfully')
-                  : (isFr ? 'Progression du cours réinitialisée' : 'Course progress reset successfully')),
-              backgroundColor: AppColors.success,
-            ),
+          AppSnackBar.showSuccess(
+            context,
+            chapterId != null
+                ? (isFr ? 'Progression du chapitre réinitialisée' : 'Chapter progress reset successfully')
+                : (isFr ? 'Progression du cours réinitialisée' : 'Course progress reset successfully'),
           );
         }
         await _fetchStudentProgress();
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(isFr ? 'Échec de la réinitialisation du progrès' : 'Failed to reset progress'),
-              backgroundColor: AppColors.error,
-            ),
+          AppSnackBar.showError(
+            context,
+            isFr ? 'Échec de la réinitialisation du progrès' : 'Failed to reset progress',
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.'),
-            backgroundColor: AppColors.error,
-          ),
+        AppSnackBar.showError(
+          context,
+          isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.',
         );
       }
     }

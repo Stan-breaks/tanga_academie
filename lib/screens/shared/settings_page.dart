@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:tanga_acadamie/api_config.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 
@@ -87,20 +88,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-        content: Row(children: [
-          const Icon(Icons.error_outline, color: Colors.white, size: 20),
-          const SizedBox(width: 10),
-          Expanded(child: Text(message, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
-        ]),
-        backgroundColor: Colors.red.shade600,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 4),
-      ));
+    AppSnackBar.showError(context, message);
   }
 
   Future<void> _loadUserData() async {
@@ -184,22 +172,9 @@ class _SettingsPageState extends State<SettingsPage> {
         }
 
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 12),
-                Text(isFr ? 'Profil mis à jour avec succès !' : 'Profile updated successfully!'),
-              ],
-            ),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            margin: const EdgeInsets.all(16),
-          ),
+        AppSnackBar.showSuccess(
+          context,
+          isFr ? 'Profil mis à jour avec succès !' : 'Profile updated successfully!',
         );
       } else {
         final error = jsonDecode(response.body);
@@ -217,10 +192,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _sendVerificationCode() async {
     if (_email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isFr ? 'Email non trouvé. Veuillez vous reconnecter.' : 'Email not found. Please log in again.'),
-        ),
+      AppSnackBar.showError(
+        context,
+        isFr ? 'Email non trouvé. Veuillez vous reconnecter.' : 'Email not found. Please log in again.',
       );
       return;
     }
@@ -238,16 +212,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
       if (response.statusCode == 200) {
         setState(() => _codeSent = true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${isFr ? 'Code envoyé à' : 'Code sent to'} $_email'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            margin: const EdgeInsets.all(16),
-          ),
+        AppSnackBar.showSuccess(
+          context,
+          '${isFr ? 'Code envoyé à' : 'Code sent to'} $_email',
         );
       } else {
         final error = jsonDecode(response.body);
@@ -267,10 +234,9 @@ class _SettingsPageState extends State<SettingsPage> {
     final confirmPassword = _confirmPasswordController.text;
 
     if (code.length != 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isFr ? 'Veuillez entrer le code complet (6 chiffres)' : 'Enter the complete code (6 digits)'),
-        ),
+      AppSnackBar.showError(
+        context,
+        isFr ? 'Veuillez entrer le code complet (6 chiffres)' : 'Enter the complete code (6 digits)',
       );
       return;
     }
@@ -286,10 +252,9 @@ class _SettingsPageState extends State<SettingsPage> {
     }
 
     if (newPassword.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isFr ? 'Le mot de passe doit contenir au moins 6 caractères' : 'Password must be at least 6 characters'),
-        ),
+      AppSnackBar.showError(
+        context,
+        isFr ? 'Le mot de passe doit contenir au moins 6 caractères' : 'Password must be at least 6 characters',
       );
       return;
     }
@@ -321,22 +286,9 @@ class _SettingsPageState extends State<SettingsPage> {
           c.clear();
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 12),
-                Text(isFr ? 'Mot de passe réinitialisé avec succès !' : 'Password reset successfully!'),
-              ],
-            ),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            margin: const EdgeInsets.all(16),
-          ),
+        AppSnackBar.showSuccess(
+          context,
+          isFr ? 'Mot de passe réinitialisé avec succès !' : 'Password reset successfully!',
         );
       } else {
         final error = jsonDecode(response.body);
@@ -1181,13 +1133,10 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _handleDeleteAccount() async {
     final password = _deletePasswordController.text;
     if (password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(isFr
-            ? 'Veuillez entrer votre mot de passe'
-            : 'Please enter your password'),
-        backgroundColor: Colors.red.shade400,
-        behavior: SnackBarBehavior.floating,
-      ));
+      AppSnackBar.showError(
+        context,
+        isFr ? 'Veuillez entrer votre mot de passe' : 'Please enter your password',
+      );
       return;
     }
 
@@ -1238,22 +1187,17 @@ class _SettingsPageState extends State<SettingsPage> {
         Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
       } else {
         final data = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(data['message'] ??
-              (isFr ? 'Erreur lors de la suppression' : 'Deletion failed')),
-          backgroundColor: Colors.red.shade400,
-          behavior: SnackBarBehavior.floating,
-        ));
+        AppSnackBar.showError(
+          context,
+          data['message'] ?? (isFr ? 'Erreur lors de la suppression' : 'Deletion failed'),
+        );
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(isFr
-              ? 'Impossible de contacter le serveur'
-              : 'Cannot reach server'),
-          backgroundColor: Colors.red.shade400,
-          behavior: SnackBarBehavior.floating,
-        ));
+        AppSnackBar.showError(
+          context,
+          isFr ? 'Impossible de contacter le serveur' : 'Cannot reach server',
+        );
       }
     } finally {
       if (mounted) setState(() => _isDeletingAccount = false);

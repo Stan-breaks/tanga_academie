@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class StudentQuizPage extends StatefulWidget {
   final Map<String, dynamic> lesson;
@@ -78,16 +79,9 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
 
   Future<void> _submitQuiz() async {
     if (_selectedAnswers.any((a) => a == null)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isFr
-                ? 'Répondez à toutes les questions'
-                : 'Answer all questions first',
-          ),
-          backgroundColor: Colors.orange,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppSnackBar.showError(
+        context,
+        isFr ? 'Répondez à toutes les questions' : 'Answer all questions first',
       );
       return;
     }
@@ -120,15 +114,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
       } else {
         setState(() => _isSubmitting = false);
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isFr ? 'Erreur lors de la soumission' : 'Submission failed',
-            ),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        AppSnackBar.showError(context, isFr ? 'Erreur lors de la soumission' : 'Submission failed');
       }
     } catch (_) {
       setState(() => _isSubmitting = false);

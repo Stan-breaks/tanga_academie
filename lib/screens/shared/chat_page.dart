@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -322,20 +323,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           setState(() {
             _messages.removeWhere((m) => m.id == tempMessage.id);
           });
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(
-              content: Row(children: [
-                const Icon(Icons.error_outline, color: Colors.white, size: 20),
-                const SizedBox(width: 10),
-                Text(isFr ? 'Échec de l\'envoi du message' : 'Failed to send message'),
-              ]),
-              backgroundColor: Colors.red.shade600,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              margin: const EdgeInsets.all(16),
-              duration: const Duration(seconds: 3),
-            ));
+          AppSnackBar.showError(context, isFr ? 'Échec de l\'envoi du message' : 'Failed to send message');
         }
       }
     } catch (e) {
@@ -345,20 +333,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         setState(() {
           _messages.removeWhere((m) => m.id == tempMessage.id);
         });
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(
-            content: Row(children: [
-              const Icon(Icons.error_outline, color: Colors.white, size: 20),
-              const SizedBox(width: 10),
-              Text(isFr ? 'Erreur lors de l\'envoi du message' : 'Error sending message'),
-            ]),
-            backgroundColor: Colors.red.shade600,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            margin: const EdgeInsets.all(16),
-            duration: const Duration(seconds: 3),
-          ));
+        AppSnackBar.showError(context, isFr ? 'Erreur lors de l\'envoi du message' : 'Error sending message');
       }
     }
   }
@@ -559,20 +534,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           IconButton(
             icon: const Icon(Icons.more_vert),
             onPressed: () {
-              ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(SnackBar(
-                  content: Row(children: [
-                    const Icon(Icons.info_outline, color: Colors.white, size: 20),
-                    const SizedBox(width: 10),
-                    Text(isFr ? 'Options de chat bientôt disponibles !' : 'Chat options coming soon!'),
-                  ]),
-                  backgroundColor: Colors.blueAccent,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  margin: const EdgeInsets.all(16),
-                  duration: const Duration(seconds: 3),
-                ));
+              AppSnackBar.showSuccess(context, isFr ? 'Options de chat bientôt disponibles !' : 'Chat options coming soon!');
             },
           ),
         ],

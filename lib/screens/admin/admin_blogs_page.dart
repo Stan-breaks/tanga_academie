@@ -4,6 +4,7 @@ import 'package:tanga_acadamie/models/blog.dart';
 import 'package:tanga_acadamie/services/admin_blog_service.dart';
 import 'package:tanga_acadamie/screens/admin/admin_blog_form_page.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class AdminBlogsPage extends StatefulWidget {
   const AdminBlogsPage({super.key});
@@ -102,36 +103,15 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
     try {
       await AdminBlogService.deleteBlog(id);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isFr
-                  ? 'Article supprimé avec succès'
-                  : 'Blog deleted successfully',
-            ),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.all(16),
-          ),
+        AppSnackBar.showSuccess(
+          context,
+          isFr ? 'Article supprimé avec succès' : 'Blog deleted successfully',
         );
       }
       _fetchBlogs();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${isFr ? 'Erreur' : 'Error'}: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.all(16),
-          ),
-        );
+        AppSnackBar.showError(context, '${isFr ? 'Erreur' : 'Error'}: $e');
       }
     }
   }

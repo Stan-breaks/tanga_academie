@@ -5,6 +5,7 @@ import 'package:tanga_acadamie/models/models.dart';
 import 'package:tanga_acadamie/screens/shared/chat_page.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 
 class StudentChatList extends StatefulWidget {
   const StudentChatList({super.key});
@@ -128,21 +129,7 @@ class _StudentChatListState extends State<StudentChatList>
   }
 
   void _showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Colors.red.shade600,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
+    AppSnackBar.showError(context, message);
   }
 
   void _openChat(ChatItem chat) {

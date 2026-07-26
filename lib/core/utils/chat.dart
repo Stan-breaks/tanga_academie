@@ -206,7 +206,7 @@ Future<ChatResult> fetchInstructorContacts() async {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      final instructors = data is List ? data : (data['data'] ?? []);
+      final instructors = data is List ? data : (data['instructors'] ?? data['data'] ?? []);
       return ChatResult(data: instructors);
     } else {
       return ChatResult(error: 'Failed to load instructors');

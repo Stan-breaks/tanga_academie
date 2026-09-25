@@ -94,14 +94,10 @@ class _StudentChatListState extends State<StudentChatList>
     }
   }
 
-  Future<void> _startChatWithInstructor(
-    String instructorId,
-    String courseId,
-  ) async {
+  Future<void> _startChatWithInstructor(String instructorId) async {
     final result = await startChat(
       participantId: instructorId,
       userType: 'Student',
-      courseId: courseId,
     );
 
     if (result.isSuccess) {
@@ -124,7 +120,10 @@ class _StudentChatListState extends State<StudentChatList>
         ).then((_) => _fetchUserChats());
       }
     } else {
-      _showErrorSnackbar(result.error ?? (isFr ? 'Échec du démarrage du chat' : 'Failed to start chat'));
+      _showErrorSnackbar(
+        result.error ??
+            (isFr ? 'Échec du démarrage du chat' : 'Failed to start chat'),
+      );
     }
   }
 
@@ -438,7 +437,9 @@ class _StudentChatListState extends State<StudentChatList>
             )
           else
             ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.35),
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * 0.35,
+              ),
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: _instructors.length,
@@ -457,133 +458,140 @@ class _StudentChatListState extends State<StudentChatList>
   }
 
   Widget _buildInstructorItem(InstructorContact instructor) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _startChatWithInstructor(instructor.id),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.blueAccent.shade200,
-                    Colors.blueAccent.shade700,
-                  ],
-                ),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.blueAccent.withAlpha(80),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  instructor.initial,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    instructor.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: Colors.black87,
+            Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.blueAccent.shade200,
+                        Colors.blueAccent.shade700,
+                      ],
                     ),
-                  ),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.verified,
-                        size: 14,
-                        color: Colors.green.shade400,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        isFr ? 'Instructeur' : 'Instructor',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blueAccent.withAlpha(80),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
-                ],
-              ),
+                  child: Center(
+                    child: Text(
+                      instructor.initial,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        instructor.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.verified,
+                            size: 14,
+                            color: Colors.green.shade400,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            isFr ? 'Instructeur' : 'Instructor',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: instructor.courses.map((course) {
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.blueAccent.withAlpha(50),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blueAccent.withAlpha(20),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.book_outlined,
+                            size: 14,
+                            color: Colors.blueAccent.shade400,
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              course.title,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.blueAccent,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ],
         ),
-        const SizedBox(height: 14),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: instructor.courses.map((course) {
-            return Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => _startChatWithInstructor(instructor.id, course.id),
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.blueAccent.withAlpha(50)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.blueAccent.withAlpha(20),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.book_outlined,
-                        size: 14,
-                        color: Colors.blueAccent.shade400,
-                      ),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Text(
-                          course.title,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
+      ),
     );
   }
 

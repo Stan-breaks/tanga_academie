@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
+import 'package:tanga_acadamie/models/message.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class ChatPage extends StatefulWidget {
@@ -154,20 +155,20 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
     debugPrint('Received new message: $data');
 
-    final messageData = data['message'] ?? data;
+    if (data is! Map) return;
+    final raw = data['message'] ?? data;
+    if (raw is! Map) return;
+    final newMessage = Message.fromJson(Map<String, dynamic>.from(raw));
 
-    final senderId = messageData['sender']?['_id'];
-
-    if (senderId == widget.userId) {
+    // Skip our own messages
+    if (newMessage.senderId == widget.userId) {
       return;
     }
-
-    final newMessage = Message.fromJson(messageData);
 
     final exists = _messages.any(
       (msg) =>
           (msg.id == newMessage.id && msg.id.isNotEmpty) ||
-          (msg.senderId == senderId &&
+          (msg.senderId == newMessage.senderId &&
               msg.content == newMessage.content &&
               msg.timestamp.difference(newMessage.timestamp).inSeconds.abs() <
                   5),
@@ -244,9 +245,14 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                     otherParticipant['name'] ??
                     '${otherParticipant['firstName'] ?? ''} ${otherParticipant['lastName'] ?? ''}'
                         .trim();
-                _profile = otherParticipant['profile'] != ''
-                    ? '${ApiConfig.baseUrl}${otherParticipant["profile"]}'
-                    : null;
+                final profileValue =
+                    otherParticipant['profile'] ??
+                    otherParticipant['profileImage'];
+                final profilePath = profileValue is Map
+                    ? (profileValue['url'] ?? profileValue['path'])?.toString()
+                    : profileValue?.toString();
+                final resolvedProfile = ApiConfig.getImageUrl(profilePath);
+                _profile = resolvedProfile.isEmpty ? null : resolvedProfile;
               }
             }
 
@@ -277,7 +283,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       id: 'temp-${DateTime.now().millisecondsSinceEpoch}',
       senderId: widget.userId,
       content: messageText,
-      timestamp: DateTime.now(),
+      createdAt: DateTime.now(),
       readBy: [],
     );
 
@@ -311,7 +317,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 id: data['data']['_id'],
                 senderId: widget.userId,
                 content: messageText,
-                timestamp: tempMessage.timestamp,
+                createdAt: tempMessage.timestamp,
                 readBy: [],
               );
             }
@@ -343,12 +349,12 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       allowMultiple: true,
       type: FileType.any,
     );
-    if (result != null) {
-      final newFiles = result.files.where((f) => f.path != null).toList();
-      setState(() {
-        _pendingFiles = [..._pendingFiles, ...newFiles].take(5).toList();
-      });
-    }
+    if (result == null || !mounted) return;
+
+    final newFiles = result.files.where((f) => f.path != null).toList();
+    setState(() {
+      _pendingFiles = [..._pendingFiles, ...newFiles].take(5).toList();
+    });
   }
 
   Future<void> _sendMessageWithFiles() async {
@@ -366,16 +372,15 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         Uri.parse('${ApiConfig.baseUrl}/api/chats/${widget.chatId}/messages'),
       );
       request.headers['Authorization'] = 'Bearer $_token';
-      if (messageText.isNotEmpty) request.fields['content'] = messageText;
+      request.fields['content'] = messageText;
 
       for (final file in filesToSend) {
         if (file.path != null) {
-          final ext = file.extension ?? 'bin';
           request.files.add(
             await http.MultipartFile.fromPath(
               'attachments',
               file.path!,
-              contentType: MediaType('application', ext),
+              contentType: _contentTypeForExtension(file.extension ?? ''),
             ),
           );
         }
@@ -384,10 +389,33 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       final streamed = await request.send();
       final res = await http.Response.fromStream(streamed);
 
-      if ((res.statusCode == 200 || res.statusCode == 201) && mounted) {
+      if (!mounted) return;
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        try {
+          final data = json.decode(res.body);
+          final msgData = data['data'] ?? data;
+          if (msgData is Map) {
+            final sent = Message.fromJson(Map<String, dynamic>.from(msgData));
+            setState(() {
+              _messages.add(sent);
+              _messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+            });
+          }
+        } catch (_) {}
         _scrollToBottom();
+      } else {
+        AppSnackBar.showError(
+          context,
+          isFr ? 'Échec de l\'envoi du fichier' : 'Failed to send attachment',
+        );
       }
-    } catch (_) {}
+    } catch (_) {
+      if (!mounted) return;
+      AppSnackBar.showError(
+        context,
+        isFr ? 'Erreur lors de l\'envoi du fichier' : 'Error sending attachment',
+      );
+    }
   }
 
   void _scrollToBottom() {
@@ -861,13 +889,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              message.content,
-              style: TextStyle(
-                color: isMe ? Colors.white : Colors.black87,
-                fontSize: 15,
+            if (message.content.isNotEmpty)
+              Text(
+                message.content,
+                style: TextStyle(
+                  color: isMe ? Colors.white : Colors.black87,
+                  fontSize: 15,
+                ),
               ),
-            ),
+            if (message.attachments.isNotEmpty)
+              _buildAttachmentList(message, isMe),
             const SizedBox(height: 4),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -893,6 +924,98 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+
+  Widget _buildAttachmentList(Message message, bool isMe) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: message.attachments.map((att) {
+        if (att.isImage) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                att.fullUrl,
+                width: 200,
+                fit: BoxFit.cover,
+                errorBuilder: (_, error, stackTrace) =>
+                    _buildFileChip(att, isMe),
+              ),
+            ),
+          );
+        }
+        return _buildFileChip(att, isMe);
+      }).toList(),
+    );
+  }
+
+  Widget _buildFileChip(MessageAttachment att, bool isMe) {
+    final color = isMe ? Colors.white : Colors.blueAccent;
+    return Container(
+      margin: const EdgeInsets.only(top: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: isMe ? Colors.white.withAlpha(40) : Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.attach_file, size: 16, color: color),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              att.filename ?? 'Attachment',
+              style: TextStyle(color: color, fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Returns the correct MIME type for a file extension, or null so the
+  /// default (application/octet-stream) is used.
+  MediaType? _contentTypeForExtension(String extension) {
+    switch (extension.toLowerCase()) {
+      case 'jpg':
+      case 'jpeg':
+        return MediaType('image', 'jpeg');
+      case 'png':
+        return MediaType('image', 'png');
+      case 'gif':
+        return MediaType('image', 'gif');
+      case 'webp':
+        return MediaType('image', 'webp');
+      case 'pdf':
+        return MediaType('application', 'pdf');
+      case 'doc':
+        return MediaType('application', 'msword');
+      case 'docx':
+        return MediaType(
+          'application',
+          'vnd.openxmlformats-officedocument.wordprocessingml.document',
+        );
+      case 'xls':
+        return MediaType('application', 'vnd.ms-excel');
+      case 'xlsx':
+        return MediaType(
+          'application',
+          'vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        );
+      case 'txt':
+        return MediaType('text', 'plain');
+      case 'zip':
+        return MediaType('application', 'zip');
+      case 'mp4':
+        return MediaType('video', 'mp4');
+      case 'mp3':
+        return MediaType('audio', 'mpeg');
+      default:
+        return null;
+    }
   }
 
   Widget _buildDateDivider(DateTime date) {
@@ -933,44 +1056,5 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     return date1.year == date2.year &&
         date1.month == date2.month &&
         date1.day == date2.day;
-  }
-}
-
-class Message {
-  final String id;
-  final String senderId;
-  final String content;
-  final DateTime timestamp;
-  final List<String> readBy;
-
-  Message({
-    required this.id,
-    required this.senderId,
-    required this.content,
-    required this.timestamp,
-    required this.readBy,
-  });
-
-  factory Message.fromJson(Map<String, dynamic> json) {
-    // sender can be a Map or a plain ID string
-    final senderData = json['sender'];
-    final senderId = (senderData is Map)
-        ? (senderData['_id']?.toString() ?? senderData['id']?.toString() ?? '')
-        : (senderData?.toString() ?? json['senderId']?.toString() ?? '');
-
-    return Message(
-      id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
-      senderId: senderId,
-      content: json['content']?.toString() ?? '',
-      timestamp: DateTime.tryParse(
-            (json['timestamp'] ?? json['createdAt'] ?? '').toString(),
-          ) ??
-          DateTime.now(),
-      readBy:
-          (json['readBy'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
-    );
   }
 }

@@ -62,19 +62,24 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        if (!mounted) return;
         setState(() {
-          _courses = data['data'] ?? [];
+          // Normalize {success, data:[...]} / {success, courses:[...]}.
+          final raw = data is Map ? (data['data'] ?? data['courses']) : data;
+          _courses = raw is List ? raw : [];
           _isLoading = false;
         });
         // If no course selected yet, fetch all instructor assignments
         _fetchAssignments();
       } else {
+        if (!mounted) return;
         setState(() {
           _errorMessage = 'Failed to load courses';
           _isLoading = false;
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
@@ -100,8 +105,11 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
       if (!mounted) return;
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        if (!mounted) return;
         setState(() {
-          _assignments = data['data'] ?? [];
+          // Normalize {success, data:[...]} / {success, assignments:[...]}.
+          final raw = data is Map ? (data['data'] ?? data['assignments']) : data;
+          _assignments = raw is List ? raw : [];
           _isLoadingAssignments = false;
         });
         _animController.forward(from: 0);
@@ -162,30 +170,27 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
         );
 
         if (response.statusCode == 200) {
+          if (!mounted) return;
           setState(() {
             _assignments.removeWhere((a) => a['_id'] == assignmentId);
           });
-          if (mounted) {
-            AppSnackBar.showSuccess(
-              context,
-              isFr ? 'Devoir supprimé avec succès' : 'Assignment deleted successfully',
-            );
-          }
+          AppSnackBar.showSuccess(
+            context,
+            isFr ? 'Devoir supprimé avec succès' : 'Assignment deleted successfully',
+          );
         } else {
-          if (mounted) {
-            AppSnackBar.showError(
-              context,
-              isFr ? 'Échec de la suppression du devoir' : 'Failed to delete assignment',
-            );
-          }
-        }
-      } catch (e) {
-        if (mounted) {
+          if (!mounted) return;
           AppSnackBar.showError(
             context,
-            isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.',
+            isFr ? 'Échec de la suppression du devoir' : 'Failed to delete assignment',
           );
         }
+      } catch (e) {
+        if (!mounted) return;
+        AppSnackBar.showError(
+          context,
+          isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.',
+        );
       }
     }
   }
@@ -208,35 +213,33 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        if (!mounted) return;
+        final updated = data is Map ? data['data'] : null;
         setState(() {
           final index = _assignments.indexWhere(
             (a) => a['_id'] == assignmentId,
           );
-          if (index != -1) {
-            _assignments[index] = data['data'];
+          if (index != -1 && updated != null) {
+            _assignments[index] = updated;
           }
         });
-        if (mounted) {
-          AppSnackBar.showSuccess(
-            context,
-            isFr ? 'Devoir mis à jour avec succès' : 'Assignment updated successfully',
-          );
-        }
+        AppSnackBar.showSuccess(
+          context,
+          isFr ? 'Devoir mis à jour avec succès' : 'Assignment updated successfully',
+        );
       } else {
-        if (mounted) {
-          AppSnackBar.showError(
-            context,
-            isFr ? 'Échec de la mise à jour du devoir' : 'Failed to update assignment',
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
+        if (!mounted) return;
         AppSnackBar.showError(
           context,
-          isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.',
+          isFr ? 'Échec de la mise à jour du devoir' : 'Failed to update assignment',
         );
       }
+    } catch (e) {
+      if (!mounted) return;
+      AppSnackBar.showError(
+        context,
+        isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.',
+      );
     }
   }
 
@@ -1152,17 +1155,23 @@ class _AssignmentSubmissionsPageState
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        if (!mounted) return;
         setState(() {
-          _submissions = data['data'] ?? [];
+          // Normalize {success, data:[...]} and {success, submissions:[...]}.
+          final raw = data is Map ? (data['data'] ?? data['submissions']) : data;
+          _submissions = raw is List ? raw : [];
           _isLoading = false;
         });
       } else {
+        if (!mounted) return;
         setState(() {
-          _errorMessage = 'Failed to load submissions';
+          _errorMessage = _serverMessage(response.body) ??
+              (isFr ? 'Échec du chargement des soumissions' : 'Failed to load submissions');
           _isLoading = false;
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
@@ -1186,39 +1195,54 @@ class _AssignmentSubmissionsPageState
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: json.encode({'grade': grade, 'feedback': feedback}),
+        body: json.encode({
+          'points': grade,
+          'feedback': feedback,
+          'status': 'graded',
+        }),
       );
 
-      if (response.statusCode == 200) {
-        if (mounted) {
-          AppSnackBar.showSuccess(
-            context,
-            isFr ? 'Soumission notée avec succès' : 'Submission graded successfully',
-          );
-        }
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (!mounted) return;
+        AppSnackBar.showSuccess(
+          context,
+          isFr ? 'Soumission notée avec succès' : 'Submission graded successfully',
+        );
         _fetchSubmissions();
       } else {
-        if (mounted) {
-          AppSnackBar.showError(
-            context,
-            isFr ? 'Échec de la notation de la soumission' : 'Failed to grade submission',
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
+        if (!mounted) return;
         AppSnackBar.showError(
           context,
-          isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.',
+          _serverMessage(response.body) ??
+              (isFr ? 'Échec de la notation de la soumission' : 'Failed to grade submission'),
         );
       }
+    } catch (e) {
+      if (!mounted) return;
+      AppSnackBar.showError(
+        context,
+        isFr ? 'Une erreur est survenue' : 'An error occurred. Please try again.',
+      );
     }
+  }
+
+  /// Extracts a human-readable message from an API error response body.
+  String? _serverMessage(String body) {
+    try {
+      final decoded = json.decode(body);
+      if (decoded is Map) {
+        return (decoded['message'] ?? decoded['error'])?.toString();
+      }
+    } catch (_) {
+      // Not JSON — fall through.
+    }
+    return null;
   }
 
   // ── Open grading sheet ────────────────────────────────────────────
   void _openGradingSheet(Map<String, dynamic> submission) {
     final gradeController = TextEditingController(
-      text: submission['grade']?.toString() ?? '',
+      text: (submission['points'] ?? submission['grade'])?.toString() ?? '',
     );
     final feedbackController = TextEditingController(
       text: submission['feedback'] ?? '',
@@ -1576,7 +1600,8 @@ class _AssignmentSubmissionsPageState
   }
 
   Widget _buildSubmissionCard(Map<String, dynamic> submission) {
-    final isGraded = submission['grade'] != null;
+    final points = submission['points'] ?? submission['grade'];
+    final isGraded = points != null;
     final submittedAt = submission['submittedAt'] != null
         ? DateFormat(
             'MMM d, yyyy – h:mm a',
@@ -1683,7 +1708,7 @@ class _AssignmentSubmissionsPageState
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            isGraded ? '${submission['grade']} pts' : (isFr ? 'En attente' : 'Pending'),
+                            isGraded ? '$points pts' : (isFr ? 'En attente' : 'Pending'),
                             style: TextStyle(
                               color: isGraded
                                   ? AppColors.success

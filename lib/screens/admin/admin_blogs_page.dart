@@ -43,11 +43,18 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
         status: _selectedStatus == 'all' ? null : _selectedStatus,
         limit: 50,
       );
+      if (!mounted) return;
+      // Normalize in case the service returns a bare list or an envelope.
+      final rawBlogs = result['blogs'] ?? result['data'];
+      final blogs = rawBlogs is List
+          ? rawBlogs.whereType<Blog>().toList()
+          : <Blog>[];
       setState(() {
-        _blogs = result['blogs'] as List<Blog>;
+        _blogs = blogs;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -99,20 +106,19 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
     );
 
     if (confirm != true) return;
+    if (!mounted) return;
 
     try {
       await AdminBlogService.deleteBlog(id);
-      if (mounted) {
-        AppSnackBar.showSuccess(
-          context,
-          isFr ? 'Article supprimé avec succès' : 'Blog deleted successfully',
-        );
-      }
+      if (!mounted) return;
+      AppSnackBar.showSuccess(
+        context,
+        isFr ? 'Article supprimé avec succès' : 'Blog deleted successfully',
+      );
       _fetchBlogs();
     } catch (e) {
-      if (mounted) {
-        AppSnackBar.showError(context, '${isFr ? 'Erreur' : 'Error'}: $e');
-      }
+      if (!mounted) return;
+      AppSnackBar.showError(context, '${isFr ? 'Erreur' : 'Error'}: $e');
     }
   }
 
@@ -121,6 +127,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
       context,
       MaterialPageRoute(builder: (_) => AdminBlogFormPage(blog: blog)),
     );
+    if (!mounted) return;
     if (result == true) {
       _fetchBlogs();
     }

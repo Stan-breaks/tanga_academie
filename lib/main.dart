@@ -9,6 +9,8 @@ import 'package:tanga_acadamie/screens/instructor/instructor_courses_page.dart';
 import 'package:tanga_acadamie/screens/instructor/instructor_assignment_page.dart';
 import 'package:tanga_acadamie/screens/instructor/instructor_quiz_page.dart';
 import 'package:tanga_acadamie/screens/instructor/instructor_student_progress_page.dart';
+import 'package:tanga_acadamie/screens/instructor/instructor_quiz_approvals_page.dart';
+import 'package:tanga_acadamie/screens/student/student_quiz_attempts_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/auth_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
@@ -63,6 +65,8 @@ class MyApp extends StatelessWidget {
         '/instructor-assignments': (context) => const InstructorAssignmentPage(),
         '/instructor-quiz': (context) => const InstructorQuizPage(),
         '/instructor-student-progress': (context) => const InstructorStudentProgressPage(),
+        '/instructor-quiz-approvals': (context) => const InstructorQuizApprovalsPage(),
+        '/student-quiz-attempts': (context) => const StudentQuizAttemptsPage(),
         '/login': (context) => const LoginPage(),
       },
     );

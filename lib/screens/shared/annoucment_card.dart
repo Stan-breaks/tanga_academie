@@ -1,19 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 
-class AnnouncementCard extends StatelessWidget {
+class AnnouncementCard extends StatefulWidget {
   final Map<String, dynamic> announcement;
 
   const AnnouncementCard({super.key, required this.announcement});
 
   @override
+  State<AnnouncementCard> createState() => _AnnouncementCardState();
+}
+
+class _AnnouncementCardState extends State<AnnouncementCard> {
+  static const String _boxName = 'announcementsBox';
+
+  bool _isRead = false;
+
+  String get _id =>
+      widget.announcement['_id']?.toString() ??
+      widget.announcement['id']?.toString() ??
+      '';
+
+  @override
+  void initState() {
+    super.initState();
+    _isRead = widget.announcement['isRead'] == true;
+    _loadReadState();
+  }
+
+  Future<void> _loadReadState() async {
+    if (_id.isEmpty) return;
+    try {
+      final box = await Hive.openBox(_boxName);
+      final stored = box.get(_id) == true;
+      if (!mounted) return;
+      if (stored && !_isRead) {
+        setState(() => _isRead = true);
+      }
+    } catch (_) {}
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final announcement = widget.announcement;
     final priority = announcement['priority'] ?? 'medium';
     final priorityColor = _getPriorityColor(priority);
-    final isRead = announcement['isRead'] ?? false;
+    final isRead = _isRead;
     final createdAt = announcement['createdAt'];
 
     return Container(
@@ -153,6 +188,12 @@ class AnnouncementCard extends StatelessWidget {
   }
 
   Future<void> _markRead(String id) async {
+    // Persist the read state locally so it survives rebuilds and restarts.
+    try {
+      final box = await Hive.openBox(_boxName);
+      await box.put(id, true);
+    } catch (_) {}
+
     try {
       final token = await getToken();
       await http.put(
@@ -165,13 +206,10 @@ class AnnouncementCard extends StatelessWidget {
   }
 
   void _showDetail(BuildContext context) {
-    final id =
-        announcement['_id']?.toString() ??
-        announcement['id']?.toString() ??
-        '';
-    final isRead = announcement['isRead'] ?? false;
-    if (!isRead && id.isNotEmpty) {
-      _markRead(id);
+    final announcement = widget.announcement;
+    if (!_isRead && _id.isNotEmpty) {
+      setState(() => _isRead = true);
+      _markRead(_id);
     }
 
     showModalBottomSheet(

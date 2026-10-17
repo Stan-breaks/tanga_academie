@@ -52,6 +52,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
   void initState() {
     super.initState();
     _initializeVideo();
+    _checkCompletionStatus();
   }
 
   @override
@@ -59,6 +60,37 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
     _chewieController?.dispose();
     _videoController?.dispose();
     super.dispose();
+  }
+
+  Future<void> _checkCompletionStatus() async {
+    final lessonId =
+        widget.lesson['_id']?.toString() ?? widget.lesson['id']?.toString() ?? '';
+    final chapterId =
+        widget.chapter['_id']?.toString() ?? widget.chapter['id']?.toString() ?? '';
+    if (lessonId.isEmpty || chapterId.isEmpty) return;
+
+    try {
+      final token = await getToken();
+      if (token == null) return;
+      final response = await post(
+        Uri.parse('${ApiConfig.baseUrl}/api/progress/check-video'),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "courseId": widget.courseId,
+          "chapterId": chapterId,
+          "lessonId": lessonId,
+        }),
+      );
+      if (!mounted || response.statusCode != 200) return;
+      final decoded = jsonDecode(response.body);
+      final completed = decoded['data']?['completed'] == true;
+      if (mounted) setState(() => _isCompleted = completed);
+    } catch (_) {
+      // Completion status is best-effort; the button still works if this fails.
+    }
   }
 
   void _initializeVideo() async {
@@ -381,9 +413,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                           setState(() => _isMarkingComplete = false);
                                           return;
                                         }
-                                        final videoId =
-                                            widget.lesson['video']?['_id']?.toString() ??
-                                            widget.lesson['video']?['id']?.toString() ??
+                                        final lessonId =
                                             widget.lesson['_id']?.toString() ??
                                             widget.lesson['id']?.toString() ?? '';
                                         final chapterId =
@@ -398,8 +428,9 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                             "Content-Type": "application/json",
                                           },
                                           body: jsonEncode({
-                                            "videoId": videoId,
+                                            "courseId": widget.courseId,
                                             "chapterId": chapterId,
+                                            "lessonId": lessonId,
                                           }),
                                         );
                                         if (!context.mounted) return;

@@ -13,7 +13,7 @@ class AdminCoursesPage extends StatefulWidget {
 
 class _AdminCoursesPageState extends State<AdminCoursesPage> {
   String _selectedCategory = 'all';
-  List<dynamic> _courses = [];
+  List<Map<String, dynamic>> _courses = [];
   bool _isLoading = true;
   String? _error;
 
@@ -38,11 +38,20 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
 
     try {
       final result = await getAdminCourses();
+      if (!mounted) return;
+      // Normalize {success, data:[...]} / {success, courses:[...]} envelopes.
+      final raw = result['data'] ?? result['courses'];
       setState(() {
-        _courses = result['data'] ?? [];
+        _courses = raw is List
+            ? raw
+                  .whereType<Map>()
+                  .map((e) => Map<String, dynamic>.from(e))
+                  .toList()
+            : <Map<String, dynamic>>[];
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -50,7 +59,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
     }
   }
 
-  List<dynamic> get _filteredCourses {
+  List<Map<String, dynamic>> get _filteredCourses {
     if (_selectedCategory == 'all') return _courses;
     return _courses.where((c) => c['status'] == _selectedCategory).toList();
   }

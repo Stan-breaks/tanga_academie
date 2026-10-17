@@ -56,24 +56,37 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
         ),
         headers: {'Authorization': 'Bearer $token'},
       );
+      if (!mounted) return;
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        final submissions = data['data'] as List? ?? data['submissions'] as List? ?? [];
-        final match = submissions.firstWhere(
-          (s) =>
-              s['assignmentId'] == _assignmentId ||
-              s['assignment']?['_id'] == _assignmentId ||
-              s['assignment']?['id'] == _assignmentId,
-          orElse: () => null,
-        );
+        // Response: { success, data: [ { assignment, submission } ] }
+        final rawList = (data['data'] ?? data['submissions']) as List? ?? [];
+
+        Map<String, dynamic>? matched;
+        for (final item in rawList) {
+          if (item is! Map) continue;
+          final assignment = item['assignment'];
+          final assignmentId = assignment is Map
+              ? (assignment['_id'] ?? assignment['id'])?.toString()
+              : item['assignmentId']?.toString();
+          if (assignmentId != _assignmentId) continue;
+
+          final submission = item['submission'];
+          matched = submission is Map
+              ? Map<String, dynamic>.from(submission)
+              : null;
+          break;
+        }
+
         setState(() {
-          _existingSubmission = match;
+          _existingSubmission = matched;
           _isLoading = false;
         });
       } else {
         setState(() => _isLoading = false);
       }
     } catch (_) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
@@ -83,19 +96,16 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
       allowMultiple: true,
       type: FileType.any,
     );
-    if (result != null) {
-      final newFiles = result.files
-          .where((f) => f.path != null)
-          .toList();
-      setState(() {
-        _selectedFiles = [..._selectedFiles, ...newFiles]
-            .take(5)
-            .toList();
-      });
-    }
+    if (result == null || !mounted) return;
+
+    final newFiles = result.files.where((f) => f.path != null).toList();
+    setState(() {
+      _selectedFiles = [..._selectedFiles, ...newFiles].take(5).toList();
+    });
   }
 
   Future<void> _submitAssignment() async {
+    // Allow a comment-only OR file-only submission (or both).
     if (_selectedFiles.isEmpty && _noteController.text.trim().isEmpty) {
       AppSnackBar.showError(
         context,
@@ -118,17 +128,16 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
       request.headers['Authorization'] = 'Bearer $token';
 
       if (_noteController.text.trim().isNotEmpty) {
-        request.fields['note'] = _noteController.text.trim();
+        request.fields['comment'] = _noteController.text.trim();
       }
 
       for (final file in _selectedFiles) {
         if (file.path != null) {
-          final ext = file.extension ?? 'bin';
           request.files.add(
             await http.MultipartFile.fromPath(
               'files',
               file.path!,
-              contentType: MediaType('application', ext),
+              contentType: _contentTypeForExtension(file.extension ?? ''),
             ),
           );
         }
@@ -137,16 +146,16 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
       final streamed = await request.send();
       final res = await http.Response.fromStream(streamed);
 
+      if (!mounted) return;
       if (res.statusCode == 200 || res.statusCode == 201) {
-        if (!mounted) return;
         AppSnackBar.showSuccess(context, isFr ? 'Devoir soumis !' : 'Assignment submitted!');
         Navigator.pop(context, true);
       } else {
         setState(() => _isSubmitting = false);
-        if (!mounted) return;
         AppSnackBar.showError(context, isFr ? 'Échec de la soumission' : 'Submission failed');
       }
     } catch (_) {
+      if (!mounted) return;
       setState(() => _isSubmitting = false);
     }
   }
@@ -605,6 +614,55 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
       return '${dt.day}/${dt.month}/${dt.year}';
     } catch (_) {
       return date.toString();
+    }
+  }
+
+  /// Returns the correct MIME type for a file extension, or null so the
+  /// default (application/octet-stream) is used.
+  MediaType? _contentTypeForExtension(String extension) {
+    switch (extension.toLowerCase()) {
+      case 'jpg':
+      case 'jpeg':
+        return MediaType('image', 'jpeg');
+      case 'png':
+        return MediaType('image', 'png');
+      case 'gif':
+        return MediaType('image', 'gif');
+      case 'webp':
+        return MediaType('image', 'webp');
+      case 'pdf':
+        return MediaType('application', 'pdf');
+      case 'doc':
+        return MediaType('application', 'msword');
+      case 'docx':
+        return MediaType(
+          'application',
+          'vnd.openxmlformats-officedocument.wordprocessingml.document',
+        );
+      case 'ppt':
+        return MediaType('application', 'vnd.ms-powerpoint');
+      case 'pptx':
+        return MediaType(
+          'application',
+          'vnd.openxmlformats-officedocument.presentationml.presentation',
+        );
+      case 'xls':
+        return MediaType('application', 'vnd.ms-excel');
+      case 'xlsx':
+        return MediaType(
+          'application',
+          'vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        );
+      case 'txt':
+        return MediaType('text', 'plain');
+      case 'zip':
+        return MediaType('application', 'zip');
+      case 'mp4':
+        return MediaType('video', 'mp4');
+      case 'mp3':
+        return MediaType('audio', 'mpeg');
+      default:
+        return null;
     }
   }
 }

@@ -29,11 +29,13 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
 
     try {
       final data = await getAdminChartData();
+      if (!mounted) return;
       setState(() {
         _chartData = data;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -300,10 +302,40 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
     );
   }
 
+  // ── Defensive response parsing helpers ────────────────────────────
+  // The chart endpoints can return maps, lists, or null depending on the
+  // backend response shape, so never hard-cast decoded JSON.
+  Map<String, dynamic>? _asMap(dynamic value) =>
+      value is Map ? Map<String, dynamic>.from(value) : null;
+
+  List<String> _asStringList(dynamic value) =>
+      value is List ? value.map((e) => e.toString()).toList() : <String>[];
+
+  List<num> _asNumList(dynamic value) {
+    if (value is! List) return <num>[];
+    final out = <num>[];
+    for (final v in value) {
+      if (v is num) {
+        out.add(v);
+      } else if (v != null) {
+        final parsed = num.tryParse(v.toString());
+        if (parsed != null) out.add(parsed);
+      }
+    }
+    return out;
+  }
+
+  List<num> _firstDatasetPoints(dynamic datasets) {
+    if (datasets is List && datasets.isNotEmpty && datasets.first is Map) {
+      return _asNumList((datasets.first as Map)['data']);
+    }
+    return <num>[];
+  }
+
   Widget _buildEnrollmentChart() {
     // Get enrollment data from API response
     // API returns: { labels: [...], datasets: [{ label, data, ... }] }
-    final enrollmentData = _chartData?['enrollment'] as Map<String, dynamic>?;
+    final enrollmentData = _asMap(_chartData?['enrollment']);
 
     if (enrollmentData == null) {
       return _buildNoDataState(
@@ -311,12 +343,8 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
       );
     }
 
-    final labels =
-        (enrollmentData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
-    final datasets = enrollmentData['datasets'] as List<dynamic>?;
-    final dataPoints = (datasets?.isNotEmpty == true)
-        ? (datasets![0]['data'] as List<dynamic>?)?.cast<num>() ?? []
-        : <num>[];
+    final labels = _asStringList(enrollmentData['labels']);
+    final dataPoints = _firstDatasetPoints(enrollmentData['datasets']);
 
     if (dataPoints.isEmpty) {
       return _buildNoDataState(
@@ -403,8 +431,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
   Widget _buildDistributionChart() {
     // Get distribution data from API response
     // API returns: { labels: [...], datasets: [{ data, backgroundColor, ... }] }
-    final distributionData =
-        _chartData?['distribution'] as Map<String, dynamic>?;
+    final distributionData = _asMap(_chartData?['distribution']);
 
     if (distributionData == null) {
       return _buildNoDataState(
@@ -414,12 +441,8 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
       );
     }
 
-    final labels =
-        (distributionData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
-    final datasets = distributionData['datasets'] as List<dynamic>?;
-    final dataPoints = (datasets?.isNotEmpty == true)
-        ? (datasets![0]['data'] as List<dynamic>?)?.cast<num>() ?? []
-        : <num>[];
+    final labels = _asStringList(distributionData['labels']);
+    final dataPoints = _firstDatasetPoints(distributionData['datasets']);
 
     if (dataPoints.isEmpty || labels.isEmpty) {
       return _buildNoDataState(
@@ -514,7 +537,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
   Widget _buildRevenueChart() {
     // Get revenue data from API response
     // API returns: { labels: [...], datasets: [{ label, data, ... }] }
-    final revenueData = _chartData?['revenue'] as Map<String, dynamic>?;
+    final revenueData = _asMap(_chartData?['revenue']);
 
     if (revenueData == null) {
       return _buildNoDataState(
@@ -522,12 +545,8 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
       );
     }
 
-    final labels =
-        (revenueData['labels'] as List<dynamic>?)?.cast<String>() ?? [];
-    final datasets = revenueData['datasets'] as List<dynamic>?;
-    final dataPoints = (datasets?.isNotEmpty == true)
-        ? (datasets![0]['data'] as List<dynamic>?)?.cast<num>() ?? []
-        : <num>[];
+    final labels = _asStringList(revenueData['labels']);
+    final dataPoints = _firstDatasetPoints(revenueData['datasets']);
 
     if (dataPoints.isEmpty) {
       return _buildNoDataState(

@@ -46,6 +46,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
 
   Future<void> _initialize() async {
     _currentUserId = await getCurrentUserId();
+    if (!mounted) return;
     await _getAllUsers();
   }
 
@@ -57,6 +58,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
 
     try {
       final token = await getToken();
+      if (!mounted) return;
       if (token == null) {
         setState(() {
           _error = isFr ? 'Non authentifié' : 'Not authenticated';
@@ -75,20 +77,26 @@ class _AdminUsersListState extends State<AdminUsersList> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        if (!mounted) return;
+        // Normalize {success, users:[...]} / {success, data:[...]} envelopes.
+        final raw = data is Map ? (data['users'] ?? data['data']) : data;
+        final users = raw is List ? raw : const [];
         setState(() {
-          _users = (data['users'] as List)
-              .map((user) => User.fromJson(user))
+          _users = users
+              .map((user) => User.fromJson(user as Map<String, dynamic>))
               .toList();
           _filteredUsers = _users;
           _isLoading = false;
         });
       } else {
+        if (!mounted) return;
         setState(() {
           _error = isFr ? 'Échec du chargement des utilisateurs' : 'Failed to load users';
           _isLoading = false;
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = e.toString();
         _isLoading = false;

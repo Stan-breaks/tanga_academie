@@ -72,14 +72,17 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        if (!mounted) return;
         setState(() {
           _courses = data['data'] ?? [];
           _isLoadingCourses = false;
         });
       } else {
+        if (!mounted) return;
         setState(() => _isLoadingCourses = false);
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoadingCourses = false);
     }
   }
@@ -105,14 +108,17 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        if (!mounted) return;
         setState(() {
           _courseDetail = data['data'] ?? data;
           _isLoadingCourseDetail = false;
         });
       } else {
+        if (!mounted) return;
         setState(() => _isLoadingCourseDetail = false);
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoadingCourseDetail = false);
     }
   }
@@ -137,21 +143,43 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final quizData = data['data'];
+        // Backend stores the quiz on the lesson; accept either
+        // {success, data:{questions:[...]}}, {success, data:[...]}, or the
+        // questions array directly.
+        final raw = data['data'] ?? data;
+        List<dynamic>? questions;
+        if (raw is List) {
+          questions = raw;
+        } else if (raw is Map && raw['questions'] is List) {
+          questions = raw['questions'] as List;
+        }
 
-        if (quizData != null && quizData['questions'] != null) {
-          final questions = quizData['questions'] as List;
+        final loadedQuestions = questions;
+        if (loadedQuestions != null) {
+          if (!mounted) return;
           setState(() {
-            _existingQuiz = questions.isNotEmpty;
-            _questions = questions.map((q) {
+            _existingQuiz = loadedQuestions.isNotEmpty;
+            _questions = loadedQuestions.map((q) {
               final options = (q['options'] as List?)
                       ?.map((o) => o.toString())
                       .toList() ??
                   ['', '', '', ''];
+              // The backend stores the correct answer as the option string; the
+              // editor works with the option index, so translate on load.
+              final rawCorrect = q['correctAnswer'];
+              int correctIndex = 0;
+              if (rawCorrect is int) {
+                correctIndex = rawCorrect;
+              } else if (rawCorrect != null) {
+                correctIndex = options.indexOf(rawCorrect.toString());
+              }
+              if (correctIndex < 0 || correctIndex >= options.length) {
+                correctIndex = 0;
+              }
               return _QuizQuestion(
                 question: q['question'] ?? '',
                 options: options,
-                correctAnswer: q['correctAnswer'] ?? 0,
+                correctAnswer: correctIndex,
               );
             }).toList();
           });
@@ -162,6 +190,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
       // Start fresh
     }
 
+    if (!mounted) return;
     setState(() => _isLoadingQuiz = false);
 
     if (_questions.isEmpty) {
@@ -221,10 +250,18 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
     try {
       final token = await getToken();
       final questionsPayload = _questions.map((q) {
+        // The backend expects `correctAnswer` to be one of the option strings
+        // (it validates `options.includes(correctAnswer)`); the editor stores
+        // the answer as an option index, so resolve it here.
+        final correctIndex =
+            (q.correctAnswer >= 0 && q.correctAnswer < q.options.length)
+                ? q.correctAnswer
+                : 0;
         return {
           'question': q.question,
           'options': q.options,
-          'correctAnswer': q.correctAnswer,
+          'correctAnswer':
+              q.options.isNotEmpty ? q.options[correctIndex] : '',
         };
       }).toList();
 
@@ -234,27 +271,42 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       };
-      final body = json.encode({'questions': questionsPayload});
-      final response = _existingQuiz
-          ? await http.put(uri, headers: headers, body: body)
-          : await http.post(uri, headers: headers, body: body);
+      // Backend expects the quiz as a JSON array of questions (or a single
+      // object) and upserts onto the lesson, so POST works for create + update.
+      final body = json.encode(questionsPayload);
+      final response = await http.post(uri, headers: headers, body: body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        if (!mounted) return;
         setState(() => _existingQuiz = true);
-        if (mounted) {
-          AppSnackBar.showSuccess(
-            context,
-            _existingQuiz ? (isFr ? 'Quiz mis à jour avec succès' : 'Quiz updated successfully') : (isFr ? 'Quiz créé avec succès' : 'Quiz created successfully'),
-          );
-        }
+        AppSnackBar.showSuccess(
+          context,
+          _existingQuiz ? (isFr ? 'Quiz mis à jour avec succès' : 'Quiz updated successfully') : (isFr ? 'Quiz créé avec succès' : 'Quiz created successfully'),
+        );
       } else {
-        _showError('Failed to save quiz');
+        _showError(_serverMessage(response.body) ??
+            (isFr ? 'Échec de l\'enregistrement du quiz' : 'Failed to save quiz'));
       }
     } catch (e) {
-      _showError(isFr ? 'Une erreur est survenue' : 'An error occurred');
+      _showError(isFr ? 'Une erreur est survenue : $e' : 'An error occurred: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
+  }
 
-    setState(() => _isSaving = false);
+  /// Extracts a human-readable message from an API error response body.
+  String? _serverMessage(String body) {
+    try {
+      final decoded = json.decode(body);
+      if (decoded is Map) {
+        return (decoded['message'] ?? decoded['error'])?.toString();
+      }
+    } catch (_) {
+      // Not JSON — fall through.
+    }
+    return null;
   }
 
   void _showError(String message) {

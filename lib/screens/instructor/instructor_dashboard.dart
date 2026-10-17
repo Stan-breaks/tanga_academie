@@ -399,6 +399,15 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
         color: Colors.teal.shade500,
         route: '/instructor-student-progress',
       ),
+      QuickAction(
+        title: isFr ? 'Approbations de quiz' : 'Quiz Approvals',
+        description: isFr
+            ? 'Autoriser les reprises de quiz'
+            : 'Approve quiz retake requests',
+        icon: '🔓',
+        color: Colors.red.shade400,
+        route: '/instructor-quiz-approvals',
+      ),
     ];
 
     return GridView.builder(

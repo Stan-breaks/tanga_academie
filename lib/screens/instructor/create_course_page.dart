@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:tanga_acadamie/api_config.dart';
@@ -102,6 +103,9 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
     _benefitsController.dispose();
     _tagsController.dispose();
     _pageController.dispose();
+    for (var chapter in _chapters) {
+      chapter.dispose();
+    }
     super.dispose();
   }
 
@@ -153,6 +157,7 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
 
   Future<void> _pickBannerImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (!mounted) return;
     if (image != null) {
       setState(() {
         _bannerImage = File(image.path);
@@ -161,27 +166,40 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
   }
 
   Future<void> _pickCertificateFile() async {
-    // For now, use image picker - in production, use file_picker package
-    final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
-    if (file != null) {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (!mounted) return;
+    final path = result != null && result.files.isNotEmpty
+        ? result.files.first.path
+        : null;
+    if (path != null) {
       setState(() {
-        _certificateFile = File(file.path);
+        _certificateFile = File(path);
       });
     }
   }
 
   Future<void> _pickPdfFiles() async {
-    // For now, use image picker - in production, use file_picker package
-    final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
-    if (file != null) {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (!mounted) return;
+    if (result != null) {
       setState(() {
-        _pdfFiles.add(File(file.path));
+        _pdfFiles.addAll(
+          result.files.where((f) => f.path != null).map((f) => File(f.path!)),
+        );
       });
     }
   }
 
   Future<void> _pickLessonVideo(int chapterIndex, int lessonIndex) async {
     final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
+    if (!mounted) return;
     if (video != null) {
       setState(() {
         _chapters[chapterIndex].lessons[lessonIndex].videoFile = File(video.path);
@@ -310,15 +328,17 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         ));
       }
 
-      // Add lesson videos
+      // Add lesson videos (indexed so each file maps to a lesson)
+      int lessonVideoIndex = 0;
       for (var chapter in _chapters) {
         for (var lesson in chapter.lessons) {
           if (lesson.videoFile != null) {
             formData.files.add(MapEntry(
-              'lessonVideo',
+              'lessonVideo[$lessonVideoIndex]',
               await MultipartFile.fromFile(lesson.videoFile!.path),
             ));
           }
+          lessonVideoIndex++;
         }
       }
 
@@ -333,28 +353,31 @@ class _CreateCoursePageState extends State<CreateCoursePage> {
         ),
       );
 
+      if (!mounted) return;
       if (response.statusCode == 200 || response.statusCode == 201) {
-        if (mounted) {
-          AppSnackBar.showSuccess(context, isFr ? 'Cours créé avec succès !' : 'Course created successfully!');
-          Navigator.pop(context);
-        }
+        AppSnackBar.showSuccess(context, isFr ? 'Cours créé avec succès !' : 'Course created successfully!');
+        Navigator.pop(context);
       } else {
         setState(() {
           _errorMessage = response.data['message'] ?? (isFr ? 'Échec de la création du cours' : 'Failed to create course');
         });
       }
     } catch (e) {
-      setState(() {
-        if (e is DioException) {
-          _errorMessage = e.response?.data['message'] ?? e.message ?? 'An error occurred';
-        } else {
-          _errorMessage = e.toString();
-        }
-      });
+      if (mounted) {
+        setState(() {
+          if (e is DioException) {
+            _errorMessage = e.response?.data['message'] ?? e.message ?? 'An error occurred';
+          } else {
+            _errorMessage = e.toString();
+          }
+        });
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

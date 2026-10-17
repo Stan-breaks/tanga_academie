@@ -28,12 +28,14 @@ class _ProfilePageState extends State<ProfilePage> {
     final token = await getToken();
     if (token != null) {
       final user = await getUser();
+      if (!mounted) return;
       setState(() {
         _isLoggedIn = true;
         _user = user;
         _isLoading = false;
       });
     } else {
+      if (!mounted) return;
       setState(() {
         _isLoggedIn = false;
         _isLoading = false;

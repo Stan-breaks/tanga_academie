@@ -14,9 +14,9 @@ workflows:
       cocoapods: default
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.tanga-academie.app
+        bundle_identifier: com.tangaacademie.app
       vars:
-        BUNDLE_ID: com.tangaAcademie.app
+        BUNDLE_ID: com.tangaacademie.app
 
     scripts:
       - name: Create .env
@@ -48,6 +48,62 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
+      email:
+        recipients:
+          - stanleymwendwa03@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  android-release:
+    name: Android Release
+    max_build_duration: 60
+    instance_type: linux_x2
+
+    environment:
+      groups:
+        - .env
+      flutter: stable
+      # To produce a Play Store-ready, release-signed AAB, add an Android
+      # keystore in Codemagic (UI > Code signing identities) named
+      # `tanga_android_keystore` and uncomment the block below. Codemagic will
+      # then generate android/key.properties from that secret. Without it,
+      # android/app/build.gradle.kts falls back to debug signing so the build
+      # still succeeds (APK/AAB built but not publishable).
+      # android_signing:
+      #   - tanga_android_keystore
+      vars:
+        PACKAGE_NAME: "com.tanga_academie.app"
+
+    scripts:
+      - name: Create .env
+        script: |
+          echo "API_URL=https://api.tangaacademie.com" > .env
+
+      - name: Display .env
+        script: cat .env
+
+      - name: Flutter pub get
+        script: flutter pub get
+
+      - name: Build APK
+        script: |
+          flutter build apk --release \
+            --build-name=$(cat pubspec.yaml | grep "^version:" | awk '{print $2}' | cut -d+ -f1) \
+            --build-number=$BUILD_NUMBER
+
+      - name: Build App Bundle
+        script: |
+          flutter build appbundle --release \
+            --build-name=$(cat pubspec.yaml | grep "^version:" | awk '{print $2}' | cut -d+ -f1) \
+            --build-number=$BUILD_NUMBER
+
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
+      - build/app/outputs/bundle/release/*.aab
+      - build/app/outputs/logs/*.log
+
+    publishing:
       email:
         recipients:
           - stanleymwendwa03@gmail.com

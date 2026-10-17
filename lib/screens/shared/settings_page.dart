@@ -93,6 +93,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _loadUserData() async {
     final user = await getUser();
+    if (!mounted) return;
     setState(() {
       _userId = (user['userId'] ?? '').toString();
       _email = (user['email'] ?? '').toString();
@@ -120,6 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
       imageQuality: 85,
     );
     if (picked != null) {
+      if (!mounted) return;
       setState(() {
         _pickedImage = File(picked.path);
       });

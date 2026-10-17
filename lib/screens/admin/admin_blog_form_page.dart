@@ -118,8 +118,10 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
     );
 
     if (source == null) return;
+    if (!mounted) return;
 
     final picked = await picker.pickImage(source: source, maxWidth: 1200);
+    if (!mounted) return;
     if (picked != null) {
       setState(() {
         _imageFile = File(picked.path);
@@ -190,20 +192,18 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
         );
       }
 
-      if (mounted) {
-        AppSnackBar.showSuccess(
-          context,
-          _isEditMode
-              ? (isFr ? 'Article mis à jour avec succès' : 'Blog updated successfully')
-              : (isFr ? 'Article créé avec succès' : 'Blog created successfully'),
-        );
-        Navigator.pop(context, true);
-      }
+      if (!mounted) return;
+      AppSnackBar.showSuccess(
+        context,
+        _isEditMode
+            ? (isFr ? 'Article mis à jour avec succès' : 'Blog updated successfully')
+            : (isFr ? 'Article créé avec succès' : 'Blog created successfully'),
+      );
+      Navigator.pop(context, true);
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isSaving = false);
-      if (mounted) {
-        AppSnackBar.showError(context, '${isFr ? 'Erreur' : 'Error'}: $e');
-      }
+      AppSnackBar.showError(context, '${isFr ? 'Erreur' : 'Error'}: $e');
     }
   }
 

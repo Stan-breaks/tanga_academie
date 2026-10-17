@@ -1,6 +1,17 @@
 // Contact models for chat functionality
 import 'package:tanga_acadamie/api_config.dart';
 
+/// Resolve a profile image value that may be a nested object ({url}) or a path.
+String _resolveProfile(dynamic value) {
+  if (value == null) return '';
+  if (value is Map) {
+    return _resolveProfile(value['url'] ?? value['path'] ?? value['secure_url']);
+  }
+  final path = value.toString();
+  if (path.isEmpty) return '';
+  return ApiConfig.getImageUrl(path);
+}
+
 /// Generic user contact for admin to message any user
 class UserContact {
   final String id;
@@ -21,14 +32,14 @@ class UserContact {
     final firstName = json['firstName']?.toString() ?? '';
     final lastName = json['lastName']?.toString() ?? '';
     final name = json['name']?.toString() ?? '$firstName $lastName'.trim();
-    final profilePath = json['profile']?.toString() ?? json['avatar']?.toString();
+    final profilePath = _resolveProfile(
+      json['profile'] ?? json['profileImage'] ?? json['avatar'],
+    );
 
     return UserContact(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       name: name.isEmpty ? 'Unknown User' : name,
-      profile: profilePath != null && profilePath.isNotEmpty
-          ? (profilePath.startsWith('http') ? profilePath : '${ApiConfig.baseUrl}$profilePath')
-          : '',
+      profile: profilePath,
       email: json['email']?.toString() ?? '',
       role: json['role']?.toString() ?? 'user',
     );
@@ -57,14 +68,14 @@ class InstructorContact {
     final name = json['username']?.toString() ?? 
                  json['name']?.toString() ?? 
                  '$firstName $lastName'.trim();
-    final profilePath = json['profile']?.toString() ?? json['avatar']?.toString();
+    final profilePath = _resolveProfile(
+      json['profile'] ?? json['profileImage'] ?? json['avatar'],
+    );
 
     return InstructorContact(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       name: name.isEmpty ? 'Unknown' : name,
-      profile: profilePath != null && profilePath.isNotEmpty
-          ? (profilePath.startsWith('http') ? profilePath : '${ApiConfig.baseUrl}$profilePath')
-          : '',
+      profile: profilePath,
       courses: (json['courses'] as List<dynamic>?)
               ?.map((c) => Course.fromJson(c))
               .toList() ??
@@ -95,14 +106,14 @@ class StudentContact {
     final name = json['username']?.toString() ?? 
                  json['name']?.toString() ?? 
                  '$firstName $lastName'.trim();
-    final profilePath = json['profile']?.toString() ?? json['avatar']?.toString();
+    final profilePath = _resolveProfile(
+      json['profile'] ?? json['profileImage'] ?? json['avatar'],
+    );
 
     return StudentContact(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       name: name.isEmpty ? 'Unknown' : name,
-      profile: profilePath != null && profilePath.isNotEmpty
-          ? (profilePath.startsWith('http') ? profilePath : '${ApiConfig.baseUrl}$profilePath')
-          : '',
+      profile: profilePath,
       email: json['email']?.toString() ?? '',
     );
   }
@@ -131,14 +142,14 @@ class AdminContact {
                  json['username']?.toString() ?? 
                  json['name']?.toString() ?? 
                  '$firstName $lastName'.trim();
-    final profilePath = json['profile']?.toString() ?? json['avatar']?.toString();
+    final profilePath = _resolveProfile(
+      json['profile'] ?? json['profileImage'] ?? json['avatar'],
+    );
 
     return AdminContact(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       name: name.isEmpty ? 'Unknown' : name,
-      profile: profilePath != null && profilePath.isNotEmpty
-          ? (profilePath.startsWith('http') ? profilePath : '${ApiConfig.baseUrl}$profilePath')
-          : '',
+      profile: profilePath,
       email: json['email']?.toString() ?? '',
     );
   }

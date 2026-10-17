@@ -70,6 +70,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
                   // Stats Grid
                   _buildStatsGrid(data),
+                  const SizedBox(height: 20),
+
+                  // Quiz attempts shortcut
+                  _buildQuizAttemptsShortcut(context),
                   const SizedBox(height: 32),
 
                   // Continue Learning Section
@@ -524,6 +528,69 @@ class _StudentDashboardState extends State<StudentDashboard> {
     );
   }
 
+  Widget _buildQuizAttemptsShortcut(BuildContext context) {
+    return InkWell(
+      onTap: () => Navigator.pushNamed(context, '/student-quiz-attempts'),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(10),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.deepPurple.shade400,
+                    Colors.deepPurple.shade700,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.quiz, color: Colors.white, size: 24),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isFr ? 'Mes tentatives de quiz' : 'My Quiz Attempts',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isFr
+                        ? 'Consultez vos scores et votre progression aux quiz'
+                        : 'View your quiz scores and progress',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: Colors.grey.shade400),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSectionHeader(
     BuildContext context,
     String title,
@@ -615,7 +682,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
         return CourseCard(
           course: activeCourses[index],
           onTap: () {
-            Navigator.pushReplacement(
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) =>

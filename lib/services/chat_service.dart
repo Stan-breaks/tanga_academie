@@ -48,18 +48,23 @@ class ChatService {
       onConnected?.call();
     });
 
-    _socket!.on('receive_message', (data) {
+    _socket!.on('new_message', (data) {
       try {
-        final message = Message.fromJson(data);
+        final messageData = (data is Map && data['message'] != null)
+            ? data['message']
+            : data;
+        final message = Message.fromJson(
+          Map<String, dynamic>.from(messageData as Map),
+        );
         onMessageReceived(message);
       } catch (e) {
         debugPrint('Error parsing received message: $e');
       }
     });
 
-    _socket!.on('typing', (data) {
-      if (data['isTyping'] != null) {
-        onTypingChanged(data['isTyping'] == true);
+    _socket!.on('user_typing', (data) {
+      if (data is Map && data['typing'] != null) {
+        onTypingChanged(data['typing'] == true);
       }
     });
 
@@ -81,15 +86,21 @@ class ChatService {
     _socket = null;
   }
 
-  /// Emit typing status
+  /// Emit typing status. The server expects `typing_start` / `typing_stop`
+  /// with the chatId as the payload.
   void emitTyping(String chatId, bool isTyping) {
-    _socket?.emit('typing', {'chatId': chatId, 'isTyping': isTyping});
+    _socket?.emit(isTyping ? 'typing_start' : 'typing_stop', chatId);
+  }
+
+  /// Leave the current chat room
+  void leaveChat(String chatId) {
+    _socket?.emit('leave_chat', chatId);
   }
 
   /// Fetch messages for a chat
   Future<List<Message>> fetchMessages(String chatId) async {
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/chats/$chatId/messages'),
+      Uri.parse('${ApiConfig.baseUrl}/api/chats/$chatId'),
       headers: {
         'Authorization': 'Bearer $_token',
         'Content-Type': 'application/json',
@@ -98,35 +109,61 @@ class ChatService {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      final messagesList = (data['data'] ?? data['messages'] ?? []) as List;
-      return messagesList.map((m) => Message.fromJson(m)).toList();
+      final chatData = data['data'];
+      final messagesList = (chatData is Map ? chatData['messages'] : null) ??
+          data['messages'] ??
+          [];
+      return (messagesList as List)
+          .whereType<Map>()
+          .map((m) => Message.fromJson(Map<String, dynamic>.from(m)))
+          .toList();
     } else {
       throw Exception('Failed to fetch messages');
     }
   }
 
-  /// Send a message
-  Future<Message?> sendMessage(String chatId, String content) async {
-    // First emit via socket for real-time delivery
-    _socket?.emit('send_message', {'chatId': chatId, 'content': content});
-
-    // Also send via HTTP for persistence
+  /// Send a message. When [attachmentPaths] is provided the request is sent as
+  /// multipart with the text under the `content` field and the files under
+  /// `attachments`; otherwise a plain JSON request is used.
+  Future<Message?> sendMessage(
+    String chatId,
+    String content, {
+    List<String> attachmentPaths = const [],
+  }) async {
     try {
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/chats/$chatId/messages'),
-        headers: {
-          'Authorization': 'Bearer $_token',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({'content': content}),
-      );
+      final uri = Uri.parse('${ApiConfig.baseUrl}/api/chats/$chatId/messages');
+      late http.Response response;
+
+      if (attachmentPaths.isEmpty) {
+        response = await http.post(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $_token',
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({'content': content}),
+        );
+      } else {
+        final request = http.MultipartRequest('POST', uri);
+        request.headers['Authorization'] = 'Bearer $_token';
+        request.fields['content'] = content;
+        for (final path in attachmentPaths) {
+          request.files.add(
+            await http.MultipartFile.fromPath('attachments', path),
+          );
+        }
+        final streamed = await request.send();
+        response = await http.Response.fromStream(streamed);
+      }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = json.decode(response.body);
-        return Message.fromJson(data['data'] ?? data);
+        return Message.fromJson(
+          Map<String, dynamic>.from((data['data'] ?? data) as Map),
+        );
       }
     } catch (e) {
-      debugPrint('HTTP send failed, relying on socket: $e');
+      debugPrint('Send message failed: $e');
     }
     return null;
   }
@@ -158,7 +195,7 @@ class ChatService {
     String? courseId,
     String? userType,
   }) async {
-    final body = <String, dynamic>{'recipientId': userId};
+    final body = <String, dynamic>{'participantId': userId};
     if (courseId != null) body['courseId'] = courseId;
     if (userType != null) body['recipientType'] = userType;
 

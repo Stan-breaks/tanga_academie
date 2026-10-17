@@ -28,7 +28,10 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
   bool _isLoading = true;
   bool _isSubmitting = false;
   bool _attemptAllowed = true;
+  String? _restrictionReason;
+  Map<String, dynamic> _restrictions = {};
   bool _showResults = false;
+  bool _requestingApproval = false;
   List<Map<String, dynamic>> _questions = [];
   List<int?> _selectedAnswers = [];
   Map<String, dynamic>? _result;
@@ -38,46 +41,188 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
       widget.lesson['id']?.toString() ??
       '';
 
+  String get _chapterId =>
+      widget.chapter['_id']?.toString() ??
+      widget.chapter['id']?.toString() ??
+      '';
+
   @override
   void initState() {
     super.initState();
     _loadQuiz();
   }
 
-  Future<void> _loadQuiz() async {
+  // Ask the backend whether a new attempt is allowed. The endpoint is
+  // chapter-keyed, so we must send the chapter id (not the lesson id).
+  Future<Map<String, dynamic>> _fetchRestrictions() async {
     final token = await getToken();
-
-    // Check if attempt allowed
+    final result = <String, dynamic>{
+      'allowed': true,
+      'reason': null,
+      'restrictions': <String, dynamic>{},
+    };
     try {
       final res = await http.get(
         Uri.parse(
-          '${ApiConfig.baseUrl}/api/quiz-progress/attempt-allowed/${widget.courseId}/$_lessonId',
+          '${ApiConfig.baseUrl}/api/quiz-progress/attempt-allowed/${widget.courseId}/$_chapterId',
         ),
         headers: {'Authorization': 'Bearer $token'},
       );
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        _attemptAllowed =
-            data['allowed'] ?? data['attemptAllowed'] ?? true;
+        final inner = data['data'] is Map
+            ? Map<String, dynamic>.from(data['data'])
+            : <String, dynamic>{};
+        result['allowed'] = inner['allowed'] ?? data['allowed'] ?? true;
+        result['reason'] = inner['reason'] ?? data['reason'];
+        result['restrictions'] = inner['restrictions'] is Map
+            ? Map<String, dynamic>.from(inner['restrictions'])
+            : <String, dynamic>{};
       }
     } catch (_) {}
+    return result;
+  }
 
-    // Quiz questions are embedded in lesson data
+  Future<Map<String, dynamic>?> _fetchStatus() async {
+    final token = await getToken();
+    try {
+      final res = await http.get(
+        Uri.parse(
+          '${ApiConfig.baseUrl}/api/quiz-progress/status/${widget.courseId}/$_chapterId',
+        ),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        final d = data['data'] is Map
+            ? Map<String, dynamic>.from(data['data'])
+            : <String, dynamic>{};
+        final attempts = (d['attempts'] ?? 0) as num;
+        if (attempts > 0) {
+          return {
+            'score': d['bestScore'] ?? d['score'] ?? 0,
+            'passed': d['passed'] ?? false,
+            'attempts': attempts,
+          };
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  Future<void> _loadQuiz() async {
+    // Quiz questions are embedded in the lesson under `quiz.questions`
     final quizData = widget.lesson['quiz'];
-    if (quizData != null && quizData['questions'] != null) {
-      final questions =
-          (quizData['questions'] as List).cast<Map<String, dynamic>>();
+    final rawQuestions = quizData is Map ? quizData['questions'] : null;
+    final questions = rawQuestions is List
+        ? rawQuestions
+              .whereType<Map>()
+              .map((q) => Map<String, dynamic>.from(q))
+              .toList()
+        : <Map<String, dynamic>>[];
+
+    final restrictions = await _fetchRestrictions();
+    final attemptAllowed = restrictions['allowed'] == true;
+    final priorResult = attemptAllowed ? await _fetchStatus() : null;
+
+    if (!mounted) return;
+
+    setState(() {
+      _attemptAllowed = attemptAllowed;
+      _restrictionReason = restrictions['reason'] as String?;
+      _restrictions = Map<String, dynamic>.from(
+        restrictions['restrictions'] ?? {},
+      );
+      _questions = questions;
+      _selectedAnswers = List.filled(questions.length, null);
+      if (priorResult != null) {
+        _result = priorResult;
+        _showResults = true;
+      }
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _retakeQuiz() async {
+    final restrictions = await _fetchRestrictions();
+    if (!mounted) return;
+
+    if (restrictions['allowed'] == true) {
       setState(() {
-        _questions = questions;
-        _selectedAnswers = List.filled(questions.length, null);
-        _isLoading = false;
+        _result = null;
+        _showResults = false;
+        _attemptAllowed = true;
+        _restrictionReason = null;
+        _restrictions = {};
+        _selectedAnswers = List.filled(_questions.length, null);
       });
     } else {
-      setState(() => _isLoading = false);
+      setState(() {
+        _showResults = false;
+        _attemptAllowed = false;
+        _restrictionReason = restrictions['reason'] as String?;
+        _restrictions = Map<String, dynamic>.from(
+          restrictions['restrictions'] ?? {},
+        );
+      });
+    }
+  }
+
+  Future<void> _requestApproval() async {
+    setState(() => _requestingApproval = true);
+    final token = await getToken();
+    try {
+      final res = await http.post(
+        Uri.parse(
+          '${ApiConfig.baseUrl}/api/quiz-progress/request-instructor-approval',
+        ),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'courseId': widget.courseId,
+          'chapterId': _chapterId,
+        }),
+      );
+
+      if (!mounted) return;
+      if (res.statusCode == 200) {
+        AppSnackBar.showSuccess(
+          context,
+          isFr
+              ? 'Demande envoyée à votre instructeur'
+              : 'Request sent to your instructor',
+        );
+        // Refresh so the "pending" state is reflected.
+        final restrictions = await _fetchRestrictions();
+        if (!mounted) return;
+        setState(() {
+          _restrictions = Map<String, dynamic>.from(
+            restrictions['restrictions'] ?? {},
+          );
+        });
+      } else {
+        AppSnackBar.showError(
+          context,
+          isFr
+              ? 'Échec de l\'envoi de la demande'
+              : 'Failed to send request',
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+      AppSnackBar.showError(
+        context,
+        isFr ? 'Une erreur est survenue' : 'An error occurred',
+      );
+    } finally {
+      if (mounted) setState(() => _requestingApproval = false);
     }
   }
 
   Future<void> _submitQuiz() async {
+    if (_questions.isEmpty) return;
     if (_selectedAnswers.any((a) => a == null)) {
       AppSnackBar.showError(
         context,
@@ -89,6 +234,16 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
     setState(() => _isSubmitting = true);
     final token = await getToken();
 
+    // The backend grades server-side and expects the selected option strings.
+    final answers = _selectedAnswers.asMap().entries.map((entry) {
+      final options = (_questions[entry.key]['options'] as List?) ?? [];
+      final index = entry.value;
+      if (index != null && index >= 0 && index < options.length) {
+        return options[index].toString();
+      }
+      return '';
+    }).toList();
+
     try {
       final res = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/api/quiz-progress/submit'),
@@ -97,11 +252,14 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'answers': _selectedAnswers,
           'courseId': widget.courseId,
-          'chapterId': _lessonId,
+          'chapterId': _chapterId,
+          'lessonId': _lessonId,
+          'answers': answers,
         }),
       );
+
+      if (!mounted) return;
 
       if (res.statusCode == 200 || res.statusCode == 201) {
         final data = jsonDecode(res.body);
@@ -111,13 +269,52 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
           _isSubmitting = false;
         });
         widget.onCompleted?.call();
+      } else if (res.statusCode == 403) {
+        // The server rejected the attempt due to a restriction (e.g. the last
+        // attempt unlocked a cooldown or an instructor-approval gate).
+        String? reason;
+        try {
+          reason = (jsonDecode(res.body) as Map)['reason']?.toString();
+        } catch (_) {}
+        setState(() => _isSubmitting = false);
+        AppSnackBar.showError(
+          context,
+          reason == 'instructor_approval'
+              ? (isFr
+                  ? 'Approbation de l\'instructeur requise'
+                  : 'Instructor approval required')
+              : reason == 'time_restriction'
+                  ? (isFr
+                      ? 'Veuillez patienter avant de réessayer'
+                      : 'Please wait before retrying')
+                  : (isFr
+                      ? 'Tentative non autorisée'
+                      : 'Attempt not allowed'),
+        );
+        final restrictions = await _fetchRestrictions();
+        if (!mounted) return;
+        setState(() {
+          _showResults = false;
+          _attemptAllowed = restrictions['allowed'] == true;
+          _restrictionReason = restrictions['reason'] as String?;
+          _restrictions = Map<String, dynamic>.from(
+            restrictions['restrictions'] ?? {},
+          );
+        });
       } else {
         setState(() => _isSubmitting = false);
-        if (!mounted) return;
-        AppSnackBar.showError(context, isFr ? 'Erreur lors de la soumission' : 'Submission failed');
+        AppSnackBar.showError(
+          context,
+          isFr ? 'Erreur lors de la soumission' : 'Submission failed',
+        );
       }
     } catch (_) {
+      if (!mounted) return;
       setState(() => _isSubmitting = false);
+      AppSnackBar.showError(
+        context,
+        isFr ? 'Une erreur est survenue' : 'An error occurred',
+      );
     }
   }
 
@@ -126,9 +323,9 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Quiz',
-          style: const TextStyle(fontWeight: FontWeight.w600),
+          style: TextStyle(fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
@@ -146,7 +343,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
           : _showResults
               ? _buildResults()
               : !_attemptAllowed
-                  ? _buildNoAttemptScreen()
+                  ? _buildRestrictionScreen()
                   : _questions.isEmpty
                       ? _buildNoQuizScreen()
                       : _buildQuizContent(),
@@ -331,15 +528,13 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
   }
 
   Widget _buildResults() {
-    final score =
-        _result?['score'] ?? _result?['percentage'] ?? 0;
-    final passed = _result?['passed'] ?? (score >= 70);
-    final correct =
-        _result?['correct'] ?? _result?['correctAnswers'];
+    final score = _result?['score'] ?? _result?['percentage'] ?? 0;
+    final passed = _result?['passed'] ?? (score >= 60);
+    final correct = _result?['correct'] ?? _result?['correctAnswers'];
     final total = _questions.length;
 
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -392,19 +587,52 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
                 ),
               ),
             ],
+            const SizedBox(height: 8),
+            Text(
+              passed
+                  ? (isFr
+                      ? 'Vous pouvez passer au chapitre suivant.'
+                      : 'You can now proceed to the next chapter.')
+                  : (isFr
+                      ? 'Vous devez obtenir 60 % pour réussir.'
+                      : 'You need 60% to pass.'),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            ),
             const SizedBox(height: 32),
+            if (!passed)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _retakeQuiz,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange.shade600,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    isFr ? 'Repasser le quiz' : 'Retake Quiz',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: OutlinedButton(
                 onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  foregroundColor: Colors.white,
+                style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  elevation: 0,
                 ),
                 child: Text(
                   isFr ? 'Retour à la leçon' : 'Back to Lesson',
@@ -421,18 +649,127 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
     );
   }
 
+  // ── Restriction screens ────────────────────────────────────────────
+  Widget _buildRestrictionScreen() {
+    final reason = _restrictionReason;
+    final attempts = _restrictions['totalAttempts'];
+
+    if (reason == 'time_restriction') {
+      final hours = _restrictions['timeRemaining'];
+      return _buildInfoScreen(
+        icon: Icons.lock_clock,
+        color: Colors.orange,
+        title: isFr
+            ? 'Quiz temporairement verrouillé'
+            : 'Quiz temporarily locked',
+        subtitle: isFr
+            ? 'Vous devez attendre $hours heure(s) avant votre prochaine tentative.'
+            : 'You must wait $hours hour(s) before your next attempt.',
+        footer: attempts != null
+            ? (isFr ? 'Tentatives : $attempts' : 'Attempts: $attempts')
+            : null,
+      );
+    }
+
+    if (reason == 'video_rewatch') {
+      return _buildInfoScreen(
+        icon: Icons.replay_circle_filled,
+        color: Colors.blue,
+        title: isFr ? 'Re-visionnage requis' : 'Video re-watch required',
+        subtitle: isFr
+            ? 'Vous devez revoir entièrement la vidéo du chapitre avant votre prochaine tentative.'
+            : 'You must re-watch the chapter video before your next attempt.',
+        footer: attempts != null
+            ? (isFr ? 'Tentatives : $attempts' : 'Attempts: $attempts')
+            : null,
+      );
+    }
+
+    if (reason == 'instructor_approval' || reason == null) {
+      final requested = _restrictions['instructorApprovalRequestedAt'] != null;
+      return _buildInfoScreen(
+        icon: Icons.school,
+        color: Colors.red,
+        title: isFr
+            ? 'Approbation de l\'instructeur requise'
+            : 'Instructor approval required',
+        subtitle: isFr
+            ? 'Vous avez atteint le nombre maximum de tentatives. Demandez l\'autorisation à votre instructeur pour continuer.'
+            : 'You have reached the maximum number of attempts. Request permission from your instructor to continue.',
+        footer: attempts != null
+            ? (isFr ? 'Tentatives : $attempts' : 'Attempts: $attempts')
+            : null,
+        extra: requested
+            ? Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Text(
+                  isFr
+                      ? 'Demande envoyée - en attente d\'approbation'
+                      : 'Request sent - awaiting approval',
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: ElevatedButton(
+                  onPressed: _requestingApproval ? null : _requestApproval,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 14,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: _requestingApproval
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(isFr
+                          ? 'Demander l\'approbation'
+                          : 'Request Approval'),
+                ),
+              ),
+      );
+    }
+
+    return _buildInfoScreen(
+      icon: Icons.lock_outline,
+      color: Colors.red,
+      title: isFr ? 'Tentative non autorisée' : 'Attempt not allowed',
+      subtitle: isFr
+          ? 'Vous ne pouvez pas repasser ce quiz pour le moment.'
+          : 'You cannot retake this quiz right now.',
+    );
+  }
+
   Widget _buildInfoScreen({
     required IconData icon,
     required String title,
     required String subtitle,
+    Color color = Colors.grey,
+    String? footer,
+    Widget? extra,
   }) {
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 64, color: Colors.grey.shade400),
+            Icon(icon, size: 64, color: color),
             const SizedBox(height: 16),
             Text(
               title,
@@ -449,6 +786,18 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
               style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               textAlign: TextAlign.center,
             ),
+            if (footer != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                footer,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Colors.black54,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+            ?extra,
             const SizedBox(height: 24),
             OutlinedButton(
               onPressed: () => Navigator.pop(context),
@@ -459,14 +808,6 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
       ),
     );
   }
-
-  Widget _buildNoAttemptScreen() => _buildInfoScreen(
-        icon: Icons.lock_clock,
-        title: isFr ? 'Tentative non autorisée' : 'No More Attempts Allowed',
-        subtitle: isFr
-            ? 'Vous avez épuisé vos tentatives pour ce quiz.'
-            : 'You have used all your attempts for this quiz.',
-      );
 
   Widget _buildNoQuizScreen() => _buildInfoScreen(
         icon: Icons.quiz_outlined,

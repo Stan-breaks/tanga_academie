@@ -52,6 +52,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
   Future<void> _checkCourseAccess() async {
     try {
       final token = await getToken();
+      if (!mounted) return;
 
       if (token == null || token.isEmpty) {
         setState(() => _checkingAccess = false);
@@ -64,13 +65,16 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
+      if (!mounted) return;
       if (response.data['success'] == true) {
         setState(() => _hasAccess = response.data['hasAccess'] ?? false);
       }
     } catch (error) {
       debugPrint('Error checking course access: $error');
     } finally {
-      setState(() => _checkingAccess = false);
+      if (mounted) {
+        setState(() => _checkingAccess = false);
+      }
     }
   }
 
@@ -91,6 +95,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     setState(() => _loading = true);
     try {
       final token = await getToken();
+      if (!mounted) return;
 
       if (token == null || token.isEmpty) {
         setState(() => _loading = false);
@@ -113,6 +118,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
+      if (!mounted) return;
       if (response.data['success'] == true) {
         _showSnackBar(
           isFr
@@ -124,7 +130,9 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     } catch (error) {
       _showSnackBar('${isFr ? 'Échec de l\'inscription' : 'Failed to enroll'}: ${error.toString()}');
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -132,6 +140,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     setState(() => _loading = true);
     try {
       final token = await getToken();
+      if (!mounted) return;
 
       if (token == null || token.isEmpty) {
         setState(() => _loading = false);
@@ -150,31 +159,51 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
+      if (!mounted) return;
       if (response.data['success'] == true) {
         await _launchPaymentGateway(response.data);
       }
     } catch (error) {
       _showSnackBar('${isFr ? 'Paiement échoué' : 'Payment failed'}: ${error.toString()}');
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
   Future<void> _launchPaymentGateway(Map<String, dynamic> paymentData) async {
-    final gatewayUrl = paymentData['gatewayUrl'];
-    final params = paymentData['paymentData'] as Map<String, dynamic>;
+    final gatewayUrl = paymentData['gatewayUrl']?.toString();
+    final rawParams = paymentData['paymentData'];
+
+    if (gatewayUrl == null || gatewayUrl.isEmpty) {
+      _showSnackBar('Could not launch payment gateway');
+      return;
+    }
+
+    final params = rawParams is Map
+        ? rawParams.map(
+            (key, value) => MapEntry(key.toString(), value.toString()),
+          )
+        : <String, String>{};
 
     final uri = Uri.parse(gatewayUrl).replace(
-      queryParameters: params.map(
-        (key, value) => MapEntry(key, value.toString()),
-      ),
+      queryParameters: params.isEmpty ? null : params,
     );
 
-    if (await canLaunchUrl(uri)) {
-      _pendingPayment = true;
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      _showSnackBar('Could not launch payment gateway');
+    try {
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!mounted) return;
+      if (launched) {
+        _pendingPayment = true;
+      } else {
+        _showSnackBar('Could not launch payment gateway');
+      }
+    } catch (error) {
+      _showSnackBar('Could not launch payment gateway: $error');
     }
   }
 

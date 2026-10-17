@@ -44,6 +44,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     try {
       // Get username
       final user = await getUser();
+      if (!mounted) return;
       _username = user['username'] ?? user['firstName'] ?? 'Admin';
 
       // Run all requests independently — one failing (e.g. 401) won't crash the whole dashboard
@@ -52,16 +53,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
       final noticesResult = await getAdminNotices().catchError((_) => <dynamic>[]);
       final coursesResult = await getAdminCourses().catchError((_) => <String, dynamic>{});
 
+      // Normalize the {success, data:{...}} envelope defensively.
+      final statsData = statsResult['data'];
+      final normalizedStats = (statsData is Map<String, dynamic> ? statsData : statsResult);
+      final coursesData = coursesResult['data'] ?? coursesResult['courses'];
+      final normalizedCourses = coursesData is List ? coursesData : const [];
+
+      if (!mounted) return;
       setState(() {
-        _stats = statsResult.isNotEmpty ? statsResult : null;
+        _stats = normalizedStats.isNotEmpty ? normalizedStats : null;
         _topInstructors = instructorsResult.take(5).toList();
         _notices = noticesResult.take(5).toList();
-        _recentCourses = (coursesResult['data'] as List<dynamic>? ?? [])
-            .take(6)
-            .toList();
+        _recentCourses = normalizedCourses.take(6).toList();
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -157,7 +164,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Widget _buildDashboard() {
-    final statsList = _stats?['data']?['stats'] as List<dynamic>? ?? [];
+    // Accept both {stats:[...]} and the raw {data:{stats:[...]}} envelope.
+    final statsMap = _stats?['data'] is Map ? _stats!['data'] as Map : _stats;
+    final statsList = statsMap?['stats'] as List<dynamic>? ?? [];
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,

@@ -31,18 +31,32 @@ class _InstructorChatListState extends State<InstructorChatList> {
 
   Future<void> _initialize() async {
     _currentUserId = await getCurrentUserId();
-    await Future.wait([
-      _fetchUserChats(),
-      _fetchStudentsContacts(),
-      _fetchAdminsContacts(),
-    ]);
+    if (!mounted) return;
+    try {
+      await Future.wait([
+        _fetchUserChats(),
+        _fetchStudentsContacts(),
+        _fetchAdminsContacts(),
+      ]);
+    } catch (_) {
+      // Individual fetch failures are surfaced through `_fetchUserChats`;
+      // never let the combined future reject unhandled from initState.
+      if (mounted) {
+        setState(() {
+          _error = isFr ? 'Échec du chargement des messages' : 'Failed to load messages';
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _fetchUserChats() async {
     final result = await fetchUserChats();
+    if (!mounted) return;
     if (result.isSuccess) {
+      final data = result.data;
       setState(() {
-        _chats = (result.data as List)
+        _chats = (data is List ? data.whereType<Map<String, dynamic>>() : const <Map<String, dynamic>>[])
             .map((chat) => ChatItem.fromJson(chat, _currentUserId))
             .toList();
         _isLoading = false;
@@ -58,9 +72,11 @@ class _InstructorChatListState extends State<InstructorChatList> {
 
   Future<void> _fetchStudentsContacts() async {
     final result = await fetchStudentContacts();
+    if (!mounted) return;
     if (result.isSuccess) {
+      final data = result.data;
       setState(() {
-        _coursesWithStudents = (result.data as List)
+        _coursesWithStudents = (data is List ? data.whereType<Map<String, dynamic>>() : const <Map<String, dynamic>>[])
             .map((course) => CourseWithStudents.fromJson(course))
             .where((course) => course.students.isNotEmpty)
             .toList();
@@ -70,9 +86,11 @@ class _InstructorChatListState extends State<InstructorChatList> {
 
   Future<void> _fetchAdminsContacts() async {
     final result = await fetchAdminsForInstructor();
+    if (!mounted) return;
     if (result.isSuccess) {
+      final data = result.data;
       setState(() {
-        _admins = (result.data as List)
+        _admins = (data is List ? data.whereType<Map<String, dynamic>>() : const <Map<String, dynamic>>[])
             .map((admin) => AdminContact.fromJson(admin))
             .toList();
       });
@@ -89,17 +107,20 @@ class _InstructorChatListState extends State<InstructorChatList> {
       userType: userType,
       courseId: courseId,
     );
+    if (!mounted) return;
 
     if (result.isSuccess) {
       final chatData = result.data;
-      final chatId = chatData['_id'] ?? chatData['chatId'];
+      final chatId = chatData is Map
+          ? (chatData['_id'] ?? chatData['chatId'])
+          : null;
 
       setState(() {
         _showStudentList = false;
         _showAdminList = false;
       });
 
-      if (chatId != null && _currentUserId != null && mounted) {
+      if (chatId != null && _currentUserId != null) {
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -134,11 +155,15 @@ class _InstructorChatListState extends State<InstructorChatList> {
       body: RefreshIndicator(
         color: Colors.blueAccent,
         onRefresh: () async {
-          await Future.wait([
-            _fetchUserChats(),
-            _fetchStudentsContacts(),
-            _fetchAdminsContacts(),
-          ]);
+          try {
+            await Future.wait([
+              _fetchUserChats(),
+              _fetchStudentsContacts(),
+              _fetchAdminsContacts(),
+            ]);
+          } catch (_) {
+            // Never let a rejected combined future escape RefreshIndicator.
+          }
         },
         child: _isLoading ? _buildLoadingState() : _buildBody(),
       ),

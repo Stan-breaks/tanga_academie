@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:tanga_acadamie/api_config.dart';
@@ -228,6 +229,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
   Future<void> _pickBannerImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (!mounted) return;
     if (image != null) {
       setState(() {
         _bannerImage = File(image.path);
@@ -236,25 +238,40 @@ class _EditCoursePageState extends State<EditCoursePage> {
   }
 
   Future<void> _pickCertificateFile() async {
-    final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
-    if (file != null) {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (!mounted) return;
+    final path = result != null && result.files.isNotEmpty
+        ? result.files.first.path
+        : null;
+    if (path != null) {
       setState(() {
-        _certificateFile = File(file.path);
+        _certificateFile = File(path);
       });
     }
   }
 
   Future<void> _pickPdfFiles() async {
-    final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
-    if (file != null) {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (!mounted) return;
+    if (result != null) {
       setState(() {
-        _newPdfFiles.add(File(file.path));
+        _newPdfFiles.addAll(
+          result.files.where((f) => f.path != null).map((f) => File(f.path!)),
+        );
       });
     }
   }
 
   Future<void> _pickLessonVideo(int chapterIndex, int lessonIndex) async {
     final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
+    if (!mounted) return;
     if (video != null) {
       setState(() {
         _chapters[chapterIndex].lessons[lessonIndex].newVideoFile = File(video.path);
@@ -387,15 +404,17 @@ class _EditCoursePageState extends State<EditCoursePage> {
         ));
       }
 
-      // Add new lesson videos
+      // Add new lesson videos (indexed so each file maps to a lesson)
+      int lessonVideoIndex = 0;
       for (var chapter in _chapters) {
         for (var lesson in chapter.lessons) {
           if (lesson.newVideoFile != null) {
             formData.files.add(MapEntry(
-              'lessonVideo',
+              'lessonVideo[$lessonVideoIndex]',
               await MultipartFile.fromFile(lesson.newVideoFile!.path),
             ));
           }
+          lessonVideoIndex++;
         }
       }
 
@@ -410,28 +429,31 @@ class _EditCoursePageState extends State<EditCoursePage> {
         ),
       );
 
+      if (!mounted) return;
       if (response.statusCode == 200) {
-        if (mounted) {
-          AppSnackBar.showSuccess(context, isFr ? 'Cours mis à jour avec succès !' : 'Course updated successfully!');
-          Navigator.pop(context, true); // Return true to indicate update
-        }
+        AppSnackBar.showSuccess(context, isFr ? 'Cours mis à jour avec succès !' : 'Course updated successfully!');
+        Navigator.pop(context, true); // Return true to indicate update
       } else {
         setState(() {
           _errorMessage = response.data['message'] ?? 'Failed to update course';
         });
       }
     } catch (e) {
-      setState(() {
-        if (e is DioException) {
-          _errorMessage = e.response?.data['message'] ?? e.message ?? 'An error occurred';
-        } else {
-          _errorMessage = e.toString();
-        }
-      });
+      if (mounted) {
+        setState(() {
+          if (e is DioException) {
+            _errorMessage = e.response?.data['message'] ?? e.message ?? 'An error occurred';
+          } else {
+            _errorMessage = e.toString();
+          }
+        });
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

@@ -1,5 +1,57 @@
 import 'package:intl/intl.dart';
 
+/// Parse timestamps that may be ISO strings, or integer seconds/milliseconds.
+DateTime _parseTimestamp(dynamic value) {
+  if (value == null) return DateTime.now();
+  if (value is DateTime) return value;
+  if (value is num) {
+    final n = value.toInt();
+    return DateTime.fromMillisecondsSinceEpoch(
+      n < 100000000000 ? n * 1000 : n,
+    );
+  }
+
+  final raw = value.toString().trim();
+  if (raw.isEmpty) return DateTime.now();
+
+  final asInt = int.tryParse(raw);
+  if (asInt != null) {
+    return DateTime.fromMillisecondsSinceEpoch(
+      asInt < 100000000000 ? asInt * 1000 : asInt,
+    );
+  }
+
+  return DateTime.tryParse(raw) ?? DateTime.now();
+}
+
+/// Extract a profile image path that may be a nested object ({url}) or a path.
+String? _extractProfile(dynamic value) {
+  if (value == null) return null;
+  if (value is Map) {
+    return _extractProfile(value['url'] ?? value['path'] ?? value['secure_url']);
+  }
+  final path = value.toString();
+  return path.isEmpty ? null : path;
+}
+
+/// Resolve a preview string for a message that may only contain attachments.
+String _previewFromMessage(dynamic lastMsg) {
+  if (lastMsg is Map) {
+    final content = lastMsg['content']?.toString() ?? '';
+    if (content.isNotEmpty) return content;
+    final attachments = lastMsg['attachments'];
+    if (attachments is List && attachments.isNotEmpty) {
+      final first = attachments.first;
+      if (first is Map) {
+        final name = first['filename']?.toString();
+        if (name != null && name.isNotEmpty) return '📎 $name';
+      }
+      return '📎 Attachment';
+    }
+  }
+  return 'No messages yet';
+}
+
 /// Chat item model representing a conversation in chat list
 
 class ChatItem {
@@ -44,12 +96,11 @@ class ChatItem {
         final displayName = name.isEmpty ? 'Unknown User' : name;
 
         final lastMsg = json['lastMessage'];
-        final lastMessageContent =
-            lastMsg?['content']?.toString() ?? 'No messages yet';
-        final lastMessageTime = lastMsg?['timestamp'] != null
-            ? DateTime.tryParse(lastMsg['timestamp'].toString()) ??
-                  DateTime.now()
-            : DateTime.now();
+        final lastMessageTime = _parseTimestamp(
+          lastMsg?['timestamp'] ??
+              lastMsg?['createdAt'] ??
+              json['updatedAt'],
+        );
 
         return ChatItem(
           id: json['_id']?.toString() ?? json['chatId']?.toString() ?? '',
@@ -58,13 +109,15 @@ class ChatItem {
           recipientInitial: displayName.isNotEmpty
               ? displayName[0].toUpperCase()
               : '?',
-          recipientAvatar:
-              participant['profile']?.toString() ??
-              participant['avatar']?.toString(),
+          recipientAvatar: _extractProfile(
+            participant['profile'] ??
+                participant['profileImage'] ??
+                participant['avatar'],
+          ),
           recipientRole: participant['role']?.toString(),
-          lastMessage: lastMessageContent,
+          lastMessage: _previewFromMessage(lastMsg),
           lastMessageTime: lastMessageTime,
-          unreadCount: json['unreadCount'] ?? 0,
+          unreadCount: int.tryParse('${json['unreadCount'] ?? 0}') ?? 0,
           courseId:
               json['courseId']?.toString() ??
               json['course']?['_id']?.toString(),
@@ -95,19 +148,19 @@ class ChatItem {
       recipientInitial: displayName.isNotEmpty
           ? displayName[0].toUpperCase()
           : '?',
-      recipientAvatar:
-          recipientData['avatar']?.toString() ??
-          recipientData['profile']?.toString(),
+      recipientAvatar: _extractProfile(
+        recipientData['profile'] ??
+            recipientData['profileImage'] ??
+            recipientData['avatar'],
+      ),
       recipientRole: recipientData['role']?.toString(),
-      lastMessage: json['lastMessage']?.toString() ?? 'No messages yet',
-      lastMessageTime: json['lastMessageTime'] != null
-          ? DateTime.tryParse(json['lastMessageTime'].toString()) ??
-                DateTime.now()
-          : (json['updatedAt'] != null
-                ? DateTime.tryParse(json['updatedAt'].toString()) ??
-                      DateTime.now()
-                : DateTime.now()),
-      unreadCount: int.tryParse(json['unreadCount']?.toString() ?? '0') ?? 0,
+      lastMessage: json['lastMessage'] is Map
+          ? _previewFromMessage(json['lastMessage'])
+          : (json['lastMessage']?.toString() ?? 'No messages yet'),
+      lastMessageTime: _parseTimestamp(
+        json['lastMessageTime'] ?? json['updatedAt'],
+      ),
+      unreadCount: int.tryParse('${json['unreadCount'] ?? 0}') ?? 0,
       courseId:
           json['courseId']?.toString() ?? json['course']?['_id']?.toString(),
       courseName:

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/screens/shared/course_card.dart';
@@ -26,11 +28,14 @@ class _ExplorePageState extends State<ExplorePage>
   late Animation<double> _fadeAnimation;
 
   late Future<Map<String, dynamic>> coursesFuture;
+  late Future<List<Blog>> _blogsFuture;
+  Timer? _searchDebounce;
 
   @override
   void initState() {
     super.initState();
     coursesFuture = fetchCourses();
+    _blogsFuture = BlogService.fetchRecentBlogs();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
@@ -43,9 +48,32 @@ class _ExplorePageState extends State<ExplorePage>
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     searchController.dispose();
     _animationController.dispose();
     super.dispose();
+  }
+
+  /// Debounce search input so filtering (and rebuilds) don't run on every key
+  /// stroke.
+  void _onSearchChanged(String value) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      setState(() {
+        searchQuery = value;
+      });
+    });
+  }
+
+  Future<void> _refresh() async {
+    final courses = fetchCourses();
+    final blogs = BlogService.fetchRecentBlogs();
+    if (!mounted) return;
+    setState(() {
+      coursesFuture = courses;
+      _blogsFuture = blogs;
+    });
   }
 
   @override
@@ -101,11 +129,7 @@ class _ExplorePageState extends State<ExplorePage>
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        coursesFuture = fetchCourses();
-                      });
-                    },
+                    onPressed: _refresh,
                     icon: const Icon(Icons.refresh),
                     label: Text(isFr ? 'Réessayer' : 'Try Again'),
                     style: ElevatedButton.styleFrom(
@@ -161,11 +185,7 @@ class _ExplorePageState extends State<ExplorePage>
               opacity: _fadeAnimation,
               child: RefreshIndicator(
                 color: Colors.blueAccent,
-                onRefresh: () async {
-                  setState(() {
-                    coursesFuture = fetchCourses();
-                  });
-                },
+                onRefresh: _refresh,
                 child: CustomScrollView(
                   slivers: [
                     // Header Section
@@ -307,11 +327,7 @@ class _ExplorePageState extends State<ExplorePage>
         ),
         child: TextField(
           controller: searchController,
-          onChanged: (value) {
-            setState(() {
-              searchQuery = value;
-            });
-          },
+          onChanged: _onSearchChanged,
           decoration: InputDecoration(
             hintText: isFr ? 'Rechercher des cours...' : 'Search courses...',
             hintStyle: TextStyle(color: Colors.grey.shade500),
@@ -320,6 +336,7 @@ class _ExplorePageState extends State<ExplorePage>
                 ? IconButton(
                     icon: Icon(Icons.clear, color: Colors.grey.shade500),
                     onPressed: () {
+                      _searchDebounce?.cancel();
                       setState(() {
                         searchController.clear();
                         searchQuery = '';
@@ -507,6 +524,7 @@ class _ExplorePageState extends State<ExplorePage>
           if (searchQuery.isNotEmpty || selectedCategory != 'All')
             OutlinedButton.icon(
               onPressed: () {
+                _searchDebounce?.cancel();
                 setState(() {
                   searchController.clear();
                   searchQuery = '';
@@ -595,7 +613,7 @@ class _ExplorePageState extends State<ExplorePage>
           SizedBox(
             height: 240,
             child: FutureBuilder<List<Blog>>(
-              future: BlogService.fetchRecentBlogs(),
+              future: _blogsFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(

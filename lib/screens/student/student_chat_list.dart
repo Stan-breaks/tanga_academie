@@ -623,7 +623,7 @@ class _StudentChatListState extends State<StudentChatList>
                           chat.recipientAvatar!.isNotEmpty
                       ? DecorationImage(
                           image: NetworkImage(
-                            '${ApiConfig.baseUrl}${chat.recipientAvatar}',
+                            ApiConfig.getImageUrl(chat.recipientAvatar),
                           ),
                           fit: BoxFit.cover,
                         )

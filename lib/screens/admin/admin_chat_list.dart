@@ -29,14 +29,28 @@ class _AdminChatListState extends State<AdminChatList> {
 
   Future<void> _initialize() async {
     _currentUserId = await getCurrentUserId();
-    await Future.wait([_fetchUserChats(), _fetchAllUsers()]);
+    if (!mounted) return;
+    try {
+      await Future.wait([_fetchUserChats(), _fetchAllUsers()]);
+    } catch (_) {
+      // Individual fetch failures are surfaced through `_fetchUserChats`;
+      // never let the combined future reject unhandled from initState.
+      if (mounted) {
+        setState(() {
+          _error = isFr ? 'Échec du chargement des messages' : 'Failed to load messages';
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _fetchUserChats() async {
     final result = await fetchUserChats();
+    if (!mounted) return;
     if (result.isSuccess) {
+      final data = result.data;
       setState(() {
-        _chats = (result.data as List)
+        _chats = (data is List ? data.whereType<Map<String, dynamic>>() : const <Map<String, dynamic>>[])
             .map((chat) => ChatItem.fromJson(chat, _currentUserId))
             .toList();
         _isLoading = false;
@@ -52,9 +66,11 @@ class _AdminChatListState extends State<AdminChatList> {
 
   Future<void> _fetchAllUsers() async {
     final result = await fetchAdminContacts();
+    if (!mounted) return;
     if (result.isSuccess) {
+      final data = result.data;
       setState(() {
-        _users = (result.data as List)
+        _users = (data is List ? data.whereType<Map<String, dynamic>>() : const <Map<String, dynamic>>[])
             .where((user) => user['_id'] != _currentUserId)
             .map((user) => UserContact.fromJson(user))
             .toList();
@@ -64,15 +80,18 @@ class _AdminChatListState extends State<AdminChatList> {
 
   Future<void> _startNewChat(String userId) async {
     final result = await startChat(participantId: userId);
+    if (!mounted) return;
     if (result.isSuccess) {
       final chatData = result.data;
-      final chatId = chatData['_id'] ?? chatData['chatId'];
+      final chatId = chatData is Map
+          ? (chatData['_id'] ?? chatData['chatId'])
+          : null;
 
       setState(() {
         _showUserList = false;
       });
 
-      if (chatId != null && _currentUserId != null && mounted) {
+      if (chatId != null && _currentUserId != null) {
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -107,7 +126,11 @@ class _AdminChatListState extends State<AdminChatList> {
       body: RefreshIndicator(
         color: Colors.blueAccent,
         onRefresh: () async {
-          await Future.wait([_fetchUserChats(), _fetchAllUsers()]);
+          try {
+            await Future.wait([_fetchUserChats(), _fetchAllUsers()]);
+          } catch (_) {
+            // Never let a rejected combined future escape RefreshIndicator.
+          }
         },
         child: _isLoading ? _buildLoadingState() : _buildBody(),
       ),

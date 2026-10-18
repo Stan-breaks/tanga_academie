@@ -867,7 +867,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
+          maxWidth: MediaQuery.sizeOf(context).width * 0.75,
         ),
         decoration: BoxDecoration(
           gradient: isMe

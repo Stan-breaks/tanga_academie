@@ -28,9 +28,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
     ProfilePage(),
   ];
 
+  // Pages are built lazily on first visit and then kept alive, so switching
+  // tabs neither disposes their state nor re-runs their network requests.
+  final Set<int> _loadedPages = {};
+
   void _onItemTapped(int index) {
     setState(() {
       _index = index;
+      _loadedPages.add(index);
     });
   }
 
@@ -38,15 +43,19 @@ class _AdminHomePageState extends State<AdminHomePage> {
   void initState() {
     super.initState();
     _index = 0;
+    _loadedPages.add(_index);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppbar(isLoggedIn: widget.isLoggedIn),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: _pages[_index],
+      body: IndexedStack(
+        index: _index,
+        children: [
+          for (var i = 0; i < _pages.length; i++)
+            _loadedPages.contains(i) ? _pages[i] : const SizedBox.shrink(),
+        ],
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

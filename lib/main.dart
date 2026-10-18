@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -21,11 +22,9 @@ Future<void> main() async {
   FlutterNativeSplash.preserve(widgetsBinding: binding);
 
   await Hive.initFlutter();
+  await initStorage();
   await dotenv.load(fileName: ".env");
   await initLanguage();
-
-  // Silently refresh access token if near expiry before deciding auth state
-  await ensureFreshToken();
 
   final token = await getToken();
   final user = await getUser();
@@ -38,6 +37,11 @@ Future<void> main() async {
       user['role'].isNotEmpty;
   FlutterNativeSplash.remove();
   runApp(MyApp(isLoggedIn: isLoggedIn, user: user));
+
+  // Refresh the access token in the background so a slow/offline network call
+  // can never delay the first frame (it used to run before runApp and could
+  // hold the splash for up to the request timeout).
+  unawaited(ensureFreshToken());
 }
 
 class MyApp extends StatelessWidget {

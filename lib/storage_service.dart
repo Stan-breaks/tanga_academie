@@ -1,27 +1,38 @@
 import 'package:hive/hive.dart';
 
+// The auth box is opened once and kept open for the app's lifetime. It used to
+// be opened AND closed on every access, which added a disk round-trip to every
+// getToken()/getUser() call (i.e. to virtually every API request).
+const _authBoxName = "authBox";
+Box? _authBox;
+
+/// Pre-opens the auth box so the first read is instant. Safe to call more than
+/// once; `Hive.openBox` returns the same instance if already open.
+Future<void> initStorage() async {
+  _authBox ??= await Hive.openBox(_authBoxName);
+}
+
+Future<Box> _box() async {
+  return _authBox ??= await Hive.openBox(_authBoxName);
+}
+
 Future<void> saveToken(String token) async {
-  var box = await Hive.openBox("authBox");
+  final box = await _box();
   await box.put("jwt", token);
-  await box.close();
 }
 
 Future<void> saveRefreshToken(String token) async {
-  var box = await Hive.openBox("authBox");
+  final box = await _box();
   await box.put("refreshToken", token);
-  await box.close();
 }
 
 Future<String?> getRefreshToken() async {
-  var box = await Hive.openBox("authBox");
-  final token = box.get("refreshToken");
-  await box.close();
-  return token;
+  final box = await _box();
+  return box.get("refreshToken");
 }
 
-
 Future<void> saveUser(Map<String, dynamic> user) async {
-  var box = await Hive.openBox("authBox");
+  final box = await _box();
   await box.put("userId", user['_id']);
   await box.put("firstName", user['firstName']);
   await box.put("lastName", user['lastName']);
@@ -34,19 +45,16 @@ Future<void> saveUser(Map<String, dynamic> user) async {
   await box.put("phoneNumber", user['phoneNumber']);
   await box.put("skill", user['skill']);
   await box.put("bio", user['bio']);
-  await box.close();
 }
 
 Future<String?> getToken() async {
-  var box = await Hive.openBox("authBox");
-  final token = await box.get("jwt");
-  await box.close();
-  return token;
+  final box = await _box();
+  return box.get("jwt");
 }
 
 Future<Map<String, dynamic>> getUser() async {
-  var box = await Hive.openBox("authBox");
-  final user = <String, dynamic>{
+  final box = await _box();
+  return <String, dynamic>{
     "userId": box.get("userId"),
     "firstName": box.get("firstName"),
     "lastName": box.get("lastName"),
@@ -60,13 +68,9 @@ Future<Map<String, dynamic>> getUser() async {
     "skill": box.get("skill"),
     "bio": box.get("bio"),
   };
-  await box.close();
-  return user;
 }
 
-
 Future<void> logout() async {
-  var box = await Hive.openBox("authBox");
+  final box = await _box();
   await box.clear();
-  await box.close();
 }

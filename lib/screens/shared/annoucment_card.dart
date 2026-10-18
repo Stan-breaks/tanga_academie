@@ -19,6 +19,14 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
 
   bool _isRead = false;
 
+  // Announcements are rendered as a list of cards; each card used to open this
+  // box independently. Opening once and reusing it removes a per-card await.
+  static Box? _readBox;
+
+  static Future<Box> _openReadBox() async {
+    return _readBox ??= await Hive.openBox(_boxName);
+  }
+
   String get _id =>
       widget.announcement['_id']?.toString() ??
       widget.announcement['id']?.toString() ??
@@ -34,7 +42,7 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
   Future<void> _loadReadState() async {
     if (_id.isEmpty) return;
     try {
-      final box = await Hive.openBox(_boxName);
+      final box = await _openReadBox();
       final stored = box.get(_id) == true;
       if (!mounted) return;
       if (stored && !_isRead) {
@@ -190,7 +198,7 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
   Future<void> _markRead(String id) async {
     // Persist the read state locally so it survives rebuilds and restarts.
     try {
-      final box = await Hive.openBox(_boxName);
+      final box = await _openReadBox();
       await box.put(id, true);
     } catch (_) {}
 

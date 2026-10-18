@@ -47,11 +47,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
       if (!mounted) return;
       _username = user['username'] ?? user['firstName'] ?? 'Admin';
 
-      // Run all requests independently — one failing (e.g. 401) won't crash the whole dashboard
-      final statsResult = await getAdminDashboardStats().catchError((_) => <String, dynamic>{});
-      final instructorsResult = await getTopInstructors().catchError((_) => <dynamic>[]);
-      final noticesResult = await getAdminNotices().catchError((_) => <dynamic>[]);
-      final coursesResult = await getAdminCourses().catchError((_) => <String, dynamic>{});
+      // Run all requests concurrently — one failing (e.g. 401) won't crash the
+      // whole dashboard. Previously these were four serial round-trips.
+      final List<dynamic> results = await Future.wait<dynamic>([
+        getAdminDashboardStats().catchError((_) => <String, dynamic>{}),
+        getTopInstructors().catchError((_) => <dynamic>[]),
+        getAdminNotices().catchError((_) => <dynamic>[]),
+        getAdminCourses().catchError((_) => <String, dynamic>{}),
+      ]);
+
+      final statsResult = results[0] as Map<String, dynamic>;
+      final instructorsResult = results[1] as List;
+      final noticesResult = results[2] as List;
+      final coursesResult = results[3] as Map<String, dynamic>;
 
       // Normalize the {success, data:{...}} envelope defensively.
       final statsData = statsResult['data'];

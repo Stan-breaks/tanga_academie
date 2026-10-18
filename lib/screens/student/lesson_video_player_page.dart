@@ -47,6 +47,10 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
   bool _hasError = false;
   String _errorMessage = '';
   String _videoType = 'none';
+  // Created once and reused so rebuilds don't tear down / reload the Vimeo
+  // player (which previously restarted the video on every setState).
+  WebViewController? _vimeoWebController;
+  String? _vimeoWebControllerId;
 
   @override
   void initState() {
@@ -746,6 +750,15 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
   }
 
   Widget _buildVimeoWebView(String vimeoId) {
+    if (_vimeoWebController == null || _vimeoWebControllerId != vimeoId) {
+      _vimeoWebController = _createVimeoController(vimeoId);
+      _vimeoWebControllerId = vimeoId;
+    }
+
+    return WebViewWidget(controller: _vimeoWebController!);
+  }
+
+  WebViewController _createVimeoController(String vimeoId) {
     final PlatformWebViewControllerCreationParams params;
     if (Platform.isIOS) {
       params = WebKitWebViewControllerCreationParams(
@@ -756,7 +769,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
       params = const PlatformWebViewControllerCreationParams();
     }
 
-    final controller = WebViewController.fromPlatformCreationParams(params)
+    return WebViewController.fromPlatformCreationParams(params)
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.black)
       ..loadHtmlString('''
@@ -782,8 +795,6 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
         </body>
         </html>
       ''');
-
-    return WebViewWidget(controller: controller);
   }
 
   String _formatDuration(dynamic duration) {

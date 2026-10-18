@@ -957,15 +957,18 @@ class _EditCoursePageState extends State<EditCoursePage> {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  chapter.titleController.text.isEmpty
-                      ? '${isFr ? 'Chapitre' : 'Chapter'} ${chapter.order}'
-                      : chapter.titleController.text,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                child: ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: chapter.titleController,
+                  builder: (context, value, _) => Text(
+                    value.text.isEmpty
+                        ? '${isFr ? 'Chapitre' : 'Chapter'} ${chapter.order}'
+                        : value.text,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -986,7 +989,6 @@ class _EditCoursePageState extends State<EditCoursePage> {
                     label: isFr ? 'Titre du chapitre' : 'Chapter Title',
                     hint: isFr ? 'Entrez le titre du chapitre' : 'Enter chapter title',
                     icon: Icons.bookmark,
-                    onChanged: (value) => setState(() {}),
                   ),
                   const SizedBox(height: 12),
 

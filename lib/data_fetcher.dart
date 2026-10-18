@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:http/http.dart';
 import 'package:tanga_acadamie/api_config.dart';
+import 'package:tanga_acadamie/core/api_client.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 
 /// API data fetcher utilities for the app
@@ -13,7 +13,7 @@ import 'package:tanga_acadamie/storage_service.dart';
 Future<Map<String, dynamic>> fetchEnrolled() async {
   final token = await getToken();
 
-  final res = await get(
+  final res = await sharedHttpClient.get(
     Uri.parse('${ApiConfig.baseUrl}/api/enrollment/enrolled-courses'),
     headers: {
       "Authorization": "Bearer $token",
@@ -31,7 +31,7 @@ Future<Map<String, dynamic>> fetchEnrolled() async {
 Future<Map<String, dynamic>> fetchInvestment() async {
   final token = await getToken();
 
-  final res = await get(
+  final res = await sharedHttpClient.get(
     Uri.parse('${ApiConfig.baseUrl}/api/enrollment/investment-stats'),
     headers: {
       "Authorization": "Bearer $token",
@@ -49,7 +49,7 @@ Future<Map<String, dynamic>> fetchInvestment() async {
 Future<Map<String, dynamic>> fetchAnnouncements() async {
   final token = await getToken();
 
-  final res = await get(
+  final res = await sharedHttpClient.get(
     Uri.parse('${ApiConfig.baseUrl}/api/announcements/student/announcements'),
     headers: {
       "Authorization": "Bearer $token",
@@ -61,6 +61,25 @@ Future<Map<String, dynamic>> fetchAnnouncements() async {
     throw Exception("Failed to fetch announcements: ${res.statusCode}");
   }
   return jsonDecode(res.body) ?? {};
+}
+
+/// GETs [url] with the bearer token and returns the decoded JSON body, or
+/// `null` if the request fails or returns a non-200 status. Used to fan out
+/// independent dashboard requests with `Future.wait`.
+Future<dynamic> _fetchJsonOrNull(String url, String token) async {
+  try {
+    final res = await sharedHttpClient.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (res.statusCode == 200) return jsonDecode(res.body);
+  } catch (_) {
+    // Caller falls back to default/empty data.
+  }
+  return null;
 }
 
 /// Fetch complete student dashboard data
@@ -80,56 +99,17 @@ Future<Map<String, dynamic>> getStudentDash() async {
     'announcements': {'data': []},
   };
 
-  // Fetch enrolled courses
-  try {
-    final enrolledResponse = await get(
-      Uri.parse('${ApiConfig.baseUrl}/api/enrollment/enrolled-courses'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
+  // Fire the three independent requests concurrently instead of sequentially
+  // (previously the dashboard waited for the sum of all three round-trips).
+  final results = await Future.wait<dynamic>([
+    _fetchJsonOrNull('${ApiConfig.baseUrl}/api/enrollment/enrolled-courses', token),
+    _fetchJsonOrNull('${ApiConfig.baseUrl}/api/enrollment/investment-stats', token),
+    _fetchJsonOrNull('${ApiConfig.baseUrl}/api/announcements/student/announcements', token),
+  ]);
 
-    if (enrolledResponse.statusCode == 200) {
-      dashboardData['enrolledCourses'] = jsonDecode(enrolledResponse.body);
-    }
-  } catch (e) {
-    // Keep default empty data
-  }
-
-  // Fetch investment
-  try {
-    final investmentResponse = await get(
-      Uri.parse('${ApiConfig.baseUrl}/api/enrollment/investment-stats'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (investmentResponse.statusCode == 200) {
-      dashboardData['investment'] = jsonDecode(investmentResponse.body);
-    }
-  } catch (e) {
-    // Keep default empty data
-  }
-
-  // Fetch announcements
-  try {
-    final announcementsResponse = await get(
-      Uri.parse('${ApiConfig.baseUrl}/api/announcements/student/announcements'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (announcementsResponse.statusCode == 200) {
-      dashboardData['announcements'] = jsonDecode(announcementsResponse.body);
-    }
-  } catch (e) {
-    // Keep default empty data
-  }
+  if (results[0] != null) dashboardData['enrolledCourses'] = results[0];
+  if (results[1] != null) dashboardData['investment'] = results[1];
+  if (results[2] != null) dashboardData['announcements'] = results[2];
 
   return dashboardData;
 }
@@ -142,7 +122,7 @@ Future<Map<String, dynamic>> getStudentDash() async {
 Future<Map<String, dynamic>> fetchCourse(String courseId) async {
   final token = await getToken();
 
-  final res = await get(
+  final res = await sharedHttpClient.get(
     Uri.parse('${ApiConfig.baseUrl}/api/courses/$courseId'),
     headers: {
       "Authorization": "Bearer $token",
@@ -158,7 +138,7 @@ Future<Map<String, dynamic>> fetchCourse(String courseId) async {
 
 /// Fetch all published courses (public endpoint)
 Future<Map<String, dynamic>> fetchCourses() async {
-  final res = await get(
+  final res = await sharedHttpClient.get(
     Uri.parse('${ApiConfig.baseUrl}/api/allcourses'),
     headers: {"Content-Type": "application/json"},
   );
@@ -196,79 +176,49 @@ Future<Map<String, dynamic>> getInstructorDash() async {
     'recentAssignments': [],
   };
 
-  // Fetch instructor courses
-  try {
-    final coursesResponse = await get(
-      Uri.parse('${ApiConfig.baseUrl}/api/instructor-courses'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+  // Fire the three independent requests concurrently instead of sequentially.
+  final results = await Future.wait<dynamic>([
+    _fetchJsonOrNull('${ApiConfig.baseUrl}/api/instructor-courses', token),
+    _fetchJsonOrNull('${ApiConfig.baseUrl}/api/courses/instructor/assignments', token),
+    _fetchJsonOrNull('${ApiConfig.baseUrl}/api/instructor/reviews', token),
+  ]);
+
+  // Instructor courses
+  final coursesData = results[0];
+  if (coursesData != null) {
+    final courses = coursesData['data'] as List? ?? [];
+
+    dashboardData['stats']['totalCourses'] = courses.length;
+    dashboardData['stats']['activeCourses'] =
+        courses.where((c) => c['status'] == 'published').length;
+    dashboardData['stats']['totalStudents'] = courses.fold(
+      0,
+      (sum, course) => sum + ((course['enrollmentCount'] ?? 0) as int),
     );
 
-    if (coursesResponse.statusCode == 200) {
-      final coursesData = jsonDecode(coursesResponse.body);
-      final courses = coursesData['data'] as List? ?? [];
-
-      dashboardData['stats']['totalCourses'] = courses.length;
-      dashboardData['stats']['activeCourses'] =
-          courses.where((c) => c['status'] == 'published').length;
-      dashboardData['stats']['totalStudents'] = courses.fold(
-        0,
-        (sum, course) => sum + ((course['enrollmentCount'] ?? 0) as int),
-      );
-
-      // Get recent 5 courses
-      dashboardData['recentCourses'] = courses.take(5).toList();
-    }
-  } catch (e) {
-    // Keep default empty data
+    // Get recent 5 courses
+    dashboardData['recentCourses'] = courses.take(5).toList();
   }
 
-  // Fetch instructor assignments
-  try {
-    final assignmentsResponse = await get(
-      Uri.parse('${ApiConfig.baseUrl}/api/courses/instructor/assignments'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+  // Instructor assignments
+  final assignmentsData = results[1];
+  if (assignmentsData != null) {
+    final assignments = assignmentsData['data'] as List? ?? [];
+
+    dashboardData['stats']['pendingSubmissions'] = assignments.fold(
+      0,
+      (sum, assignment) => sum + (assignment['submissionCount'] ?? 0) as int,
     );
 
-    if (assignmentsResponse.statusCode == 200) {
-      final assignmentsData = jsonDecode(assignmentsResponse.body);
-      final assignments = assignmentsData['data'] as List? ?? [];
-
-      dashboardData['stats']['pendingSubmissions'] = assignments.fold(
-        0,
-        (sum, assignment) =>
-            sum + (assignment['submissionCount'] ?? 0) as int,
-      );
-
-      // Get recent 5 assignments
-      dashboardData['recentAssignments'] = assignments.take(5).toList();
-    }
-  } catch (e) {
-    // Keep default empty data
+    // Get recent 5 assignments
+    dashboardData['recentAssignments'] = assignments.take(5).toList();
   }
 
-  // Fetch instructor reviews
-  try {
-    final reviewsResponse = await get(
-      Uri.parse('${ApiConfig.baseUrl}/api/instructor/reviews'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (reviewsResponse.statusCode == 200) {
-      final reviewsData = jsonDecode(reviewsResponse.body);
-      final reviews = reviewsData['data'] as List? ?? [];
-      dashboardData['stats']['totalReviews'] = reviews.length;
-    }
-  } catch (e) {
-    // Keep default empty data
+  // Instructor reviews
+  final reviewsData = results[2];
+  if (reviewsData != null) {
+    final reviews = reviewsData['data'] as List? ?? [];
+    dashboardData['stats']['totalReviews'] = reviews.length;
   }
 
   return dashboardData;
@@ -285,7 +235,7 @@ Future<Map<String, dynamic>> getAdminDashboardStats() async {
     throw Exception('Not authenticated');
   }
 
-  final response = await get(
+  final response = await sharedHttpClient.get(
     Uri.parse('${ApiConfig.baseUrl}/api/admin/dashboard/stats'),
     headers: {
       'Authorization': 'Bearer $token',
@@ -313,9 +263,9 @@ Future<Map<String, dynamic>> getAdminChartData() async {
 
   // Fetch all chart data in parallel
   final results = await Future.wait([
-    get(Uri.parse('${ApiConfig.baseUrl}/api/admin/charts/enrollment-trends'), headers: headers),
-    get(Uri.parse('${ApiConfig.baseUrl}/api/admin/charts/course-distribution'), headers: headers),
-    get(Uri.parse('${ApiConfig.baseUrl}/api/admin/charts/revenue-data'), headers: headers),
+    sharedHttpClient.get(Uri.parse('${ApiConfig.baseUrl}/api/admin/charts/enrollment-trends'), headers: headers),
+    sharedHttpClient.get(Uri.parse('${ApiConfig.baseUrl}/api/admin/charts/course-distribution'), headers: headers),
+    sharedHttpClient.get(Uri.parse('${ApiConfig.baseUrl}/api/admin/charts/revenue-data'), headers: headers),
   ]);
 
   return {
@@ -332,7 +282,7 @@ Future<Map<String, dynamic>> getAdminCourses() async {
     throw Exception('Not authenticated');
   }
 
-  final response = await get(
+  final response = await sharedHttpClient.get(
     Uri.parse('${ApiConfig.baseUrl}/api/admin/all-courses'),
     headers: {
       'Authorization': 'Bearer $token',
@@ -353,7 +303,7 @@ Future<List<dynamic>> getTopInstructors() async {
     throw Exception('Not authenticated');
   }
 
-  final response = await get(
+  final response = await sharedHttpClient.get(
     Uri.parse('${ApiConfig.baseUrl}/api/admin/instructors/top'),
     headers: {
       'Authorization': 'Bearer $token',
@@ -375,7 +325,7 @@ Future<List<dynamic>> getAdminNotices() async {
     throw Exception('Not authenticated');
   }
 
-  final response = await get(
+  final response = await sharedHttpClient.get(
     Uri.parse('${ApiConfig.baseUrl}/api/admin/notices'),
     headers: {
       'Authorization': 'Bearer $token',
@@ -397,7 +347,7 @@ Future<Map<String, dynamic>> updateCourseStatus(String courseId, String status) 
     throw Exception('Not authenticated');
   }
 
-  final response = await put(
+  final response = await sharedHttpClient.put(
     Uri.parse('${ApiConfig.baseUrl}/api/courses/$courseId/status'),
     headers: {
       'Authorization': 'Bearer $token',

@@ -34,7 +34,7 @@ class _ExplorePageState extends State<ExplorePage>
   @override
   void initState() {
     super.initState();
-    coursesFuture = fetchCourses();
+    coursesFuture = _loadCourses();
     _blogsFuture = BlogService.fetchRecentBlogs();
     _animationController = AnimationController(
       vsync: this,
@@ -44,6 +44,21 @@ class _ExplorePageState extends State<ExplorePage>
       parent: _animationController,
       curve: Curves.easeOut,
     );
+  }
+
+  /// Loads the course list and starts the fade-in once the data arrives, so the
+  /// animation is not started as a side effect inside build().
+  Future<Map<String, dynamic>> _loadCourses() {
+    final future = fetchCourses();
+    future.then<void>(
+      (_) {
+        if (mounted && !_animationController.isCompleted) {
+          _animationController.forward();
+        }
+      },
+      onError: (_) {},
+    );
+    return future;
   }
 
   @override
@@ -67,7 +82,7 @@ class _ExplorePageState extends State<ExplorePage>
   }
 
   Future<void> _refresh() async {
-    final courses = fetchCourses();
+    final courses = _loadCourses();
     final blogs = BlogService.fetchRecentBlogs();
     if (!mounted) return;
     setState(() {
@@ -149,10 +164,6 @@ class _ExplorePageState extends State<ExplorePage>
             );
           } else {
             final courses = snapshot.data!['data'] as List;
-
-            if (!_animationController.isCompleted) {
-              _animationController.forward();
-            }
 
             // Extract unique categories
             final uniqueCategories = courses

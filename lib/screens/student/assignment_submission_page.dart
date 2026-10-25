@@ -7,6 +7,7 @@ import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class AssignmentSubmissionPage extends StatefulWidget {
   final Map<String, dynamic> assignment;
@@ -163,24 +164,24 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
           isFr ? 'Soumettre le devoir' : 'Submit Assignment',
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        foregroundColor: AppColors.textDark,
         elevation: 0,
         surfaceTintColor: Colors.white,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Divider(height: 1, color: Colors.grey.shade200),
+          child: Divider(height: 1, color: AppColors.borderLight),
         ),
       ),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Colors.blueAccent),
+              child: CircularProgressIndicator(color: AppColors.primary),
             )
           : _existingSubmission != null
               ? _buildExistingSubmission()
@@ -223,7 +224,7 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
                       isGraded
                           ? Icons.grade
                           : Icons.check_circle_outline,
-                      color: isGraded ? Colors.amber : Colors.green,
+                      color: isGraded ? AppColors.warning : AppColors.success,
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -233,7 +234,7 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: isGraded ? Colors.amber : Colors.green,
+                        color: isGraded ? AppColors.warning : AppColors.success,
                       ),
                     ),
                   ],
@@ -254,7 +255,7 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blueAccent,
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
@@ -273,13 +274,13 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
+                      color: AppColors.background,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       feedback.toString(),
                       style: TextStyle(
-                        color: Colors.grey.shade700,
+                        color: AppColors.textDark,
                         height: 1.5,
                       ),
                     ),
@@ -292,14 +293,14 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color: AppColors.surfaceVariant,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     '${isFr ? 'Statut' : 'Status'}: $status',
                     style: TextStyle(
                       fontSize: 13,
-                      color: Colors.grey.shade600,
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 ),
@@ -352,21 +353,21 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
                     hintText: isFr
                         ? 'Ajoutez un commentaire...'
                         : 'Add a comment...',
-                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                    hintStyle: TextStyle(color: AppColors.textHint),
                     filled: true,
-                    fillColor: Colors.grey.shade50,
+                    fillColor: AppColors.background,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade200),
+                      borderSide: BorderSide(color: AppColors.borderLight),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade200),
+                      borderSide: BorderSide(color: AppColors.borderLight),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide:
-                          const BorderSide(color: Colors.blueAccent),
+                          const BorderSide(color: AppColors.primary),
                     ),
                     contentPadding: const EdgeInsets.all(14),
                   ),
@@ -406,7 +407,7 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
                     Text(
                       '(${_selectedFiles.length}/5)',
                       style: TextStyle(
-                        color: Colors.grey.shade500,
+                        color: AppColors.textLight,
                         fontSize: 13,
                       ),
                     ),
@@ -422,10 +423,10 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.blueAccent.withAlpha(15),
+                        color: AppColors.primary.withAlpha(15),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: Colors.blueAccent.withAlpha(50),
+                          color: AppColors.primary.withAlpha(50),
                         ),
                       ),
                       child: Row(
@@ -433,7 +434,7 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
                           Icon(
                             Icons.attach_file,
                             size: 18,
-                            color: Colors.blueAccent,
+                            color: AppColors.primary,
                           ),
                           const SizedBox(width: 10),
                           Expanded(
@@ -452,7 +453,7 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
                             child: Icon(
                               Icons.close,
                               size: 18,
-                              color: Colors.grey.shade500,
+                              color: AppColors.textLight,
                             ),
                           ),
                         ],
@@ -475,9 +476,9 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         side: BorderSide(
-                          color: Colors.blueAccent.withAlpha(100),
+                          color: AppColors.primary.withAlpha(100),
                         ),
-                        foregroundColor: Colors.blueAccent,
+                        foregroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -494,7 +495,7 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
             child: ElevatedButton(
               onPressed: _isSubmitting ? null : _submitAssignment,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
@@ -535,7 +536,7 @@ class _AssignmentSubmissionPageState extends State<AssignmentSubmissionPage> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.orange.shade400, Colors.deepOrange.shade600],
+          colors: [AppColors.warning400, AppColors.warning600],
         ),
         borderRadius: BorderRadius.circular(16),
       ),

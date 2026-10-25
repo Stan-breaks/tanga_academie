@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/core/theme/app_colors.dart';
+import 'package:tanga_acadamie/core/widgets/app_network_image.dart';
 
 /// Reusable gradient avatar widget used throughout the app
 class GradientAvatar extends StatelessWidget {
@@ -46,14 +47,15 @@ class GradientAvatar extends StatelessWidget {
         ],
       ),
       child: imageUrl != null && imageUrl!.isNotEmpty
-          ? ClipOval(
-              child: Image.network(
-                imageUrl!.startsWith('http')
-                    ? imageUrl!
-                    : '${ApiConfig.baseUrl}$imageUrl',
-                fit: BoxFit.cover,
-                errorBuilder: (_, error, stack) => _buildInitial(initial, colors),
-              ),
+          ? AppNetworkImage(
+              url: imageUrl!.startsWith('http')
+                  ? imageUrl!
+                  : '${ApiConfig.baseUrl}$imageUrl',
+              width: size,
+              height: size,
+              fit: BoxFit.cover,
+              radius: size / 2,
+              errorWidget: _buildInitial(initial, colors),
             )
           : _buildInitial(initial, colors),
     );

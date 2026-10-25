@@ -5,6 +5,7 @@ import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class StudentQuizPage extends StatefulWidget {
   final Map<String, dynamic> lesson;
@@ -321,24 +322,24 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           'Quiz',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        foregroundColor: AppColors.textDark,
         elevation: 0,
         surfaceTintColor: Colors.white,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Divider(height: 1, color: Colors.grey.shade200),
+          child: Divider(height: 1, color: AppColors.borderLight),
         ),
       ),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Colors.blueAccent),
+              child: CircularProgressIndicator(color: AppColors.primary),
             )
           : _showResults
               ? _buildResults()
@@ -379,7 +380,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
               child: ElevatedButton(
                 onPressed: _isSubmitting ? null : _submitQuiz,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -439,14 +440,14 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.withAlpha(25),
+                  color: AppColors.primary.withAlpha(25),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
                   child: Text(
                     '${index + 1}',
                     style: const TextStyle(
-                      color: Colors.blueAccent,
+                      color: AppColors.primary,
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),
@@ -460,7 +461,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: AppColors.textDark,
                     height: 1.4,
                   ),
                 ),
@@ -481,13 +482,13 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? Colors.blueAccent.withAlpha(25)
-                      : Colors.grey.shade50,
+                      ? AppColors.primary.withAlpha(25)
+                      : AppColors.background,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
-                        ? Colors.blueAccent
-                        : Colors.grey.shade200,
+                        ? AppColors.primary
+                        : AppColors.borderLight,
                     width: isSelected ? 2 : 1,
                   ),
                 ),
@@ -498,8 +499,8 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
                           ? Icons.radio_button_checked
                           : Icons.radio_button_unchecked,
                       color: isSelected
-                          ? Colors.blueAccent
-                          : Colors.grey.shade400,
+                          ? AppColors.primary
+                          : AppColors.textHint,
                       size: 20,
                     ),
                     const SizedBox(width: 12),
@@ -509,8 +510,8 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
                         style: TextStyle(
                           fontSize: 14,
                           color: isSelected
-                              ? Colors.blueAccent
-                              : Colors.black87,
+                              ? AppColors.primary
+                              : AppColors.textDark,
                           fontWeight: isSelected
                               ? FontWeight.w500
                               : FontWeight.normal,
@@ -544,8 +545,8 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
               height: 100,
               decoration: BoxDecoration(
                 color: passed
-                    ? Colors.green.withAlpha(25)
-                    : Colors.red.withAlpha(25),
+                    ? AppColors.success.withAlpha(25)
+                    : AppColors.error.withAlpha(25),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -553,7 +554,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
                     ? Icons.check_circle_outline
                     : Icons.cancel_outlined,
                 size: 60,
-                color: passed ? Colors.green : Colors.red,
+                color: passed ? AppColors.success : AppColors.error,
               ),
             ),
             const SizedBox(height: 24),
@@ -564,7 +565,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: passed ? Colors.green : Colors.red,
+                color: passed ? AppColors.success : AppColors.error,
               ),
             ),
             const SizedBox(height: 16),
@@ -573,7 +574,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
               style: TextStyle(
                 fontSize: 56,
                 fontWeight: FontWeight.bold,
-                color: passed ? Colors.green : Colors.orange,
+                color: passed ? AppColors.success : AppColors.warning,
               ),
             ),
             if (correct != null) ...[
@@ -582,7 +583,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
                 '${isFr ? 'Réponses correctes' : 'Correct answers'}: $correct/$total',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey.shade700,
+                  color: AppColors.textDark,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -597,7 +598,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
                       ? 'Vous devez obtenir 60 % pour réussir.'
                       : 'You need 60% to pass.'),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 32),
             if (!passed)
@@ -606,7 +607,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
                 child: ElevatedButton(
                   onPressed: _retakeQuiz,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange.shade600,
+                    backgroundColor: AppColors.warning600,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -658,7 +659,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
       final hours = _restrictions['timeRemaining'];
       return _buildInfoScreen(
         icon: Icons.lock_clock,
-        color: Colors.orange,
+        color: AppColors.warning,
         title: isFr
             ? 'Quiz temporairement verrouillé'
             : 'Quiz temporarily locked',
@@ -674,7 +675,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
     if (reason == 'video_rewatch') {
       return _buildInfoScreen(
         icon: Icons.replay_circle_filled,
-        color: Colors.blue,
+        color: AppColors.primary,
         title: isFr ? 'Re-visionnage requis' : 'Video re-watch required',
         subtitle: isFr
             ? 'Vous devez revoir entièrement la vidéo du chapitre avant votre prochaine tentative.'
@@ -689,7 +690,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
       final requested = _restrictions['instructorApprovalRequestedAt'] != null;
       return _buildInfoScreen(
         icon: Icons.school,
-        color: Colors.red,
+        color: AppColors.error,
         title: isFr
             ? 'Approbation de l\'instructeur requise'
             : 'Instructor approval required',
@@ -707,7 +708,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
                       ? 'Demande envoyée - en attente d\'approbation'
                       : 'Request sent - awaiting approval',
                   style: const TextStyle(
-                    color: Colors.red,
+                    color: AppColors.error,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -717,7 +718,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
                 child: ElevatedButton(
                   onPressed: _requestingApproval ? null : _requestApproval,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: AppColors.error,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
@@ -747,7 +748,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
 
     return _buildInfoScreen(
       icon: Icons.lock_outline,
-      color: Colors.red,
+      color: AppColors.error,
       title: isFr ? 'Tentative non autorisée' : 'Attempt not allowed',
       subtitle: isFr
           ? 'Vous ne pouvez pas repasser ce quiz pour le moment.'
@@ -759,7 +760,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
     required IconData icon,
     required String title,
     required String subtitle,
-    Color color = Colors.grey,
+    Color color = AppColors.textSecondary,
     String? footer,
     Widget? extra,
   }) {
@@ -776,14 +777,14 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: AppColors.textDark,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               subtitle,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             if (footer != null) ...[
@@ -792,7 +793,7 @@ class _StudentQuizPageState extends State<StudentQuizPage> {
                 footer,
                 style: const TextStyle(
                   fontSize: 13,
-                  color: Colors.black54,
+                  color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),

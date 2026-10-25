@@ -7,6 +7,8 @@ import 'package:tanga_acadamie/screens/student/course_learn_page.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
+import 'package:tanga_acadamie/core/theme/app_theme.dart';
 import 'package:tanga_acadamie/core/utils/responsive.dart';
 
 class StudentDashboard extends StatefulWidget {
@@ -57,9 +59,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
           final List announcements = data['announcements']?['data'] ?? [];
 
           return Scaffold(
-            backgroundColor: Colors.grey.shade50,
+            backgroundColor: AppColors.background,
             body: RefreshIndicator(
-              color: Colors.blueAccent,
+              color: AppColors.primary,
               onRefresh: () async => _refresh(),
               child: ListView(
                 padding: const EdgeInsets.all(20),
@@ -107,19 +109,19 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   Widget _buildLoadingState() {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const CircularProgressIndicator(
-              color: Colors.blueAccent,
+              color: AppColors.primary,
               strokeWidth: 3,
             ),
             const SizedBox(height: 20),
             Text(
               isFr ? 'Chargement du tableau de bord...' : 'Loading your dashboard...',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
           ],
         ),
@@ -129,27 +131,27 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   Widget _buildErrorState(String error) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+              Icon(Icons.error_outline, size: 64, color: AppColors.error),
               const SizedBox(height: 16),
               Text(
                 isFr ? 'Quelque chose a mal tourné' : 'Something went wrong',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade800,
+                  color: AppColors.textDark,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 error,
-                style: TextStyle(color: Colors.grey.shade600),
+                style: TextStyle(color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -161,7 +163,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   Widget _buildNotLoggedInState(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
@@ -173,18 +175,15 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Colors.blueAccent.shade100,
-                      Colors.blueAccent.shade400,
-                    ],
+                    colors: AppColors.brandGradient,
                   ),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blueAccent.withAlpha(60),
+                      color: AppColors.primary.withAlpha(70),
                       blurRadius: 30,
                       offset: const Offset(0, 15),
                     ),
@@ -204,7 +203,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: AppColors.textDark,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -215,7 +214,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 isFr ? 'Votre tableau de bord personnalisé vous attend ! Connectez-vous pour accéder à vos cours et suivre vos progrès.' : 'Your personalized learning dashboard awaits! Sign in to access your enrolled courses, track your progress, and continue your learning journey.',
                 style: TextStyle(
                   fontSize: 15,
-                  color: Colors.grey.shade600,
+                  color: AppColors.textSecondary,
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
@@ -230,7 +229,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       Icons.library_books_rounded,
                       isFr ? 'Mes cours' : 'My Courses',
                       isFr ? 'Accéder aux cours inscrits' : 'Access enrolled courses',
-                      Colors.blue,
+                      AppColors.primary,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -239,7 +238,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       Icons.trending_up_rounded,
                       isFr ? 'Progrès' : 'Progress',
                       isFr ? 'Suivre votre apprentissage' : 'Track your learning',
-                      Colors.green,
+                      AppColors.success,
                     ),
                   ),
                 ],
@@ -252,7 +251,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       Icons.workspace_premium_rounded,
                       isFr ? 'Certificats' : 'Certificates',
                       isFr ? 'Gagner des récompenses' : 'Earn achievements',
-                      Colors.orange,
+                      AppColors.accent,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -261,7 +260,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       Icons.chat_rounded,
                       isFr ? 'Contacter' : 'Connect',
                       isFr ? 'Discuter avec les instructeurs' : 'Chat with instructors',
-                      Colors.purple,
+                      AppColors.secondary,
                     ),
                   ),
                 ],
@@ -278,15 +277,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       MaterialPageRoute(builder: (_) => const LoginPage()),
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    elevation: 0,
-                  ),
+                  style: AppTheme.primaryButtonStyle(),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -311,7 +302,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 children: [
                   Text(
                     isFr ? 'Pas de compte ? ' : "Don't have an account? ",
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -323,7 +314,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                     child: Text(
                       isFr ? 'S\'inscrire' : 'Sign Up',
                       style: const TextStyle(
-                        color: Colors.blueAccent,
+                        color: AppColors.primary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -349,10 +340,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(8),
+            color: AppColors.shadowLight,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -375,13 +366,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 14,
-              color: Colors.black87,
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
           ),
         ],
       ),
@@ -405,84 +396,127 @@ class _StudentDashboardState extends State<StudentDashboard> {
     }
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blueAccent.shade400, Colors.blue.shade700],
+          colors: AppColors.brandGradient,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         boxShadow: [
           BoxShadow(
-            color: Colors.blueAccent.withAlpha(80),
-            blurRadius: 20,
+            color: AppColors.primary.withAlpha(80),
+            blurRadius: 22,
             offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Row(
+      child: Stack(
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Positioned(right: -34, top: -46, child: _heroBubble(146, 16)),
+          Positioned(right: 52, bottom: -54, child: _heroBubble(112, 12)),
+          Padding(
+            padding: const EdgeInsets.all(AppTheme.spaceXl),
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Icon(greetingIcon, color: Colors.white70, size: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      greeting,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(greetingIcon,
+                              color: Colors.white.withAlpha(225), size: 17),
+                          const SizedBox(width: 7),
+                          Flexible(
+                            child: Text(
+                              greeting,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Colors.white.withAlpha(225),
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  username,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -0.5,
+                      const SizedBox(height: 8),
+                      Text(
+                        username,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.5,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(48),
+                          borderRadius:
+                              BorderRadius.circular(AppTheme.radiusFull),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.auto_awesome,
+                                size: 13, color: Colors.white),
+                            const SizedBox(width: 6),
+                            Text(
+                              isFr
+                                  ? 'Continuez à apprendre !'
+                                  : 'Keep learning!',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(width: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
+                  width: 64,
+                  height: 64,
                   decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(40),
-                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white.withAlpha(56),
+                    shape: BoxShape.circle,
+                    border:
+                        Border.all(color: Colors.white.withAlpha(75), width: 1.5),
                   ),
-                  child: Text(
-                    isFr ? '🎓 Continuez à apprendre !' : '🎓 Keep learning!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: const Icon(Icons.school_rounded,
+                      color: Colors.white, size: 32),
                 ),
               ],
             ),
           ),
-          Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              color: Colors.white.withAlpha(50),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.school, color: Colors.white, size: 36),
-          ),
         ],
+      ),
+    );
+  }
+
+  Widget _heroBubble(double size, int alpha) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Colors.white.withAlpha(alpha),
+        shape: BoxShape.circle,
       ),
     );
   }
@@ -500,29 +534,26 @@ class _StudentDashboardState extends State<StudentDashboard> {
         StatCard(
           title: isFr ? 'Cours inscrits' : 'Enrolled Courses',
           value: "${courses?['all']?.length ?? 0}",
-          icon: Icons.library_books,
-          gradientColors: [
-            Colors.blueAccent.shade200,
-            Colors.blueAccent.shade700,
-          ],
+          icon: Icons.library_books_rounded,
+          gradientColors: AppColors.primaryGradient,
         ),
         StatCard(
           title: isFr ? 'Terminés' : 'Completed',
           value: "${courses?['completed']?.length ?? 0}",
-          icon: Icons.check_circle,
-          gradientColors: [Colors.green.shade400, Colors.green.shade700],
+          icon: Icons.check_circle_rounded,
+          gradientColors: AppColors.successGradient,
         ),
         StatCard(
           title: isFr ? 'En cours' : 'In Progress',
           value: "${courses?['active']?.length ?? 0}",
-          icon: Icons.trending_up,
-          gradientColors: [Colors.orange.shade400, Colors.deepOrange.shade600],
+          icon: Icons.trending_up_rounded,
+          gradientColors: AppColors.accentGradient,
         ),
         StatCard(
           title: isFr ? 'Investissement' : 'Investment',
           value: "${data['investment']?['data']?['totalInvestment'] ?? 0}",
-          icon: Icons.payments,
-          gradientColors: [Colors.purple.shade400, Colors.purple.shade800],
+          icon: Icons.payments_rounded,
+          gradientColors: AppColors.secondaryGradient,
         ),
       ],
     );
@@ -537,10 +568,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: AppColors.borderLight),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(10),
+              color: AppColors.shadowLight,
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -551,15 +582,12 @@ class _StudentDashboardState extends State<StudentDashboard> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.deepPurple.shade400,
-                    Colors.deepPurple.shade700,
-                  ],
+                gradient: const LinearGradient(
+                  colors: AppColors.primaryGradient,
                 ),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               ),
-              child: const Icon(Icons.quiz, color: Colors.white, size: 24),
+              child: const Icon(Icons.quiz_rounded, color: Colors.white, size: 24),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -570,8 +598,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
                     isFr ? 'Mes tentatives de quiz' : 'My Quiz Attempts',
                     style: const TextStyle(
                       fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textDark,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -579,12 +607,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
                     isFr
                         ? 'Consultez vos scores et votre progression aux quiz'
                         : 'View your quiz scores and progress',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: Colors.grey.shade400),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textHint),
           ],
         ),
       ),
@@ -602,10 +631,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.blueAccent.withAlpha(25),
-            borderRadius: BorderRadius.circular(12),
+            color: AppColors.primary50,
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
-          child: Icon(icon, color: Colors.blueAccent, size: 22),
+          child: Icon(icon, color: AppColors.primary, size: 21),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -615,15 +644,15 @@ class _StudentDashboardState extends State<StudentDashboard> {
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  fontSize: 17.5,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textDark,
                 ),
               ),
               if (count > 0)
                 Text(
                   isFr ? '$count ${count == 1 ? 'élément' : 'éléments'}' : '$count ${count == 1 ? 'item' : 'items'}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
             ],
           ),
@@ -639,14 +668,14 @@ class _StudentDashboardState extends State<StudentDashboard> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: AppColors.borderLight),
         ),
         child: Column(
           children: [
             Icon(
               Icons.library_books_outlined,
               size: 48,
-              color: Colors.grey.shade400,
+              color: AppColors.textHint,
             ),
             const SizedBox(height: 16),
             Text(
@@ -654,14 +683,14 @@ class _StudentDashboardState extends State<StudentDashboard> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
+                color: AppColors.textDark,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               isFr ? 'Explorez des cours pour commencer votre apprentissage !' : 'Start exploring courses to begin your learning journey!',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              style: TextStyle(fontSize: 13, color: AppColors.textLight),
             ),
           ],
         ),
@@ -673,7 +702,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: Responsive.gridColumns(context),
-        childAspectRatio: 0.95,
+        childAspectRatio: 0.82,
         crossAxisSpacing: 14,
         mainAxisSpacing: 14,
       ),
@@ -681,14 +710,17 @@ class _StudentDashboardState extends State<StudentDashboard> {
       itemBuilder: (context, index) {
         return CourseCard(
           course: activeCourses[index],
-          onTap: () {
-            Navigator.push(
+          onTap: () async {
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) =>
                     CourseLearnPage(courseId: activeCourses[index]['_id']),
               ),
             );
+            // Refresh so progress % / completed counts reflect any videos marked
+            // complete inside the course.
+            if (mounted) _refresh();
           },
         );
       },
@@ -702,14 +734,14 @@ class _StudentDashboardState extends State<StudentDashboard> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: AppColors.borderLight),
         ),
         child: Column(
           children: [
             Icon(
               Icons.campaign_outlined,
               size: 48,
-              color: Colors.grey.shade400,
+              color: AppColors.textHint,
             ),
             const SizedBox(height: 16),
             Text(
@@ -717,14 +749,14 @@ class _StudentDashboardState extends State<StudentDashboard> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
+                color: AppColors.textDark,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               isFr ? 'Les instructeurs publieront des mises à jour ici' : 'Instructors will post updates here',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              style: TextStyle(fontSize: 13, color: AppColors.textLight),
             ),
           ],
         ),

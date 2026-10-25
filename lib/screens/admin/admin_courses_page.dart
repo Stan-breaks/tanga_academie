@@ -3,6 +3,7 @@ import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/screens/shared/course_card.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class AdminCoursesPage extends StatefulWidget {
   const AdminCoursesPage({super.key});
@@ -97,7 +98,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: Column(
         children: [
           // Scrollable Category Pills
@@ -106,7 +107,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
           // Content
           Expanded(
             child: RefreshIndicator(
-              color: Colors.blueAccent,
+              color: AppColors.primary,
               onRefresh: _fetchCourses,
               child: _isLoading
                   ? _buildLoadingState()
@@ -125,7 +126,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+        border: Border(bottom: BorderSide(color: AppColors.borderLight)),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -151,13 +152,13 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? Colors.blueAccent
-                        : Colors.grey.shade100,
+                        ? AppColors.primary
+                        : AppColors.surfaceVariant,
                     borderRadius: BorderRadius.circular(25),
                     border: Border.all(
                       color: isSelected
-                          ? Colors.blueAccent
-                          : Colors.grey.shade300,
+                          ? AppColors.primary
+                          : AppColors.border,
                     ),
                   ),
                   child: Row(
@@ -170,7 +171,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                         style: TextStyle(
                           color: isSelected
                               ? Colors.white
-                              : Colors.grey.shade700,
+                              : AppColors.textDark,
                           fontWeight: isSelected
                               ? FontWeight.w600
                               : FontWeight.w500,
@@ -186,7 +187,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? Colors.white.withAlpha(50)
-                              : Colors.grey.shade300,
+                              : AppColors.border,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -194,7 +195,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                           style: TextStyle(
                             color: isSelected
                                 ? Colors.white
-                                : Colors.grey.shade700,
+                                : AppColors.textDark,
                             fontWeight: FontWeight.bold,
                             fontSize: 11,
                           ),
@@ -212,21 +213,21 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
   }
 
   Widget _getCategoryIcon(String category, bool isSelected) {
-    Color color = isSelected ? Colors.white : Colors.grey.shade600;
+    Color color = isSelected ? Colors.white : AppColors.textSecondary;
     IconData icon;
 
     switch (category) {
       case 'published':
         icon = Icons.check_circle;
-        color = isSelected ? Colors.white : Colors.green;
+        color = isSelected ? Colors.white : AppColors.success;
         break;
       case 'pending':
         icon = Icons.pending;
-        color = isSelected ? Colors.white : Colors.orange;
+        color = isSelected ? Colors.white : AppColors.warning;
         break;
       case 'rejected':
         icon = Icons.cancel;
-        color = isSelected ? Colors.white : Colors.red;
+        color = isSelected ? Colors.white : AppColors.error;
         break;
       default:
         icon = Icons.library_books;
@@ -241,13 +242,13 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(
-            color: Colors.blueAccent,
+            color: AppColors.primary,
             strokeWidth: 3,
           ),
           const SizedBox(height: 20),
           Text(
             isFr ? 'Chargement des cours...' : 'Loading courses...',
-            style: const TextStyle(color: Colors.grey, fontSize: 14),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
         ],
       ),
@@ -261,20 +262,20 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+            Icon(Icons.error_outline, size: 64, color: AppColors.error300),
             const SizedBox(height: 16),
             Text(
               isFr ? 'Erreur de chargement des cours' : 'Error loading courses',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade800,
+                color: AppColors.textDark,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               _error ?? 'Unknown error',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -283,7 +284,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
               icon: const Icon(Icons.refresh),
               label: Text(isFr ? 'Réessayer' : 'Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -304,7 +305,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.78,
+        childAspectRatio: 0.82,
         crossAxisSpacing: 14,
         mainAxisSpacing: 14,
       ),
@@ -359,13 +360,13 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'published':
-        return Colors.green;
+        return AppColors.success;
       case 'pending':
-        return Colors.orange;
+        return AppColors.warning;
       case 'rejected':
-        return Colors.red;
+        return AppColors.error;
       default:
-        return Colors.grey;
+        return AppColors.textSecondary;
     }
   }
 
@@ -378,24 +379,24 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
       case 'published':
         message = isFr ? 'Aucun cours publié' : 'No published courses';
         icon = Icons.check_circle_outline;
-        color = Colors.green;
+        color = AppColors.success;
         break;
       case 'pending':
         message = isFr
             ? 'Aucun cours en attente'
             : 'No courses pending approval';
         icon = Icons.pending_actions;
-        color = Colors.orange;
+        color = AppColors.warning;
         break;
       case 'rejected':
         message = isFr ? 'Aucun cours rejeté' : 'No rejected courses';
         icon = Icons.cancel_outlined;
-        color = Colors.red;
+        color = AppColors.error;
         break;
       default:
         message = isFr ? 'Aucun cours trouvé' : 'No courses found';
         icon = Icons.library_books_outlined;
-        color = Colors.blueAccent;
+        color = AppColors.primary;
     }
 
     return Center(
@@ -416,7 +417,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700,
+              color: AppColors.textDark,
             ),
           ),
         ],
@@ -446,7 +447,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: AppColors.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -467,7 +468,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
               children: [
                 Text(
                   isFr ? 'Statut actuel : ' : 'Current Status: ',
-                  style: const TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: AppColors.textSecondary),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -497,7 +498,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey,
+                color: AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: 16),
@@ -514,7 +515,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                       icon: const Icon(Icons.check),
                       label: Text(isFr ? 'Approuver' : 'Approve'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor: AppColors.success,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
@@ -535,8 +536,8 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                       icon: const Icon(Icons.pending),
                       label: Text(isFr ? 'En attente' : 'Pending'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.orange,
-                        side: const BorderSide(color: Colors.orange),
+                        foregroundColor: AppColors.warning,
+                        side: const BorderSide(color: AppColors.warning),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -556,8 +557,8 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                       icon: const Icon(Icons.close),
                       label: Text(isFr ? 'Rejeter' : 'Reject'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                        side: const BorderSide(color: Colors.red),
+                        foregroundColor: AppColors.error,
+                        side: const BorderSide(color: AppColors.error),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -602,7 +603,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
             onPressed: () => Navigator.pop(context),
             child: Text(
               isFr ? 'Annuler' : 'Cancel',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
           ElevatedButton(

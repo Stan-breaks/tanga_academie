@@ -15,7 +15,7 @@ import 'package:tanga_acadamie/screens/student/student_quiz_attempts_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/auth_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
-import 'package:tanga_acadamie/core/theme/app_colors.dart';
+import 'package:tanga_acadamie/core/theme/app_theme.dart';
 
 Future<void> main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
@@ -57,10 +57,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Tanga Academie',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light(),
       home: HomePage(isLoggedIn: isLoggedIn, user: user),
       debugShowCheckedModeBanner: false,
       routes: {

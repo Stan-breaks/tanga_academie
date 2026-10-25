@@ -9,6 +9,7 @@ import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -315,7 +316,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
           isFr ? 'Paramètres' : 'Settings',
@@ -323,7 +324,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
-        foregroundColor: Colors.black87,
+        foregroundColor: AppColors.textDark,
         elevation: 0,
       ),
       body: _isLoadingProfile
@@ -332,13 +333,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const CircularProgressIndicator(
-                    color: Colors.blueAccent,
+                    color: AppColors.primary,
                     strokeWidth: 3,
                   ),
                   const SizedBox(height: 20),
                   Text(
                     isFr ? 'Chargement...' : 'Loading...',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                   ),
                 ],
               ),
@@ -405,10 +406,10 @@ class _SettingsPageState extends State<SettingsPage> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.blueAccent.withAlpha(25),
+            color: AppColors.primary.withAlpha(25),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: Colors.blueAccent, size: 22),
+          child: Icon(icon, color: AppColors.primary, size: 22),
         ),
         const SizedBox(width: 12),
         Text(
@@ -416,7 +417,7 @@ class _SettingsPageState extends State<SettingsPage> {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: AppColors.textDark,
           ),
         ),
       ],
@@ -433,7 +434,7 @@ class _SettingsPageState extends State<SettingsPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Column(
         children: [
@@ -526,9 +527,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                disabledBackgroundColor: Colors.blueAccent.withAlpha(150),
+                disabledBackgroundColor: AppColors.primary.withAlpha(150),
                 disabledForegroundColor: Colors.white70,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -558,9 +559,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.blueAccent.withAlpha(25),
+                  color: AppColors.primary.withAlpha(25),
                   border: Border.all(
-                    color: Colors.blueAccent.withAlpha(50),
+                    color: AppColors.primary.withAlpha(50),
                     width: 3,
                   ),
                   image: _pickedImage != null
@@ -580,7 +581,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ? const Icon(
                         Icons.person,
                         size: 44,
-                        color: Colors.blueAccent,
+                        color: AppColors.primary,
                       )
                     : null,
               ),
@@ -590,7 +591,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.blueAccent,
+                    color: AppColors.primary,
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 2),
                   ),
@@ -607,7 +608,7 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 8),
         Text(
           isFr ? "Appuyez pour changer l'image" : 'Tap to change image',
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
         ),
       ],
     );
@@ -630,21 +631,21 @@ class _SettingsPageState extends State<SettingsPage> {
       style: const TextStyle(fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-        prefixIcon: Icon(icon, size: 20, color: Colors.blueAccent),
+        labelStyle: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+        prefixIcon: Icon(icon, size: 20, color: AppColors.primary),
         filled: true,
-        fillColor: Colors.grey.shade50,
+        fillColor: AppColors.background,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -668,7 +669,7 @@ class _SettingsPageState extends State<SettingsPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -698,15 +699,15 @@ class _SettingsPageState extends State<SettingsPage> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.blueAccent.withAlpha(15),
+            color: AppColors.primary.withAlpha(15),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blueAccent.withAlpha(40)),
+            border: Border.all(color: AppColors.primary.withAlpha(40)),
           ),
           child: Row(
             children: [
               const Icon(
                 Icons.info_outline,
-                color: Colors.blueAccent,
+                color: AppColors.primary,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -715,7 +716,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   text: TextSpan(
                     style: TextStyle(
                       fontSize: 13,
-                      color: Colors.grey.shade700,
+                      color: AppColors.textDark,
                       height: 1.4,
                     ),
                     children: [
@@ -728,7 +729,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         text: _email,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.blueAccent,
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
@@ -763,9 +764,9 @@ class _SettingsPageState extends State<SettingsPage> {
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueAccent,
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
-              disabledBackgroundColor: Colors.blueAccent.withAlpha(150),
+              disabledBackgroundColor: AppColors.primary.withAlpha(150),
               disabledForegroundColor: Colors.white70,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -786,18 +787,18 @@ class _SettingsPageState extends State<SettingsPage> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.green.withAlpha(15),
+            color: AppColors.success.withAlpha(15),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.green.withAlpha(40)),
+            border: Border.all(color: AppColors.success.withAlpha(40)),
           ),
           child: Row(
             children: [
-              const Icon(Icons.check_circle, color: Colors.green, size: 20),
+              const Icon(Icons.check_circle, color: AppColors.success, size: 20),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   '${isFr ? 'Code envoyé à' : 'Code sent to'} $_email',
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                  style: TextStyle(fontSize: 13, color: AppColors.textDark),
                 ),
               ),
             ],
@@ -811,7 +812,7 @@ class _SettingsPageState extends State<SettingsPage> {
           style: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 14,
-            color: Colors.black87,
+            color: AppColors.textDark,
           ),
         ),
         const SizedBox(height: 12),
@@ -835,19 +836,19 @@ class _SettingsPageState extends State<SettingsPage> {
                 decoration: InputDecoration(
                   counterText: '',
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: AppColors.background,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+                    borderSide: BorderSide(color: AppColors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+                    borderSide: BorderSide(color: AppColors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
-                      color: Colors.blueAccent,
+                      color: AppColors.primary,
                       width: 2,
                     ),
                   ),
@@ -899,9 +900,9 @@ class _SettingsPageState extends State<SettingsPage> {
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueAccent,
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
-              disabledBackgroundColor: Colors.blueAccent.withAlpha(150),
+              disabledBackgroundColor: AppColors.primary.withAlpha(150),
               disabledForegroundColor: Colors.white70,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -921,7 +922,7 @@ class _SettingsPageState extends State<SettingsPage> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.blueAccent,
+                color: AppColors.primary,
               ),
             ),
           ),
@@ -938,12 +939,12 @@ class _SettingsPageState extends State<SettingsPage> {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.green.withAlpha(25),
+              color: AppColors.success.withAlpha(25),
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.check_circle_outline,
-              color: Colors.green,
+              color: AppColors.success,
               size: 48,
             ),
           ),
@@ -956,7 +957,7 @@ class _SettingsPageState extends State<SettingsPage> {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: AppColors.textDark,
           ),
           textAlign: TextAlign.center,
         ),
@@ -971,7 +972,7 @@ class _SettingsPageState extends State<SettingsPage> {
           child: Text(
             isFr ? 'Changer à nouveau' : 'Change Again',
             style: const TextStyle(
-              color: Colors.blueAccent,
+              color: AppColors.primary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -991,7 +992,7 @@ class _SettingsPageState extends State<SettingsPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1000,20 +1001,20 @@ class _SettingsPageState extends State<SettingsPage> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.blueAccent.withAlpha(12),
+              color: AppColors.primary.withAlpha(12),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blueAccent.withAlpha(35)),
+              border: Border.all(color: AppColors.primary.withAlpha(35)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.translate, color: Colors.blueAccent, size: 20),
+                const Icon(Icons.translate, color: AppColors.primary, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     isFr
                         ? 'Choisissez votre langue préférée'
                         : 'Choose your preferred language',
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                    style: TextStyle(fontSize: 13, color: AppColors.textDark),
                   ),
                 ),
               ],
@@ -1060,11 +1061,11 @@ class _SettingsPageState extends State<SettingsPage> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: isSelected
-              ? Colors.blueAccent.withAlpha(12)
-              : Colors.grey.shade50,
+              ? AppColors.primary.withAlpha(12)
+              : AppColors.background,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? Colors.blueAccent : Colors.grey.shade200,
+            color: isSelected ? AppColors.primary : AppColors.borderLight,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -1083,12 +1084,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       fontWeight: isSelected
                           ? FontWeight.bold
                           : FontWeight.w500,
-                      color: isSelected ? Colors.blueAccent : Colors.black87,
+                      color: isSelected ? AppColors.primary : AppColors.textDark,
                     ),
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                    style: TextStyle(fontSize: 12, color: AppColors.textLight),
                   ),
                 ],
               ),
@@ -1100,7 +1101,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       key: const ValueKey('selected'),
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
-                        color: Colors.blueAccent,
+                        color: AppColors.primary,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -1116,7 +1117,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.grey.shade300,
+                          color: AppColors.border,
                           width: 2,
                         ),
                       ),
@@ -1156,7 +1157,7 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Text(isFr ? 'Annuler' : 'Cancel'),
           ),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(isFr ? 'Supprimer' : 'Delete'),
           ),
@@ -1212,7 +1213,7 @@ class _SettingsPageState extends State<SettingsPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.red.shade200),
+        border: Border.all(color: AppColors.error200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1221,14 +1222,14 @@ class _SettingsPageState extends State<SettingsPage> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.red.shade50,
+              color: AppColors.error50,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.red.shade200),
+              border: Border.all(color: AppColors.error200),
             ),
             child: Row(
               children: [
                 Icon(Icons.warning_amber_rounded,
-                    color: Colors.red.shade600, size: 20),
+                    color: AppColors.error600, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -1236,7 +1237,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ? 'La suppression du compte est permanente et irréversible.'
                         : 'Account deletion is permanent and cannot be undone.',
                     style: TextStyle(
-                        color: Colors.red.shade700,
+                        color: AppColors.error700,
                         fontSize: 13,
                         fontWeight: FontWeight.w500),
                   ),
@@ -1252,14 +1253,14 @@ class _SettingsPageState extends State<SettingsPage> {
             style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87),
+                color: AppColors.textDark),
           ),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: AppColors.background,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.red.shade200),
+              border: Border.all(color: AppColors.error200),
             ),
             child: TextField(
               controller: _deletePasswordController,
@@ -1268,15 +1269,15 @@ class _SettingsPageState extends State<SettingsPage> {
               decoration: InputDecoration(
                 hintText: isFr ? 'Mot de passe' : 'Password',
                 hintStyle:
-                    TextStyle(color: Colors.grey.shade500, fontSize: 14),
+                    TextStyle(color: AppColors.textLight, fontSize: 14),
                 prefixIcon: Icon(Icons.lock_outline,
-                    color: Colors.red.shade400, size: 20),
+                    color: AppColors.error400, size: 20),
                 suffixIcon: IconButton(
                   icon: Icon(
                     _isDeleteObscure
                         ? Icons.visibility_off
                         : Icons.visibility,
-                    color: Colors.grey.shade500,
+                    color: AppColors.textLight,
                     size: 20,
                   ),
                   onPressed: () =>
@@ -1297,9 +1298,9 @@ class _SettingsPageState extends State<SettingsPage> {
             child: ElevatedButton.icon(
               onPressed: _isDeletingAccount ? null : _handleDeleteAccount,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade600,
+                backgroundColor: AppColors.error600,
                 foregroundColor: Colors.white,
-                disabledBackgroundColor: Colors.red.shade300,
+                disabledBackgroundColor: AppColors.error300,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 elevation: 0,

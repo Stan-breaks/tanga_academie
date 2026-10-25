@@ -186,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
             suffixIcon: IconButton(
               icon: Icon(
                 _isObscure ? Icons.visibility_off : Icons.visibility,
-                color: Colors.grey.shade500,
+                color: AppColors.textLight,
                 size: 20,
               ),
               onPressed: () => setState(() => _isObscure = !_isObscure),
@@ -232,12 +232,12 @@ class _LoginPageState extends State<LoginPage> {
       children: [
         Row(
           children: [
-            Expanded(child: Divider(color: Colors.grey.shade300)),
+            Expanded(child: Divider(color: AppColors.border)),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceLg),
               child: Text(isFr ? 'ou' : 'or', style: AppTheme.bodySecondaryStyle),
             ),
-            Expanded(child: Divider(color: Colors.grey.shade300)),
+            Expanded(child: Divider(color: AppColors.border)),
           ],
         ),
         const SizedBox(height: AppTheme.spaceXl),

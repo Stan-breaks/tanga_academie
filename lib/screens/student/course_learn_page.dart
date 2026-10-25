@@ -14,6 +14,8 @@ import 'package:tanga_acadamie/screens/student/lesson_video_player_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
+import 'package:tanga_acadamie/core/widgets/app_network_image.dart';
 
 class CourseLearnPage extends StatefulWidget {
   final String courseId;
@@ -170,19 +172,19 @@ class _CourseLearnPageState extends State<CourseLearnPage>
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
-            backgroundColor: Colors.grey.shade50,
+            backgroundColor: AppColors.background,
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const CircularProgressIndicator(
-                    color: Colors.blueAccent,
+                    color: AppColors.primary,
                     strokeWidth: 3,
                   ),
                   const SizedBox(height: 20),
                   Text(
                     isFr ? 'Chargement du cours...' : 'Loading course...',
-                    style: TextStyle(color: Colors.grey.shade600),
+                    style: TextStyle(color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -190,7 +192,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
           );
         } else if (snapshot.hasError) {
           return Scaffold(
-            backgroundColor: Colors.grey.shade50,
+            backgroundColor: AppColors.background,
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -198,7 +200,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                   Icon(
                     Icons.error_outline,
                     size: 64,
-                    color: Colors.red.shade300,
+                    color: AppColors.error300,
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -208,13 +210,13 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade800,
+                      color: AppColors.textDark,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     '${snapshot.error}',
-                    style: TextStyle(color: Colors.grey.shade600),
+                    style: TextStyle(color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -224,7 +226,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
           final course = snapshot.data?['course'];
           if (course == null) {
             return Scaffold(
-              backgroundColor: Colors.grey.shade50,
+              backgroundColor: AppColors.background,
               body: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -232,7 +234,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                     Icon(
                       Icons.search_off,
                       size: 64,
-                      color: Colors.grey.shade400,
+                      color: AppColors.textHint,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -240,7 +242,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
+                        color: AppColors.textDark,
                       ),
                     ),
                   ],
@@ -250,7 +252,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
           }
 
           return Scaffold(
-            backgroundColor: Colors.grey.shade50,
+            backgroundColor: AppColors.background,
             body: CustomScrollView(
               slivers: [
                 // App Bar with Course Banner
@@ -270,9 +272,9 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                     TabBar(
                       controller: _tabController,
                       isScrollable: false,
-                      labelColor: Colors.blueAccent,
-                      unselectedLabelColor: Colors.grey.shade600,
-                      indicatorColor: Colors.blueAccent,
+                      labelColor: AppColors.primary,
+                      unselectedLabelColor: AppColors.textSecondary,
+                      indicatorColor: AppColors.primary,
                       indicatorWeight: 3,
                       indicatorSize: TabBarIndicatorSize.label,
                       labelStyle: const TextStyle(
@@ -317,7 +319,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
     return SliverAppBar(
       expandedHeight: 220,
       pinned: true,
-      backgroundColor: Colors.blueAccent,
+      backgroundColor: AppColors.primary,
       leading: Container(
         margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -334,28 +336,26 @@ class _CourseLearnPageState extends State<CourseLearnPage>
           fit: StackFit.expand,
           children: [
             course['bannerImage'] != null
-                ? Image.network(
-                    '${ApiConfig.baseUrl}${course['bannerImage']}',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.blueAccent.shade400,
-                              Colors.blue.shade800,
-                            ],
-                          ),
+                ? AppNetworkImage(
+                    url: '${ApiConfig.baseUrl}${course['bannerImage']}',
+                    placeholderIcon: Icons.school,
+                    errorWidget: Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.primary400,
+                            AppColors.primary800,
+                          ],
                         ),
-                        child: const Icon(
-                          Icons.school,
-                          size: 80,
-                          color: Colors.white38,
-                        ),
-                      );
-                    },
+                      ),
+                      child: const Icon(
+                        Icons.school,
+                        size: 80,
+                        color: Colors.white38,
+                      ),
+                    ),
                   )
                 : Container(
                     decoration: BoxDecoration(
@@ -363,8 +363,8 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Colors.blueAccent.shade400,
-                          Colors.blue.shade800,
+                          AppColors.primary400,
+                          AppColors.primary800,
                         ],
                       ),
                     ),
@@ -402,7 +402,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: AppColors.textDark,
               height: 1.3,
             ),
           ),
@@ -414,17 +414,17 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               _buildInfoChip(
                 Icons.category_outlined,
                 course['category'] ?? 'All',
-                Colors.blueAccent,
+                AppColors.primary,
               ),
               _buildInfoChip(
                 Icons.language,
                 course['language'] ?? 'French',
-                Colors.green,
+                AppColors.success,
               ),
               _buildInfoChip(
                 Icons.people_outline,
                 '${course['enrollmentCount'] ?? 0} ${isFr ? 'inscrits' : 'enrolled'}',
-                Colors.orange,
+                AppColors.warning,
               ),
             ],
           ),
@@ -472,12 +472,12 @@ class _CourseLearnPageState extends State<CourseLearnPage>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blueAccent.shade400, Colors.blueAccent.shade700],
+          colors: [AppColors.primary400, AppColors.primary700],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.blueAccent.withAlpha(80),
+            color: AppColors.primary.withAlpha(80),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -536,7 +536,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
-                foregroundColor: Colors.blueAccent,
+                foregroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -572,7 +572,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             Icon(
               Icons.menu_book_outlined,
               size: 64,
-              color: Colors.grey.shade400,
+              color: AppColors.textHint,
             ),
             const SizedBox(height: 16),
             Text(
@@ -580,7 +580,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
+                color: AppColors.textDark,
               ),
             ),
             const SizedBox(height: 8),
@@ -588,7 +588,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               isFr
                   ? 'Les leçons apparaîtront bientôt'
                   : 'Lessons will appear here soon',
-              style: TextStyle(color: Colors.grey.shade500),
+              style: TextStyle(color: AppColors.textLight),
             ),
           ],
         ),
@@ -639,8 +639,8 @@ class _CourseLearnPageState extends State<CourseLearnPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: isLocked
-                  ? [Colors.grey.shade400, Colors.grey.shade600]
-                  : [Colors.blueAccent.shade200, Colors.blueAccent.shade700],
+                  ? [AppColors.textHint, AppColors.textSecondary]
+                  : [AppColors.primary200, AppColors.primary700],
             ),
             borderRadius: BorderRadius.circular(12),
           ),
@@ -665,7 +665,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
           padding: const EdgeInsets.only(top: 4),
           child: Text(
             '${lessons.length} ${isFr ? (lessons.length == 1 ? 'leçon' : 'leçons') : (lessons.length == 1 ? 'lesson' : 'lessons')}',
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
         ),
         children: lessons.asMap().entries.map((entry) {
@@ -709,15 +709,15 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                 height: 40,
                 decoration: BoxDecoration(
                   color: isChapterLocked
-                      ? Colors.grey.shade200
-                      : Colors.blueAccent.withAlpha(25),
+                      ? AppColors.borderLight
+                      : AppColors.primary.withAlpha(25),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   hasVideo ? Icons.play_circle_outline : Icons.article_outlined,
                   color: isChapterLocked
-                      ? Colors.grey.shade400
-                      : Colors.blueAccent,
+                      ? AppColors.textHint
+                      : AppColors.primary,
                   size: 22,
                 ),
               ),
@@ -732,8 +732,8 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: isChapterLocked
-                            ? Colors.grey.shade500
-                            : Colors.black87,
+                            ? AppColors.textLight
+                            : AppColors.textDark,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -743,14 +743,14 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                           Icon(
                             Icons.videocam,
                             size: 14,
-                            color: Colors.grey.shade500,
+                            color: AppColors.textLight,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             _formatDuration(lesson['video']['duration']),
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey.shade500,
+                              color: AppColors.textLight,
                             ),
                           ),
                         ],
@@ -759,14 +759,14 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                           Icon(
                             Icons.quiz,
                             size: 14,
-                            color: Colors.orange.shade400,
+                            color: AppColors.warning400,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             'Quiz',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.orange.shade400,
+                              color: AppColors.warning400,
                             ),
                           ),
                         ],
@@ -783,10 +783,10 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                         : Icons.chevron_right,
                 size: 22,
                 color: isChapterLocked
-                    ? Colors.grey.shade400
+                    ? AppColors.textHint
                     : isCompleted
-                        ? Colors.green
-                        : Colors.grey.shade500,
+                        ? AppColors.success
+                        : AppColors.textLight,
               ),
             ],
           ),
@@ -824,14 +824,14 @@ class _CourseLearnPageState extends State<CourseLearnPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.folder_outlined, size: 64, color: Colors.grey.shade400),
+            Icon(Icons.folder_outlined, size: 64, color: AppColors.textHint),
             const SizedBox(height: 16),
             Text(
               isFr ? 'Aucune ressource disponible' : 'No resources available',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
+                color: AppColors.textDark,
               ),
             ),
             const SizedBox(height: 8),
@@ -839,7 +839,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               isFr
                   ? 'Les ressources seront ajoutées par l\'instructeur'
                   : 'Resources will be added by the instructor',
-              style: TextStyle(color: Colors.grey.shade500),
+              style: TextStyle(color: AppColors.textLight),
             ),
           ],
         ),
@@ -872,7 +872,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               title: pdf['title'] ?? 'Document',
               subtitle: isFr ? 'Document PDF' : 'PDF Document',
               icon: Icons.picture_as_pdf,
-              color: Colors.red,
+              color: AppColors.error,
               onTap: () {
                 downloadAndOpen(
                   pdf['title'],
@@ -903,12 +903,12 @@ class _CourseLearnPageState extends State<CourseLearnPage>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blue.shade700, Colors.blue.shade900],
+          colors: [AppColors.primary700, AppColors.primary900],
         ),
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withAlpha(60),
+            color: AppColors.primary.withAlpha(60),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -1023,15 +1023,15 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                   height: 50,
                   decoration: BoxDecoration(
                     color: complete
-                        ? Colors.amber.withAlpha(30)
-                        : Colors.grey.withAlpha(30),
+                        ? AppColors.accent.withAlpha(30)
+                        : AppColors.textSecondary.withAlpha(30),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     complete
                         ? Icons.workspace_premium
                         : Icons.lock_outline,
-                    color: complete ? Colors.amber : Colors.grey.shade500,
+                    color: complete ? AppColors.warning : AppColors.textLight,
                     size: 26,
                   ),
                 ),
@@ -1057,8 +1057,8 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                         style: TextStyle(
                           fontSize: 13,
                           color: complete
-                              ? Colors.green.shade600
-                              : Colors.grey.shade600,
+                              ? AppColors.success600
+                              : AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -1068,13 +1068,13 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: complete
-                        ? Colors.blueAccent.withAlpha(25)
-                        : Colors.grey.withAlpha(20),
+                        ? AppColors.primary.withAlpha(25)
+                        : AppColors.textSecondary.withAlpha(20),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
                     complete ? Icons.download : Icons.lock,
-                    color: complete ? Colors.blueAccent : Colors.grey.shade400,
+                    color: complete ? AppColors.primary : AppColors.textHint,
                     size: 20,
                   ),
                 ),
@@ -1092,10 +1092,10 @@ class _CourseLearnPageState extends State<CourseLearnPage>
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.blueAccent.withAlpha(25),
+            color: AppColors.primary.withAlpha(25),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: Colors.blueAccent, size: 20),
+          child: Icon(icon, color: AppColors.primary, size: 20),
         ),
         const SizedBox(width: 12),
         Text(
@@ -1103,7 +1103,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: AppColors.textDark,
           ),
         ),
       ],
@@ -1165,7 +1165,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                         subtitle,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.grey.shade600,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -1174,12 +1174,12 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.blueAccent.withAlpha(25),
+                    color: AppColors.primary.withAlpha(25),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.download,
-                    color: Colors.blueAccent,
+                    color: AppColors.primary,
                     size: 20,
                   ),
                 ),
@@ -1202,7 +1202,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             Icon(
               Icons.assignment_outlined,
               size: 64,
-              color: Colors.grey.shade400,
+              color: AppColors.textHint,
             ),
             const SizedBox(height: 16),
             Text(
@@ -1210,7 +1210,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
+                color: AppColors.textDark,
               ),
             ),
             const SizedBox(height: 8),
@@ -1218,7 +1218,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               isFr
                   ? 'Les devoirs seront ajoutés bientôt'
                   : 'Assignments will appear here when added',
-              style: TextStyle(color: Colors.grey.shade500),
+              style: TextStyle(color: AppColors.textLight),
             ),
           ],
         ),
@@ -1250,7 +1250,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               height: 50,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.orange.shade400, Colors.deepOrange.shade600],
+                  colors: [AppColors.warning400, AppColors.warning600],
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -1268,14 +1268,14 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade50,
+                  color: AppColors.warning50,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   isFr ? 'En attente' : 'Pending',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.orange.shade700,
+                    color: AppColors.warning700,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -1335,14 +1335,14 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.withAlpha(25),
+                  color: AppColors.primary.withAlpha(25),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.blueAccent.withAlpha(50)),
+                  border: Border.all(color: AppColors.primary.withAlpha(50)),
                 ),
                 child: Text(
                   tag.toString(),
                   style: const TextStyle(
-                    color: Colors.blueAccent,
+                    color: AppColors.primary,
                     fontWeight: FontWeight.w500,
                     fontSize: 13,
                   ),
@@ -1382,10 +1382,10 @@ class _CourseLearnPageState extends State<CourseLearnPage>
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.withAlpha(25),
+                  color: AppColors.primary.withAlpha(25),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: Colors.blueAccent, size: 20),
+                child: Icon(icon, color: AppColors.primary, size: 20),
               ),
               const SizedBox(width: 12),
               Text(
@@ -1393,7 +1393,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: AppColors.textDark,
                 ),
               ),
             ],
@@ -1403,7 +1403,7 @@ class _CourseLearnPageState extends State<CourseLearnPage>
             content.toString(),
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey.shade700,
+              color: AppColors.textDark,
               height: 1.6,
             ),
           ),

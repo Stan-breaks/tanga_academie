@@ -53,6 +53,7 @@ dependencies:
   fl_chart: ^0.69.0
   file_picker: ^8.1.7
   flutter_native_splash: ^2.4.6
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:
@@ -96,6 +97,21 @@ flutter:
       - ./public/banner1.png
       - ./public/logo.jpeg
       - assets/icon.png
+      - assets/fonts/
+
+  fonts:
+    - family: Hind
+      fonts:
+        - asset: assets/fonts/Hind-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Hind-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Hind-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Hind-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Hind-Bold.ttf
+          weight: 700
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

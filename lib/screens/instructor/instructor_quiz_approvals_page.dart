@@ -251,7 +251,7 @@ class _InstructorQuizApprovalsPageState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.red.withAlpha(50),
+            color: AppColors.error.withAlpha(50),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -401,7 +401,7 @@ class _InstructorQuizApprovalsPageState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowLight,
@@ -515,15 +515,15 @@ class _InstructorQuizApprovalsPageState
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.yellow.shade50,
+              color: AppColors.warning50,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.yellow.shade200),
+              border: Border.all(color: AppColors.warning200),
             ),
             child: Text(
               isFr
                   ? 'Cet étudiant a échoué le quiz $totalAttempts fois et nécessite l\'approbation de l\'instructeur pour continuer.'
                   : 'This student failed the quiz $totalAttempts times and needs instructor approval to continue.',
-              style: TextStyle(fontSize: 12, color: Colors.yellow.shade900),
+              style: TextStyle(fontSize: 12, color: AppColors.warning900),
             ),
           ),
           const SizedBox(height: 14),

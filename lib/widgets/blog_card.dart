@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/models/blog.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
+import 'package:tanga_acadamie/core/theme/app_theme.dart';
+import 'package:tanga_acadamie/core/widgets/app_network_image.dart';
+import 'package:tanga_acadamie/core/widgets/press_scale.dart';
 
 /// A compact blog card for the horizontal scroll section on the explore page.
 class BlogCard extends StatelessWidget {
@@ -19,39 +23,33 @@ class BlogCard extends StatelessWidget {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final cardWidth = (screenWidth * 0.62).clamp(200.0, 320.0);
 
-    return GestureDetector(
+    return PressScale(
       onTap: onTap,
       child: Container(
         width: cardWidth,
         margin: const EdgeInsets.only(right: 14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(18),
-              blurRadius: 14,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          border: Border.all(color: AppColors.borderLight),
+          boxShadow: AppTheme.shadowSm,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Cover image
             ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(AppTheme.radiusLg)),
               child: Stack(
                 children: [
                   hasImage
-                      ? Image.network(
-                          imageUrl,
+                      ? AppNetworkImage(
+                          url: imageUrl,
                           width: double.infinity,
                           height: 120,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                              _buildImagePlaceholder(),
+                          errorWidget: _buildImagePlaceholder(),
                         )
                       : _buildImagePlaceholder(),
                   // Category badge
@@ -63,8 +61,8 @@ class BlogCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.blueAccent.shade700,
-                          borderRadius: BorderRadius.circular(20),
+                          color: AppColors.primary700,
+                          borderRadius: BorderRadius.circular(AppTheme.radiusFull),
                         ),
                         child: Text(
                           blog.category,
@@ -114,7 +112,7 @@ class BlogCard extends StatelessWidget {
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         height: 1.3,
-                        color: Colors.black87,
+                        color: AppColors.textDark,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -127,7 +125,7 @@ class BlogCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 11,
-                            color: Colors.grey.shade600,
+                            color: AppColors.textSecondary,
                             height: 1.4,
                           ),
                         ),
@@ -137,7 +135,7 @@ class BlogCard extends StatelessWidget {
                     Row(
                       children: [
                         Icon(Icons.person_outline,
-                            size: 14, color: Colors.grey.shade500),
+                            size: 14, color: AppColors.textLight),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
@@ -147,20 +145,20 @@ class BlogCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 11,
-                              color: Colors.grey.shade600,
+                              color: AppColors.textSecondary,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Icon(Icons.calendar_today_outlined,
-                            size: 12, color: Colors.grey.shade500),
+                            size: 12, color: AppColors.textLight),
                         const SizedBox(width: 3),
                         Text(
                           date,
                           style: TextStyle(
                             fontSize: 10,
-                            color: Colors.grey.shade500,
+                            color: AppColors.textLight,
                           ),
                         ),
                       ],
@@ -184,8 +182,8 @@ class BlogCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.blueAccent.shade100,
-            Colors.blueAccent.shade400,
+            AppColors.primary100,
+            AppColors.primary400,
           ],
         ),
       ),

@@ -286,7 +286,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                         height: 4,
                         margin: const EdgeInsets.only(bottom: 20),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
+                          color: AppColors.border,
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -380,7 +380,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                         decoration: BoxDecoration(
                           color: AppColors.surfaceLight,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade300),
+                          border: Border.all(color: AppColors.border),
                         ),
                         child: Row(
                           children: [
@@ -400,7 +400,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                             const Spacer(),
                             Icon(
                               Icons.arrow_drop_down,
-                              color: Colors.grey.shade500,
+                              color: AppColors.textLight,
                             ),
                           ],
                         ),
@@ -427,7 +427,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                             onPressed: () => Navigator.pop(context),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 14),
-                              side: BorderSide(color: Colors.grey.shade300),
+                              side: BorderSide(color: AppColors.border),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -584,7 +584,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowLight,
@@ -692,13 +692,13 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
             '$totalAssignments',
             isFr ? 'Devoirs' : 'Assignments',
           ),
-          Container(width: 1, height: 40, color: Colors.grey.shade300),
+          Container(width: 1, height: 40, color: AppColors.border),
           _buildStatItem(
             '📤',
             '$totalSubmissions',
             isFr ? 'Soumissions' : 'Submissions',
           ),
-          Container(width: 1, height: 40, color: Colors.grey.shade300),
+          Container(width: 1, height: 40, color: AppColors.border),
           _buildStatItem('⏰', '$overdueCount', isFr ? 'En retard' : 'Overdue'),
         ],
       ),
@@ -770,7 +770,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
         border: Border.all(
           color: isOverdue
               ? AppColors.error.withAlpha(60)
-              : Colors.grey.shade200,
+              : AppColors.borderLight,
         ),
         boxShadow: [
           BoxShadow(
@@ -897,7 +897,7 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
                     _buildInfoChip(
                       Icons.people_outline,
                       '$submissionCount ${isFr ? 'soumissions' : 'submissions'}',
-                      Colors.teal,
+                      AppColors.success,
                     ),
                   ],
                 ),
@@ -1081,17 +1081,17 @@ class _InstructorAssignmentPageState extends State<InstructorAssignmentPage>
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey.shade400),
+        hintStyle: TextStyle(color: AppColors.textHint),
         prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
         filled: true,
         fillColor: AppColors.surfaceLight,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -1274,7 +1274,7 @@ class _AssignmentSubmissionsPageState
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 20),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
+                      color: AppColors.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1341,7 +1341,7 @@ class _AssignmentSubmissionsPageState
                     decoration: BoxDecoration(
                       color: AppColors.surfaceLight,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade200),
+                      border: Border.all(color: AppColors.borderLight),
                     ),
                     child: Text(
                       submission['content'],
@@ -1370,7 +1370,7 @@ class _AssignmentSubmissionsPageState
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     hintText: isFr ? 'Entrez la note' : 'Enter grade',
-                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                    hintStyle: TextStyle(color: AppColors.textHint),
                     prefixIcon: const Icon(
                       Icons.stars_outlined,
                       color: AppColors.warning,
@@ -1380,11 +1380,11 @@ class _AssignmentSubmissionsPageState
                     fillColor: AppColors.surfaceLight,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -1412,7 +1412,7 @@ class _AssignmentSubmissionsPageState
                   maxLines: 3,
                   decoration: InputDecoration(
                     hintText: isFr ? 'Rédigez un commentaire pour l\'étudiant...' : 'Write feedback for the student...',
-                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                    hintStyle: TextStyle(color: AppColors.textHint),
                     prefixIcon: const Padding(
                       padding: EdgeInsets.only(bottom: 48),
                       child: Icon(
@@ -1425,11 +1425,11 @@ class _AssignmentSubmissionsPageState
                     fillColor: AppColors.surfaceLight,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -1450,7 +1450,7 @@ class _AssignmentSubmissionsPageState
                         onPressed: () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: BorderSide(color: Colors.grey.shade300),
+                          side: BorderSide(color: AppColors.border),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -1616,7 +1616,7 @@ class _AssignmentSubmissionsPageState
         border: Border.all(
           color: isGraded
               ? AppColors.success.withAlpha(60)
-              : Colors.grey.shade200,
+              : AppColors.borderLight,
         ),
         boxShadow: [
           BoxShadow(
@@ -1755,14 +1755,14 @@ class _AssignmentSubmissionsPageState
                       Icon(
                         Icons.attach_file,
                         size: 16,
-                        color: Colors.grey.shade500,
+                        color: AppColors.textLight,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'File attached',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade500,
+                          color: AppColors.textLight,
                         ),
                       ),
                     ],

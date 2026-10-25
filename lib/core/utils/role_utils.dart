@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 /// Returns the display colour associated with a user role string.
 Color roleColor(String? role) {
   switch (role) {
     case 'admin':
-      return Colors.deepPurple;
+      return AppColors.secondary;
     case 'instructor':
-      return Colors.teal;
+      return AppColors.success;
     case 'student':
-      return Colors.blueAccent;
+      return AppColors.primary;
     default:
-      return Colors.grey;
+      return AppColors.textSecondary;
   }
 }

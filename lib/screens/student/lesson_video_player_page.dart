@@ -14,6 +14,7 @@ import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class LessonVideoPlayerPage extends StatefulWidget {
   final Map<String, dynamic> lesson;
@@ -207,16 +208,16 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
         showControls: true,
         playbackSpeeds: [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0],
         materialProgressColors: ChewieProgressColors(
-          playedColor: Colors.blueAccent,
-          handleColor: Colors.blueAccent,
-          backgroundColor: Colors.grey.shade600,
-          bufferedColor: Colors.grey.shade400,
+          playedColor: AppColors.primary,
+          handleColor: AppColors.primary,
+          backgroundColor: AppColors.textSecondary,
+          bufferedColor: AppColors.textHint,
         ),
         placeholder: Container(
           color: Colors.black,
           child: const Center(
             child: CircularProgressIndicator(
-              color: Colors.blueAccent,
+              color: AppColors.primary,
               strokeWidth: 3,
             ),
           ),
@@ -226,11 +227,11 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, color: Colors.red.shade400, size: 48),
+                Icon(Icons.error_outline, color: AppColors.error400, size: 48),
                 const SizedBox(height: 16),
                 Text(
                   isFr ? 'Erreur de lecture vidéo' : 'Error playing video',
-                  style: TextStyle(color: Colors.grey.shade300, fontSize: 16),
+                  style: TextStyle(color: AppColors.border, fontSize: 16),
                 ),
               ],
             ),
@@ -319,7 +320,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                         width: 40,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
+                          color: AppColors.border,
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -337,14 +338,14 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.blueAccent.withAlpha(25),
+                              color: AppColors.primary.withAlpha(25),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               widget.chapter['title'] ?? 'Chapter',
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Colors.blueAccent,
+                                color: AppColors.primary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -355,7 +356,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: AppColors.textDark,
                               height: 1.3,
                             ),
                           ),
@@ -368,13 +369,13 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                 Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: Colors.grey.shade100,
+                                    color: AppColors.surfaceVariant,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Icon(
                                     Icons.access_time,
                                     size: 18,
-                                    color: Colors.grey.shade600,
+                                    color: AppColors.textSecondary,
                                   ),
                                 ),
                                 const SizedBox(width: 10),
@@ -383,7 +384,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                     widget.lesson['video']['duration'],
                                   ),
                                   style: TextStyle(
-                                    color: Colors.grey.shade700,
+                                    color: AppColors.textDark,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -394,7 +395,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                       ),
                     ),
 
-                    Divider(height: 1, color: Colors.grey.shade200),
+                    Divider(height: 1, color: AppColors.borderLight),
 
                     // Action Buttons
                     Padding(
@@ -482,8 +483,8 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                               ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: _isCompleted
-                                    ? Colors.green
-                                    : Colors.blueAccent,
+                                    ? AppColors.success
+                                    : AppColors.primary,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16,
@@ -528,10 +529,10 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                     vertical: 16,
                                   ),
                                   side: BorderSide(
-                                    color: Colors.orange.shade400,
+                                    color: AppColors.warning400,
                                     width: 2,
                                   ),
-                                  foregroundColor: Colors.orange.shade600,
+                                  foregroundColor: AppColors.warning600,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
@@ -543,7 +544,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                       ),
                     ),
 
-                    Divider(height: 1, color: Colors.grey.shade200),
+                    Divider(height: 1, color: AppColors.borderLight),
 
                     // Navigation Buttons
                     Padding(
@@ -560,8 +561,8 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 14,
                                   ),
-                                  side: BorderSide(color: Colors.grey.shade400),
-                                  foregroundColor: Colors.grey.shade700,
+                                  side: BorderSide(color: AppColors.textHint),
+                                  foregroundColor: AppColors.textDark,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -580,7 +581,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                                 ),
                                 icon: const Icon(Icons.arrow_forward, size: 20),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blueAccent,
+                                  backgroundColor: AppColors.primary,
                                   foregroundColor: Colors.white,
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 14,
@@ -612,7 +613,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
         color: Colors.black,
         child: const Center(
           child: CircularProgressIndicator(
-            color: Colors.blueAccent,
+            color: AppColors.primary,
             strokeWidth: 3,
           ),
         ),
@@ -629,12 +630,12 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.red.withAlpha(40),
+                  color: AppColors.error.withAlpha(40),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.error_outline,
-                  color: Colors.red.shade400,
+                  color: AppColors.error400,
                   size: 40,
                 ),
               ),
@@ -642,7 +643,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
               Text(
                 isFr ? 'Erreur de chargement vidéo' : 'Error loading video',
                 style: TextStyle(
-                  color: Colors.grey.shade300,
+                  color: AppColors.border,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -652,7 +653,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Text(
                   _errorMessage,
-                  style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                  style: TextStyle(color: AppColors.textLight, fontSize: 13),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -672,20 +673,20 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade800,
+                  color: AppColors.textDark,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.videocam_off,
                   size: 48,
-                  color: Colors.grey.shade600,
+                  color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
                 isFr ? 'Aucune vidéo disponible' : 'No video available',
                 style: TextStyle(
-                  color: Colors.grey.shade400,
+                  color: AppColors.textHint,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -695,7 +696,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
                 isFr
                     ? 'Cette leçon contient uniquement du texte'
                     : 'This lesson has text content only',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
               ),
             ],
           ),
@@ -742,7 +743,7 @@ class _LessonVideoPlayerPageState extends State<LessonVideoPlayerPage> {
       color: Colors.black,
       child: const Center(
         child: CircularProgressIndicator(
-          color: Colors.blueAccent,
+          color: AppColors.primary,
           strokeWidth: 3,
         ),
       ),

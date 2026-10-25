@@ -626,7 +626,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
                                   ],
                                 )
                               : null,
-                          color: isActive ? null : Colors.grey.shade300,
+                          color: isActive ? null : AppColors.border,
                           boxShadow: isActive
                               ? [
                                   BoxShadow(
@@ -643,7 +643,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
                               : Text(
                                   '${index + 1}',
                                   style: TextStyle(
-                                    color: isActive ? Colors.white : Colors.grey.shade600,
+                                    color: isActive ? Colors.white : AppColors.textSecondary,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -669,7 +669,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
                     margin: const EdgeInsets.only(bottom: 24),
                     color: index < _currentStep
                         ? AppColors.primary
-                        : Colors.grey.shade300,
+                        : AppColors.border,
                   ),
               ],
             ),
@@ -1077,7 +1077,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Column(
         children: [
@@ -1472,7 +1472,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: AppColors.borderLight),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1591,7 +1591,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.shade200,
+            color: AppColors.borderLight,
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
@@ -1710,11 +1710,11 @@ class _EditCoursePageState extends State<EditCoursePage> {
         fillColor: AppColors.surfaceLight,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -1748,11 +1748,11 @@ class _EditCoursePageState extends State<EditCoursePage> {
         fillColor: AppColors.surfaceLight,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -1790,11 +1790,11 @@ class _EditCoursePageState extends State<EditCoursePage> {
           fillColor: AppColors.surfaceLight,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+            borderSide: BorderSide(color: AppColors.border),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+            borderSide: BorderSide(color: AppColors.border),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
@@ -1881,10 +1881,10 @@ class _EditCoursePageState extends State<EditCoursePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.shade100,
+            color: AppColors.surfaceVariant,
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

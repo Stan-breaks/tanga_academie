@@ -6,6 +6,8 @@ import 'package:tanga_acadamie/models/blog.dart';
 import 'package:tanga_acadamie/services/admin_blog_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
+import 'package:tanga_acadamie/core/widgets/app_network_image.dart';
 
 /// Create or edit a blog post.
 class AdminBlogFormPage extends StatefulWidget {
@@ -80,7 +82,7 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: AppColors.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -140,17 +142,17 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: Colors.blueAccent.withAlpha(15),
+          color: AppColors.primary.withAlpha(15),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.blueAccent.withAlpha(40)),
+          border: Border.all(color: AppColors.primary.withAlpha(40)),
         ),
         child: Column(
           children: [
-            Icon(icon, size: 32, color: Colors.blueAccent),
+            Icon(icon, size: 32, color: AppColors.primary),
             const SizedBox(height: 8),
             Text(label,
                 style: const TextStyle(
-                    fontWeight: FontWeight.w600, color: Colors.blueAccent)),
+                    fontWeight: FontWeight.w600, color: AppColors.primary)),
           ],
         ),
       ),
@@ -215,7 +217,7 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
             ? (isFr ? 'Modifier l\'article' : 'Edit Blog')
             : (isFr ? 'Nouvel article' : 'New Blog')),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        foregroundColor: AppColors.textDark,
         elevation: 0,
         actions: [
           Padding(
@@ -228,7 +230,7 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
                       height: 16,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Colors.blueAccent,
+                        color: AppColors.primary,
                       ),
                     )
                   : const Icon(Icons.check, size: 18),
@@ -237,12 +239,12 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
                     ? (isFr ? 'Enregistrement...' : 'Saving...')
                     : (isFr ? 'Enregistrer' : 'Save'),
               ),
-              style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             ),
           ),
         ],
       ),
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: Form(
         key: _formKey,
         child: ListView(
@@ -355,7 +357,7 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: AppColors.borderLight),
               ),
               child: SwitchListTile(
                 title: Text(
@@ -364,7 +366,7 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
                       fontSize: 14, fontWeight: FontWeight.w500),
                 ),
                 value: _isCommentEnabled,
-                activeThumbColor: Colors.blueAccent,
+                activeThumbColor: AppColors.primary,
                 contentPadding: EdgeInsets.zero,
                 onChanged: (val) {
                   setState(() => _isCommentEnabled = val);
@@ -392,7 +394,7 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.grey.shade300,
+            color: AppColors.border,
             width: 1.5,
             strokeAlign: BorderSide.strokeAlignInside,
           ),
@@ -410,11 +412,9 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
                 ? Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.network(
-                        existingImage,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) =>
-                            _buildImagePickerPlaceholder(),
+                      AppNetworkImage(
+                        url: existingImage,
+                        errorWidget: _buildImagePickerPlaceholder(),
                       ),
                       _buildImageOverlay(),
                     ],
@@ -461,20 +461,20 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(Icons.add_photo_alternate_outlined,
-            size: 48, color: Colors.grey.shade400),
+            size: 48, color: AppColors.textHint),
         const SizedBox(height: 12),
         Text(
           isFr ? 'Ajouter une image à la une' : 'Add Featured Image',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Colors.grey.shade600,
+            color: AppColors.textSecondary,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           isFr ? 'Appuyez pour sélectionner' : 'Tap to select',
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade400),
+          style: TextStyle(fontSize: 12, color: AppColors.textHint),
         ),
       ],
     );
@@ -501,19 +501,19 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Colors.blueAccent, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Colors.red),
+          borderSide: const BorderSide(color: AppColors.error),
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -527,7 +527,7 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: AppColors.border),
       ),
       child: DropdownButtonFormField<String>(
         initialValue: _status,
@@ -545,7 +545,7 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
                   width: 8,
                   height: 8,
                   decoration: const BoxDecoration(
-                      color: Colors.orange, shape: BoxShape.circle),
+                      color: AppColors.warning, shape: BoxShape.circle),
                 ),
                 const SizedBox(width: 8),
                 Text(isFr ? 'Brouillon' : 'Draft', style: const TextStyle(fontSize: 14)),
@@ -560,7 +560,7 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
                   width: 8,
                   height: 8,
                   decoration: const BoxDecoration(
-                      color: Colors.green, shape: BoxShape.circle),
+                      color: AppColors.success, shape: BoxShape.circle),
                 ),
                 const SizedBox(width: 8),
                 Text(isFr ? 'Publié' : 'Published', style: const TextStyle(fontSize: 14)),
@@ -575,7 +575,7 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
                   width: 8,
                   height: 8,
                   decoration: const BoxDecoration(
-                      color: Colors.grey, shape: BoxShape.circle),
+                      color: AppColors.textSecondary, shape: BoxShape.circle),
                 ),
                 const SizedBox(width: 8),
                 Text(isFr ? 'Archivé' : 'Archived', style: const TextStyle(fontSize: 14)),
@@ -597,7 +597,7 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
           width: 4,
           height: 20,
           decoration: BoxDecoration(
-            color: Colors.blueAccent,
+            color: AppColors.primary,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -607,7 +607,7 @@ class _AdminBlogFormPageState extends State<AdminBlogFormPage> {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: AppColors.textDark,
           ),
         ),
       ],

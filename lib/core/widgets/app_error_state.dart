@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 /// Full-screen error state with an optional retry button.
 class AppErrorState extends StatelessWidget {
@@ -19,12 +20,12 @@ class AppErrorState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+          Icon(Icons.error_outline, size: 64, color: AppColors.error300),
           const SizedBox(height: 16),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
           ),
           if (onRetry != null) ...[
             const SizedBox(height: 24),
@@ -33,7 +34,7 @@ class AppErrorState extends StatelessWidget {
               icon: const Icon(Icons.refresh),
               label: Text(retryLabel),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

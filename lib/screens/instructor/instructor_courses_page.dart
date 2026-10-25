@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
+import 'package:tanga_acadamie/core/widgets/app_network_image.dart';
 
 class InstructorCoursesPage extends StatefulWidget {
   const InstructorCoursesPage({super.key});
@@ -144,7 +145,7 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            const Icon(Icons.videocam, color: Colors.blue, size: 26),
+            const Icon(Icons.videocam, color: AppColors.primary, size: 26),
             const SizedBox(width: 8),
             Text(isFr ? 'Lien Zoom' : 'Zoom Link'),
           ],
@@ -170,7 +171,7 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
           if (existing != null)
             TextButton(
               onPressed: () => Navigator.pop(context, '__remove__'),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              style: TextButton.styleFrom(foregroundColor: AppColors.error),
               child: Text(isFr ? 'Supprimer' : 'Remove'),
             ),
           TextButton(
@@ -180,7 +181,7 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
             child: Text(isFr ? 'Enregistrer' : 'Save'),
@@ -322,7 +323,7 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? Colors.white.withValues(alpha: 0.2)
-                              : Colors.grey.shade200,
+                              : AppColors.borderLight,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -403,11 +404,11 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildStatItem('📚', '${_courses.length}', isFr ? 'Cours' : 'Courses'),
-          Container(width: 1, height: 40, color: Colors.grey.shade300),
+          Container(width: 1, height: 40, color: AppColors.border),
           _buildStatItem('👥', '$totalStudents', isFr ? 'Étudiants' : 'Students'),
-          Container(width: 1, height: 40, color: Colors.grey.shade300),
+          Container(width: 1, height: 40, color: AppColors.border),
           _buildStatItem('⭐', avgRating.toStringAsFixed(1), isFr ? 'Moy.' : 'Avg Rating'),
-          Container(width: 1, height: 40, color: Colors.grey.shade300),
+          Container(width: 1, height: 40, color: AppColors.border),
           _buildStatItem('💬', '$totalReviews', isFr ? 'Avis' : 'Reviews'),
         ],
       ),
@@ -484,7 +485,7 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.filter_list_off, size: 64, color: Colors.grey.shade400),
+            Icon(Icons.filter_list_off, size: 64, color: AppColors.textHint),
             const SizedBox(height: 16),
             Text(
               isFr ? 'Aucun cours $_selectedFilter' : 'No $_selectedFilter courses',
@@ -632,14 +633,12 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
                     child:
                         course['bannerImage'] != null &&
                             course['bannerImage'].toString().isNotEmpty
-                        ? Image.network(
-                            ApiConfig.getImageUrl(course['bannerImage']),
+                        ? AppNetworkImage(
+                            url: ApiConfig.getImageUrl(course['bannerImage']),
                             height: 90,
                             width: double.infinity,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return _buildPlaceholderBanner();
-                            },
+                            errorWidget: _buildPlaceholderBanner(),
                           )
                         : _buildPlaceholderBanner(),
                   ),
@@ -732,18 +731,18 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
                       // Stats Row
                       Row(
                         children: [
-                          Icon(Icons.people_outline, size: 12, color: Colors.grey.shade600),
+                          Icon(Icons.people_outline, size: 12, color: AppColors.textSecondary),
                           const SizedBox(width: 3),
                           Text(
                             '${course['enrollmentCount'] ?? 0}',
-                            style: TextStyle(fontSize: 10, color: Colors.grey.shade700),
+                            style: TextStyle(fontSize: 10, color: AppColors.textDark),
                           ),
                           const SizedBox(width: 10),
                           Icon(Icons.star, size: 12, color: AppColors.warning),
                           const SizedBox(width: 3),
                           Text(
                             rating.toStringAsFixed(1),
-                            style: TextStyle(fontSize: 10, color: Colors.grey.shade700),
+                            style: TextStyle(fontSize: 10, color: AppColors.textDark),
                           ),
                         ],
                       ),
@@ -786,7 +785,7 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
                               tooltip: 'Zoom',
                               icon: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.blue.withValues(alpha: 0.1),
+                                  color: AppColors.primary.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 padding: const EdgeInsets.all(5),
@@ -795,8 +794,8 @@ class _InstructorCoursesPageState extends State<InstructorCoursesPage> {
                                       ? Icons.videocam
                                       : Icons.videocam_off,
                                   color: course['zoomLink'] != null
-                                      ? Colors.blue
-                                      : Colors.grey.shade500,
+                                      ? AppColors.primary
+                                      : AppColors.textLight,
                                   size: 14,
                                 ),
                               ),

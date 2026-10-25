@@ -10,6 +10,8 @@ import 'package:tanga_acadamie/models/blog.dart';
 import 'package:tanga_acadamie/services/blog_service.dart';
 import 'package:tanga_acadamie/widgets/blog_card.dart';
 import 'package:tanga_acadamie/core/utils/responsive.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
+import 'package:tanga_acadamie/core/widgets/shimmer.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -94,72 +96,60 @@ class _ExplorePageState extends State<ExplorePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: FutureBuilder(
         future: coursesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(
-                    color: Colors.blueAccent,
-                    strokeWidth: 3,
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    isFr ? 'Découverte des cours...' : 'Discovering courses...',
-                    style: TextStyle(color: Colors.grey.shade600),
-                  ),
-                ],
-              ),
+            return const Padding(
+              padding: EdgeInsets.fromLTRB(16, 24, 16, 16),
+              child: CourseGridSkeleton(count: 6),
             );
           } else if (snapshot.hasError) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Colors.red.shade300,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    isFr
-                        ? 'Quelque chose a mal tourné'
-                        : 'Something went wrong',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade800,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${snapshot.error}',
-                    style: TextStyle(color: Colors.grey.shade600),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: _refresh,
-                    icon: const Icon(Icons.refresh),
-                    label: Text(isFr ? 'Réessayer' : 'Try Again'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: const BoxDecoration(
+                        color: AppColors.error50,
+                        shape: BoxShape.circle,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      child: const Icon(
+                        Icons.error_outline_rounded,
+                        size: 40,
+                        color: AppColors.error,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Text(
+                      isFr
+                          ? 'Quelque chose a mal tourné'
+                          : 'Something went wrong',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${snapshot.error}',
+                      style: const TextStyle(color: AppColors.textSecondary),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton.icon(
+                      onPressed: _refresh,
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: Text(isFr ? 'Réessayer' : 'Try Again'),
+                    ),
+                  ],
+                ),
               ),
             );
           } else {
@@ -195,7 +185,7 @@ class _ExplorePageState extends State<ExplorePage>
             return FadeTransition(
               opacity: _fadeAnimation,
               child: RefreshIndicator(
-                color: Colors.blueAccent,
+                color: AppColors.primary,
                 onRefresh: _refresh,
                 child: CustomScrollView(
                   slivers: [
@@ -234,7 +224,7 @@ class _ExplorePageState extends State<ExplorePage>
                               gridDelegate:
                                   SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: Responsive.gridColumns(context),
-                                    childAspectRatio: 0.95,
+                                    childAspectRatio: 0.82,
                                     crossAxisSpacing: 14,
                                     mainAxisSpacing: 14,
                                   ),
@@ -245,6 +235,9 @@ class _ExplorePageState extends State<ExplorePage>
                                 final course = filteredCourses[index];
                                 return CourseCard(
                                   course: course,
+                                  heroTag: course['_id'] != null
+                                      ? 'course-banner-${course['_id']}'
+                                      : null,
                                   onTap: () {
                                     Navigator.push(
                                       context,
@@ -283,8 +276,8 @@ class _ExplorePageState extends State<ExplorePage>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Colors.blueAccent.shade200,
-                      Colors.blueAccent.shade700,
+                      AppColors.primary200,
+                      AppColors.primary700,
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
@@ -301,7 +294,7 @@ class _ExplorePageState extends State<ExplorePage>
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: AppColors.textDark,
                       ),
                     ),
                     SizedBox(height: 2),
@@ -309,7 +302,7 @@ class _ExplorePageState extends State<ExplorePage>
                       isFr
                           ? 'Trouvez votre prochain cours'
                           : 'Find your next learning journey',
-                      style: TextStyle(fontSize: 13, color: Colors.grey),
+                      style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -341,11 +334,11 @@ class _ExplorePageState extends State<ExplorePage>
           onChanged: _onSearchChanged,
           decoration: InputDecoration(
             hintText: isFr ? 'Rechercher des cours...' : 'Search courses...',
-            hintStyle: TextStyle(color: Colors.grey.shade500),
-            prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
+            hintStyle: TextStyle(color: AppColors.textLight),
+            prefixIcon: Icon(Icons.search, color: AppColors.textLight),
             suffixIcon: searchQuery.isNotEmpty
                 ? IconButton(
-                    icon: Icon(Icons.clear, color: Colors.grey.shade500),
+                    icon: Icon(Icons.clear, color: AppColors.textLight),
                     onPressed: () {
                       _searchDebounce?.cancel();
                       setState(() {
@@ -401,8 +394,8 @@ class _ExplorePageState extends State<ExplorePage>
                     gradient: isSelected
                         ? LinearGradient(
                             colors: [
-                              Colors.blueAccent.shade400,
-                              Colors.blueAccent.shade700,
+                              AppColors.primary400,
+                              AppColors.primary700,
                             ],
                           )
                         : null,
@@ -411,7 +404,7 @@ class _ExplorePageState extends State<ExplorePage>
                     boxShadow: [
                       BoxShadow(
                         color: isSelected
-                            ? Colors.blueAccent.withAlpha(60)
+                            ? AppColors.primary.withAlpha(60)
                             : Colors.black.withAlpha(8),
                         blurRadius: isSelected ? 12 : 8,
                         offset: const Offset(0, 4),
@@ -421,7 +414,7 @@ class _ExplorePageState extends State<ExplorePage>
                   child: Text(
                     category,
                     style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.grey.shade700,
+                      color: isSelected ? Colors.white : AppColors.textDark,
                       fontWeight: isSelected
                           ? FontWeight.w600
                           : FontWeight.w500,
@@ -445,13 +438,13 @@ class _ExplorePageState extends State<ExplorePage>
         children: [
           RichText(
             text: TextSpan(
-              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+              style: TextStyle(fontSize: 15, color: AppColors.textDark),
               children: [
                 TextSpan(
                   text: '$count ',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent,
+                    color: AppColors.primary,
                   ),
                 ),
                 TextSpan(
@@ -465,7 +458,7 @@ class _ExplorePageState extends State<ExplorePage>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.blueAccent.withAlpha(25),
+              color: AppColors.primary.withAlpha(25),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -473,13 +466,13 @@ class _ExplorePageState extends State<ExplorePage>
                 Icon(
                   Icons.grid_view,
                   size: 16,
-                  color: Colors.blueAccent.shade400,
+                  color: AppColors.primary400,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   isFr ? 'Grille' : 'Grid',
                   style: TextStyle(
-                    color: Colors.blueAccent.shade400,
+                    color: AppColors.primary400,
                     fontWeight: FontWeight.w600,
                     fontSize: 12,
                   ),
@@ -501,13 +494,13 @@ class _ExplorePageState extends State<ExplorePage>
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.blueAccent.withAlpha(25),
+              color: AppColors.primary.withAlpha(25),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.search_off,
               size: 56,
-              color: Colors.blueAccent.shade400,
+              color: AppColors.primary400,
             ),
           ),
           const SizedBox(height: 24),
@@ -516,7 +509,7 @@ class _ExplorePageState extends State<ExplorePage>
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 8),
@@ -529,7 +522,7 @@ class _ExplorePageState extends State<ExplorePage>
                       ? 'Aucun cours dans cette catégorie'
                       : 'No courses in this category yet'),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 24),
           if (searchQuery.isNotEmpty || selectedCategory != 'All')
@@ -545,8 +538,8 @@ class _ExplorePageState extends State<ExplorePage>
               icon: const Icon(Icons.clear_all),
               label: Text(isFr ? 'Effacer les filtres' : 'Clear Filters'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.blueAccent,
-                side: const BorderSide(color: Colors.blueAccent),
+                foregroundColor: AppColors.primary,
+                side: const BorderSide(color: AppColors.primary),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 12,
@@ -577,8 +570,8 @@ class _ExplorePageState extends State<ExplorePage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.blueAccent.shade200,
-                        Colors.blueAccent.shade700,
+                        AppColors.primary200,
+                        AppColors.primary700,
                       ],
                     ),
                     borderRadius: BorderRadius.circular(10),
@@ -599,7 +592,7 @@ class _ExplorePageState extends State<ExplorePage>
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: AppColors.textDark,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -609,7 +602,7 @@ class _ExplorePageState extends State<ExplorePage>
                             : 'Stay informed with our articles',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade600,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -629,7 +622,7 @@ class _ExplorePageState extends State<ExplorePage>
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: CircularProgressIndicator(
-                      color: Colors.blueAccent,
+                      color: AppColors.primary,
                       strokeWidth: 2.5,
                     ),
                   );
@@ -643,7 +636,7 @@ class _ExplorePageState extends State<ExplorePage>
                         Icon(
                           Icons.wifi_off,
                           size: 32,
-                          color: Colors.grey.shade400,
+                          color: AppColors.textHint,
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -652,7 +645,7 @@ class _ExplorePageState extends State<ExplorePage>
                               : 'Could not load articles',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.grey.shade600,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -669,7 +662,7 @@ class _ExplorePageState extends State<ExplorePage>
                         Icon(
                           Icons.article_outlined,
                           size: 32,
-                          color: Colors.grey.shade400,
+                          color: AppColors.textHint,
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -678,7 +671,7 @@ class _ExplorePageState extends State<ExplorePage>
                               : 'No articles yet',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.grey.shade600,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],

@@ -7,6 +7,7 @@ import 'package:http/http.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class VerificationPage extends StatefulWidget {
   final String email;
@@ -112,13 +113,13 @@ class _VerificationPageState extends State<VerificationPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.withAlpha(26),
+                  color: AppColors.primary.withAlpha(26),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.email_outlined,
                   size: 50,
-                  color: Colors.blueAccent,
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(height: 20),
@@ -135,7 +136,7 @@ class _VerificationPageState extends State<VerificationPage> {
               Text(
                 isFr ? 'Collez le jeton ici' : 'Paste the token here',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               const SizedBox(height: 4),
               Text(
@@ -144,7 +145,7 @@ class _VerificationPageState extends State<VerificationPage> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.blueAccent,
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(height: 30),
@@ -164,9 +165,9 @@ class _VerificationPageState extends State<VerificationPage> {
                   onPressed: _isLoading ? null : _verifyToken,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.blueAccent.withAlpha(150),
+                    disabledBackgroundColor: AppColors.primary.withAlpha(150),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

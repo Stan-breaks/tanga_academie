@@ -389,7 +389,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowLight,
@@ -506,7 +506,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowLight,
@@ -520,11 +520,11 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.teal.withAlpha(20),
+              color: AppColors.success.withAlpha(20),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.article_outlined,
-                color: Colors.teal, size: 20),
+                color: AppColors.success, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -539,7 +539,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
                   ),
                 ),
                 icon: const Icon(Icons.keyboard_arrow_down,
-                    color: Colors.teal),
+                    color: AppColors.success),
                 isExpanded: true,
                 items: allLessons.map<DropdownMenuItem<String>>((lesson) {
                   return DropdownMenuItem<String>(
@@ -781,7 +781,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowLight,
@@ -869,18 +869,18 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
               },
               decoration: InputDecoration(
                 hintText: isFr ? 'Tapez votre question ici...' : 'Type your question here...',
-                hintStyle: TextStyle(color: Colors.grey.shade400),
+                hintStyle: TextStyle(color: AppColors.textHint),
                 prefixIcon: const Icon(Icons.help_outline,
                     color: AppColors.primary, size: 20),
                 filled: true,
                 fillColor: AppColors.surfaceLight,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+                  borderSide: BorderSide(color: AppColors.border),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+                  borderSide: BorderSide(color: AppColors.border),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -935,12 +935,12 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
                             decoration: BoxDecoration(
                               color: isCorrect
                                   ? AppColors.success
-                                  : Colors.grey.shade100,
+                                  : AppColors.surfaceVariant,
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
                                 color: isCorrect
                                     ? AppColors.success
-                                    : Colors.grey.shade300,
+                                    : AppColors.border,
                                 width: isCorrect ? 2 : 1,
                               ),
                             ),
@@ -951,7 +951,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
                                   : Text(
                                       label,
                                       style: TextStyle(
-                                        color: Colors.grey.shade500,
+                                        color: AppColors.textLight,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 13,
                                       ),
@@ -970,7 +970,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
                             decoration: InputDecoration(
                               hintText: 'Option $label',
                               hintStyle:
-                                  TextStyle(color: Colors.grey.shade400),
+                                  TextStyle(color: AppColors.textHint),
                               filled: true,
                               fillColor: isCorrect
                                   ? AppColors.success.withAlpha(10)
@@ -980,7 +980,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
                                 borderSide: BorderSide(
                                   color: isCorrect
                                       ? AppColors.success.withAlpha(80)
-                                      : Colors.grey.shade300,
+                                      : AppColors.border,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
@@ -988,7 +988,7 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
                                 borderSide: BorderSide(
                                   color: isCorrect
                                       ? AppColors.success.withAlpha(80)
-                                      : Colors.grey.shade300,
+                                      : AppColors.border,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
@@ -1022,11 +1022,11 @@ class _InstructorQuizPageState extends State<InstructorQuizPage>
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 14),
             child: Row(
               children: [
-                Icon(Icons.info_outline, size: 14, color: Colors.grey.shade400),
+                Icon(Icons.info_outline, size: 14, color: AppColors.textHint),
                 const SizedBox(width: 6),
                 Text(
                   isFr ? 'Appuyez sur la lettre pour marquer la bonne réponse' : 'Tap the letter to mark the correct answer',
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
+                  style: TextStyle(fontSize: 11, color: AppColors.textHint),
                 ),
               ],
             ),

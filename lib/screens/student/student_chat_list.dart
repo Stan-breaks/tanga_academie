@@ -6,6 +6,7 @@ import 'package:tanga_acadamie/screens/shared/chat_page.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class StudentChatList extends StatefulWidget {
   const StudentChatList({super.key});
@@ -146,9 +147,9 @@ class _StudentChatListState extends State<StudentChatList>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: RefreshIndicator(
-        color: Colors.blueAccent,
+        color: AppColors.primary,
         onRefresh: () async {
           await Future.wait([_fetchUserChats(), _fetchInstructorContacts()]);
         },
@@ -167,13 +168,13 @@ class _StudentChatListState extends State<StudentChatList>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(
-            color: Colors.blueAccent,
+            color: AppColors.primary,
             strokeWidth: 3,
           ),
           const SizedBox(height: 20),
           Text(
             isFr ? 'Chargement des messages...' : 'Loading messages...',
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
         ],
       ),
@@ -185,13 +186,13 @@ class _StudentChatListState extends State<StudentChatList>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.lock_outline, size: 64, color: Colors.grey.shade400),
+          Icon(Icons.lock_outline, size: 64, color: AppColors.textHint),
           const SizedBox(height: 16),
           Text(
             isFr
                 ? 'Veuillez vous connecter pour voir les messages'
                 : 'Please log in to view messages',
-            style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
@@ -202,7 +203,7 @@ class _StudentChatListState extends State<StudentChatList>
               ).then((_) => _initialize());
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueAccent,
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               shape: RoundedRectangleBorder(
@@ -242,7 +243,7 @@ class _StudentChatListState extends State<StudentChatList>
             ),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 48),
-              backgroundColor: Colors.blueAccent,
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -266,18 +267,18 @@ class _StudentChatListState extends State<StudentChatList>
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.red.withAlpha(25),
+                color: AppColors.error.withAlpha(25),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.red.withAlpha(76)),
+                border: Border.all(color: AppColors.error.withAlpha(76)),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.error_outline, color: Colors.red.shade400),
+                  Icon(Icons.error_outline, color: AppColors.error400),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       _error!,
-                      style: TextStyle(color: Colors.red.shade700),
+                      style: TextStyle(color: AppColors.error700),
                     ),
                   ),
                 ],
@@ -297,7 +298,7 @@ class _StudentChatListState extends State<StudentChatList>
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.grey.shade200),
+                    border: Border.all(color: AppColors.borderLight),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
@@ -308,7 +309,7 @@ class _StudentChatListState extends State<StudentChatList>
                       separatorBuilder: (context, index) => Divider(
                         height: 1,
                         indent: 72,
-                        color: Colors.grey.shade200,
+                        color: AppColors.borderLight,
                       ),
                       itemBuilder: (context, index) =>
                           _buildChatItem(_chats[index]),
@@ -327,10 +328,10 @@ class _StudentChatListState extends State<StudentChatList>
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.blueAccent.withAlpha(25),
+            color: AppColors.primary.withAlpha(25),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Icon(Icons.chat, color: Colors.blueAccent, size: 22),
+          child: const Icon(Icons.chat, color: AppColors.primary, size: 22),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -342,13 +343,13 @@ class _StudentChatListState extends State<StudentChatList>
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: AppColors.textDark,
                 ),
               ),
               if (_chats.isNotEmpty)
                 Text(
                   '${_chats.length} ${_chats.length == 1 ? 'chat' : 'chats'}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
             ],
           ),
@@ -366,12 +367,12 @@ class _StudentChatListState extends State<StudentChatList>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.blueAccent.shade100.withAlpha(80),
-            Colors.blue.shade50,
+            AppColors.primary100.withAlpha(80),
+            AppColors.primary50,
           ],
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.blueAccent.withAlpha(50)),
+        border: Border.all(color: AppColors.primary.withAlpha(50)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,12 +382,12 @@ class _StudentChatListState extends State<StudentChatList>
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.withAlpha(50),
+                  color: AppColors.primary.withAlpha(50),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.person_add,
-                  color: Colors.blueAccent,
+                  color: AppColors.primary,
                   size: 20,
                 ),
               ),
@@ -398,7 +399,7 @@ class _StudentChatListState extends State<StudentChatList>
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: AppColors.textDark,
                 ),
               ),
             ],
@@ -412,7 +413,7 @@ class _StudentChatListState extends State<StudentChatList>
                   Icon(
                     Icons.school_outlined,
                     size: 48,
-                    color: Colors.grey.shade400,
+                    color: AppColors.textHint,
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -422,7 +423,7 @@ class _StudentChatListState extends State<StudentChatList>
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade700,
+                      color: AppColors.textDark,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -430,7 +431,7 @@ class _StudentChatListState extends State<StudentChatList>
                     isFr
                         ? 'Inscrivez-vous à des cours pour contacter les instructeurs'
                         : 'Enroll in courses to message instructors',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                    style: TextStyle(fontSize: 12, color: AppColors.textLight),
                   ),
                 ],
               ),
@@ -446,7 +447,7 @@ class _StudentChatListState extends State<StudentChatList>
                 separatorBuilder: (context, index) => Container(
                   margin: const EdgeInsets.symmetric(vertical: 12),
                   height: 1,
-                  color: Colors.blueAccent.withAlpha(25),
+                  color: AppColors.primary.withAlpha(25),
                 ),
                 itemBuilder: (context, index) =>
                     _buildInstructorItem(_instructors[index]),
@@ -475,14 +476,14 @@ class _StudentChatListState extends State<StudentChatList>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Colors.blueAccent.shade200,
-                        Colors.blueAccent.shade700,
+                        AppColors.primary200,
+                        AppColors.primary700,
                       ],
                     ),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.blueAccent.withAlpha(80),
+                        color: AppColors.primary.withAlpha(80),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -509,7 +510,7 @@ class _StudentChatListState extends State<StudentChatList>
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 15,
-                          color: Colors.black87,
+                          color: AppColors.textDark,
                         ),
                       ),
                       Row(
@@ -517,14 +518,14 @@ class _StudentChatListState extends State<StudentChatList>
                           Icon(
                             Icons.verified,
                             size: 14,
-                            color: Colors.green.shade400,
+                            color: AppColors.success400,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             isFr ? 'Instructeur' : 'Instructor',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey.shade600,
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -552,11 +553,11 @@ class _StudentChatListState extends State<StudentChatList>
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: Colors.blueAccent.withAlpha(50),
+                          color: AppColors.primary.withAlpha(50),
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.blueAccent.withAlpha(20),
+                            color: AppColors.primary.withAlpha(20),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -568,7 +569,7 @@ class _StudentChatListState extends State<StudentChatList>
                           Icon(
                             Icons.book_outlined,
                             size: 14,
-                            color: Colors.blueAccent.shade400,
+                            color: AppColors.primary400,
                           ),
                           const SizedBox(width: 6),
                           Flexible(
@@ -576,7 +577,7 @@ class _StudentChatListState extends State<StudentChatList>
                               course.title,
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Colors.blueAccent,
+                                color: AppColors.primary,
                                 fontWeight: FontWeight.w600,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -613,8 +614,8 @@ class _StudentChatListState extends State<StudentChatList>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.blueAccent.shade100,
-                      Colors.blueAccent.shade400,
+                      AppColors.primary100,
+                      AppColors.primary400,
                     ],
                   ),
                   shape: BoxShape.circle,
@@ -660,7 +661,7 @@ class _StudentChatListState extends State<StudentChatList>
                                   ? FontWeight.bold
                                   : FontWeight.w600,
                               fontSize: 15,
-                              color: Colors.black87,
+                              color: AppColors.textDark,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -671,8 +672,8 @@ class _StudentChatListState extends State<StudentChatList>
                           style: TextStyle(
                             fontSize: 12,
                             color: chat.unreadCount > 0
-                                ? Colors.blueAccent
-                                : Colors.grey.shade500,
+                                ? AppColors.primary
+                                : AppColors.textLight,
                             fontWeight: chat.unreadCount > 0
                                 ? FontWeight.w600
                                 : FontWeight.normal,
@@ -690,8 +691,8 @@ class _StudentChatListState extends State<StudentChatList>
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: chat.unreadCount > 0
-                                  ? Colors.black87
-                                  : Colors.grey.shade600,
+                                  ? AppColors.textDark
+                                  : AppColors.textSecondary,
                               fontSize: 13,
                               fontWeight: chat.unreadCount > 0
                                   ? FontWeight.w500
@@ -707,7 +708,7 @@ class _StudentChatListState extends State<StudentChatList>
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.blueAccent,
+                              color: AppColors.primary,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -753,13 +754,13 @@ class _StudentChatListState extends State<StudentChatList>
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.blueAccent.withAlpha(25),
+              color: AppColors.primary.withAlpha(25),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.chat_bubble_outline,
               size: 56,
-              color: Colors.blueAccent.shade400,
+              color: AppColors.primary400,
             ),
           ),
           const SizedBox(height: 24),
@@ -768,7 +769,7 @@ class _StudentChatListState extends State<StudentChatList>
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 8),
@@ -777,7 +778,7 @@ class _StudentChatListState extends State<StudentChatList>
                 ? 'Démarrez une conversation avec vos instructeurs !'
                 : 'Start a conversation with your instructors!',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+            style: TextStyle(fontSize: 14, color: AppColors.textLight),
           ),
         ],
       ),

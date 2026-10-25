@@ -3,6 +3,7 @@ import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/screens/shared/_stat_card.dart';
 import 'package:intl/intl.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class InstructorDashboard extends StatefulWidget {
   const InstructorDashboard({super.key});
@@ -31,13 +32,13 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
-            backgroundColor: Colors.grey.shade50,
+            backgroundColor: AppColors.background,
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const CircularProgressIndicator(
-                    color: Colors.blueAccent,
+                    color: AppColors.primary,
                     strokeWidth: 3,
                   ),
                   const SizedBox(height: 20),
@@ -45,7 +46,7 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                     isFr
                         ? 'Chargement du tableau de bord...'
                         : 'Loading your dashboard...',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                   ),
                 ],
               ),
@@ -53,7 +54,7 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
           );
         } else if (snapshot.hasError) {
           return Scaffold(
-            backgroundColor: Colors.grey.shade50,
+            backgroundColor: AppColors.background,
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(32),
@@ -63,7 +64,7 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                     Icon(
                       Icons.error_outline,
                       size: 64,
-                      color: Colors.red.shade300,
+                      color: AppColors.error300,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -73,13 +74,13 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
+                        color: AppColors.textDark,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       '${snapshot.error}',
-                      style: TextStyle(color: Colors.grey.shade600),
+                      style: TextStyle(color: AppColors.textSecondary),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -94,9 +95,9 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
           final List recentAssignments = data['recentAssignments'] ?? [];
 
           return Scaffold(
-            backgroundColor: Colors.grey.shade50,
+            backgroundColor: AppColors.background,
             body: RefreshIndicator(
-              color: Colors.blueAccent,
+              color: AppColors.primary,
               onRefresh: () async {
                 _refresh();
               },
@@ -121,8 +122,8 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                         value: "${stats['totalCourses'] ?? 0}",
                         icon: Icons.library_books,
                         gradientColors: [
-                          Colors.blueAccent.shade200,
-                          Colors.blueAccent.shade700,
+                          AppColors.primary200,
+                          AppColors.primary700,
                         ],
                       ),
                       StatCard(
@@ -130,8 +131,8 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                         value: "${stats['activeCourses'] ?? 0}",
                         icon: Icons.play_circle_fill,
                         gradientColors: [
-                          Colors.green.shade400,
-                          Colors.green.shade700,
+                          AppColors.success400,
+                          AppColors.success700,
                         ],
                       ),
                       StatCard(
@@ -139,8 +140,8 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                         value: "${stats['totalStudents'] ?? 0}",
                         icon: Icons.people,
                         gradientColors: [
-                          Colors.orange.shade400,
-                          Colors.deepOrange.shade600,
+                          AppColors.warning400,
+                          AppColors.warning600,
                         ],
                       ),
                       StatCard(
@@ -150,8 +151,8 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                         value: "${stats['pendingSubmissions'] ?? 0}",
                         icon: Icons.assignment_late,
                         gradientColors: [
-                          Colors.purple.shade400,
-                          Colors.purple.shade800,
+                          AppColors.secondary400,
+                          AppColors.secondary800,
                         ],
                       ),
                       StatCard(
@@ -159,8 +160,8 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                         value: "${stats['totalReviews'] ?? 0}",
                         icon: Icons.rate_review,
                         gradientColors: [
-                          Colors.teal.shade400,
-                          Colors.teal.shade700,
+                          AppColors.success400,
+                          AppColors.success700,
                         ],
                       ),
                       StatCard(
@@ -168,8 +169,8 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                         value: "4.5 ⭐",
                         icon: Icons.star,
                         gradientColors: [
-                          Colors.amber.shade400,
-                          Colors.amber.shade700,
+                          AppColors.warning400,
+                          AppColors.warning700,
                         ],
                       ),
                     ],
@@ -250,12 +251,12 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blueAccent.shade400, Colors.blue.shade700],
+          colors: [AppColors.primary400, AppColors.primary700],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.blueAccent.withAlpha(80),
+            color: AppColors.primary.withAlpha(80),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -334,10 +335,10 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.blueAccent.withAlpha(25),
+            color: AppColors.primary.withAlpha(25),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: Colors.blueAccent, size: 22),
+          child: Icon(icon, color: AppColors.primary, size: 22),
         ),
         const SizedBox(width: 12),
         Text(
@@ -345,7 +346,7 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: AppColors.textDark,
           ),
         ),
       ],
@@ -360,7 +361,7 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
             ? 'Commencez à créer votre prochain cours'
             : 'Start creating your next course',
         icon: '📚',
-        color: Colors.blue.shade400,
+        color: AppColors.primary400,
         route: '/create-course',
       ),
       QuickAction(
@@ -369,7 +370,7 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
             ? 'Modifier et mettre à jour les cours'
             : 'Edit and update existing courses',
         icon: '⚙️',
-        color: Colors.green.shade500,
+        color: AppColors.success500,
         route: '/instructor-courses',
       ),
       QuickAction(
@@ -378,7 +379,7 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
             ? 'Vérifier et noter les soumissions'
             : 'Review and grade student submissions',
         icon: '📝',
-        color: Colors.orange.shade400,
+        color: AppColors.warning400,
         route: '/instructor-assignments',
       ),
       QuickAction(
@@ -387,7 +388,7 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
             ? 'Créer et gérer les quiz'
             : 'Create & manage lesson quizzes',
         icon: '📊',
-        color: Colors.purple.shade500,
+        color: AppColors.secondary500,
         route: '/instructor-quiz',
       ),
       QuickAction(
@@ -396,7 +397,7 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
             ? 'Suivre les progrès d\'apprentissage'
             : 'Monitor student learning progress',
         icon: '👥',
-        color: Colors.teal.shade500,
+        color: AppColors.success500,
         route: '/instructor-student-progress',
       ),
       QuickAction(
@@ -405,7 +406,7 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
             ? 'Autoriser les reprises de quiz'
             : 'Approve quiz retake requests',
         icon: '🔓',
-        color: Colors.red.shade400,
+        color: AppColors.error400,
         route: '/instructor-quiz-approvals',
       ),
     ];
@@ -501,19 +502,19 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
   Widget _buildCourseCard(Map course, BuildContext context) {
     final status = course['status'] ?? 'draft';
     final statusColor = status == 'published'
-        ? Colors.green
+        ? AppColors.success
         : status == 'pending'
-        ? Colors.orange
-        : Colors.red;
+        ? AppColors.warning
+        : AppColors.error;
 
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.shade200,
+            color: AppColors.borderLight,
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -584,9 +585,9 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: Colors.grey.shade600),
+        Icon(icon, size: 16, color: AppColors.textSecondary),
         const SizedBox(width: 4),
-        Text(text, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+        Text(text, style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
       ],
     );
   }
@@ -614,10 +615,10 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.shade200,
+            color: AppColors.borderLight,
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -665,26 +666,26 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Column(
         children: [
-          Icon(icon, size: 64, color: Colors.grey.shade400),
+          Icon(icon, size: 64, color: AppColors.textHint),
           const SizedBox(height: 16),
           Text(
             title,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.grey.shade700,
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
         ],

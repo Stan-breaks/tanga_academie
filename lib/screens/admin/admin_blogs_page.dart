@@ -5,6 +5,8 @@ import 'package:tanga_acadamie/services/admin_blog_service.dart';
 import 'package:tanga_acadamie/screens/admin/admin_blog_form_page.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
+import 'package:tanga_acadamie/core/widgets/app_network_image.dart';
 
 class AdminBlogsPage extends StatefulWidget {
   const AdminBlogsPage({super.key});
@@ -88,13 +90,13 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
               isFr ? 'Annuler' : 'Cancel',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.error,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -139,13 +141,13 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
       appBar: AppBar(
         title: Text(isFr ? 'Gérer les articles' : 'Manage Blogs'),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        foregroundColor: AppColors.textDark,
         elevation: 0,
       ),
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _navigateToForm(),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add),
         label: Text(isFr ? 'Nouveau' : 'New Blog'),
       ),
@@ -154,7 +156,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
           _buildStatusFilterBar(),
           Expanded(
             child: RefreshIndicator(
-              color: Colors.blueAccent,
+              color: AppColors.primary,
               onRefresh: _fetchBlogs,
               child: _isLoading
                   ? _buildLoadingState()
@@ -173,7 +175,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+        border: Border(bottom: BorderSide(color: AppColors.borderLight)),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -198,13 +200,13 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? Colors.blueAccent
-                        : Colors.grey.shade100,
+                        ? AppColors.primary
+                        : AppColors.surfaceVariant,
                     borderRadius: BorderRadius.circular(25),
                     border: Border.all(
                       color: isSelected
-                          ? Colors.blueAccent
-                          : Colors.grey.shade300,
+                          ? AppColors.primary
+                          : AppColors.border,
                     ),
                   ),
                   child: Row(
@@ -217,7 +219,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
                         style: TextStyle(
                           color: isSelected
                               ? Colors.white
-                              : Colors.grey.shade700,
+                              : AppColors.textDark,
                           fontWeight: isSelected
                               ? FontWeight.w600
                               : FontWeight.w500,
@@ -233,7 +235,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? Colors.white.withAlpha(50)
-                              : Colors.grey.shade300,
+                              : AppColors.border,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -241,7 +243,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
                           style: TextStyle(
                             color: isSelected
                                 ? Colors.white
-                                : Colors.grey.shade700,
+                                : AppColors.textDark,
                             fontWeight: FontWeight.bold,
                             fontSize: 11,
                           ),
@@ -259,20 +261,20 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
   }
 
   Widget _getStatusIcon(String status, bool isSelected) {
-    Color color = isSelected ? Colors.white : Colors.grey.shade600;
+    Color color = isSelected ? Colors.white : AppColors.textSecondary;
     IconData icon;
     switch (status) {
       case 'published':
         icon = Icons.check_circle;
-        color = isSelected ? Colors.white : Colors.green;
+        color = isSelected ? Colors.white : AppColors.success;
         break;
       case 'draft':
         icon = Icons.edit_note;
-        color = isSelected ? Colors.white : Colors.orange;
+        color = isSelected ? Colors.white : AppColors.warning;
         break;
       case 'archived':
         icon = Icons.archive;
-        color = isSelected ? Colors.white : Colors.grey;
+        color = isSelected ? Colors.white : AppColors.textSecondary;
         break;
       default:
         icon = Icons.article;
@@ -286,13 +288,13 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(
-            color: Colors.blueAccent,
+            color: AppColors.primary,
             strokeWidth: 3,
           ),
           const SizedBox(height: 20),
           Text(
             isFr ? 'Chargement des articles...' : 'Loading blogs...',
-            style: const TextStyle(color: Colors.grey, fontSize: 14),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
         ],
       ),
@@ -306,20 +308,20 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+            Icon(Icons.error_outline, size: 64, color: AppColors.error300),
             const SizedBox(height: 16),
             Text(
               isFr ? 'Erreur de chargement' : 'Error loading blogs',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade800,
+                color: AppColors.textDark,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               _error ?? '',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -328,7 +330,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
               icon: const Icon(Icons.refresh),
               label: Text(isFr ? 'Réessayer' : 'Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -385,13 +387,12 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: hasImage
-                      ? Image.network(
-                          imageUrl,
+                      ? AppNetworkImage(
+                          url: imageUrl,
                           width: 80,
                           height: 80,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stack) =>
-                              _buildThumbnailPlaceholder(),
+                          errorWidget: _buildThumbnailPlaceholder(),
                         )
                       : _buildThumbnailPlaceholder(),
                 ),
@@ -431,13 +432,13 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
                                 vertical: 3,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.blueAccent.withAlpha(20),
+                                color: AppColors.primary.withAlpha(20),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
                                 blog.category,
                                 style: TextStyle(
-                                  color: Colors.blueAccent.shade700,
+                                  color: AppColors.primary700,
                                   fontSize: 9,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -465,7 +466,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
                           Icon(
                             Icons.person_outline,
                             size: 13,
-                            color: Colors.grey.shade500,
+                            color: AppColors.textLight,
                           ),
                           const SizedBox(width: 3),
                           Flexible(
@@ -475,7 +476,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Colors.grey.shade600,
+                                color: AppColors.textSecondary,
                               ),
                             ),
                           ),
@@ -483,28 +484,28 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
                           Icon(
                             Icons.calendar_today_outlined,
                             size: 11,
-                            color: Colors.grey.shade500,
+                            color: AppColors.textLight,
                           ),
                           const SizedBox(width: 3),
                           Text(
                             date,
                             style: TextStyle(
                               fontSize: 10,
-                              color: Colors.grey.shade500,
+                              color: AppColors.textLight,
                             ),
                           ),
                           const SizedBox(width: 10),
                           Icon(
                             Icons.visibility_outlined,
                             size: 11,
-                            color: Colors.grey.shade500,
+                            color: AppColors.textLight,
                           ),
                           const SizedBox(width: 3),
                           Text(
                             '${blog.views}',
                             style: TextStyle(
                               fontSize: 10,
-                              color: Colors.grey.shade500,
+                              color: AppColors.textLight,
                             ),
                           ),
                         ],
@@ -513,7 +514,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
                   ),
                 ),
                 // Chevron
-                Icon(Icons.chevron_right, color: Colors.grey.shade400),
+                Icon(Icons.chevron_right, color: AppColors.textHint),
               ],
             ),
           ),
@@ -528,7 +529,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
       height: 80,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.blueAccent.shade100, Colors.blueAccent.shade400],
+          colors: [AppColors.primary100, AppColors.primary400],
         ),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -543,13 +544,13 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'published':
-        return Colors.green;
+        return AppColors.success;
       case 'draft':
-        return Colors.orange;
+        return AppColors.warning;
       case 'archived':
-        return Colors.grey;
+        return AppColors.textSecondary;
       default:
-        return Colors.blueAccent;
+        return AppColors.primary;
     }
   }
 
@@ -562,22 +563,22 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
       case 'published':
         message = isFr ? 'Aucun article publié' : 'No published blogs';
         icon = Icons.check_circle_outline;
-        color = Colors.green;
+        color = AppColors.success;
         break;
       case 'draft':
         message = isFr ? 'Aucun brouillon' : 'No drafts';
         icon = Icons.edit_note;
-        color = Colors.orange;
+        color = AppColors.warning;
         break;
       case 'archived':
         message = isFr ? 'Aucun article archivé' : 'No archived blogs';
         icon = Icons.archive_outlined;
-        color = Colors.grey;
+        color = AppColors.textSecondary;
         break;
       default:
         message = isFr ? 'Aucun article trouvé' : 'No blogs found';
         icon = Icons.article_outlined;
-        color = Colors.blueAccent;
+        color = AppColors.primary;
     }
 
     return Center(
@@ -598,7 +599,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700,
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 12),
@@ -606,7 +607,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
             isFr
                 ? 'Créez votre premier article'
                 : 'Create your first blog post',
-            style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+            style: TextStyle(fontSize: 13, color: AppColors.textLight),
           ),
         ],
       ),
@@ -631,7 +632,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: AppColors.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -652,7 +653,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
               children: [
                 Text(
                   isFr ? 'Statut : ' : 'Status: ',
-                  style: const TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: AppColors.textSecondary),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -688,7 +689,7 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
                     icon: const Icon(Icons.edit, size: 18),
                     label: Text(isFr ? 'Modifier' : 'Edit'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
@@ -707,8 +708,8 @@ class _AdminBlogsPageState extends State<AdminBlogsPage> {
                     icon: const Icon(Icons.delete_outline, size: 18),
                     label: Text(isFr ? 'Supprimer' : 'Delete'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
+                      foregroundColor: AppColors.error,
+                      side: const BorderSide(color: AppColors.error),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),

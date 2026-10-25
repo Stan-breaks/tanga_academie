@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 /// Centered circular progress indicator with an optional message.
 class AppLoadingIndicator extends StatelessWidget {
@@ -12,14 +13,14 @@ class AppLoadingIndicator extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(
-            color: Colors.blueAccent,
+            color: AppColors.primary,
             strokeWidth: 3,
           ),
           if (message != null) ...[
             const SizedBox(height: 20),
             Text(
               message!,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
           ],
         ],

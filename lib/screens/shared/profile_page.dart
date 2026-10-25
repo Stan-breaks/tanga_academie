@@ -5,6 +5,7 @@ import 'package:tanga_acadamie/screens/shared/settings_page.dart';
 import 'package:tanga_acadamie/screens/signup_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -86,13 +87,13 @@ class _ProfilePageState extends State<ProfilePage> {
   Color _getRoleColor(String? role) {
     switch (role) {
       case 'admin':
-        return Colors.deepPurple;
+        return AppColors.secondary;
       case 'instructor':
-        return Colors.teal;
+        return AppColors.success;
       case 'student':
-        return Colors.blueAccent;
+        return AppColors.primary;
       default:
-        return Colors.grey;
+        return AppColors.textSecondary;
     }
   }
 
@@ -103,7 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            Icon(Icons.logout_rounded, color: Colors.redAccent, size: 24),
+            Icon(Icons.logout_rounded, color: AppColors.error, size: 24),
             SizedBox(width: 10),
             Text(
               isFr ? 'Déconnexion' : 'Sign Out',
@@ -121,7 +122,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Text(
               isFr ? 'Annuler' : 'Cancel',
               style: TextStyle(
-                color: Colors.grey.shade600,
+                color: AppColors.textSecondary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -129,7 +130,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
+              backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -160,19 +161,19 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: Colors.grey.shade50,
+        backgroundColor: AppColors.background,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const CircularProgressIndicator(
-                color: Colors.blueAccent,
+                color: AppColors.primary,
                 strokeWidth: 3,
               ),
               const SizedBox(height: 20),
               Text(
                 isFr ? 'Chargement du profil...' : 'Loading profile...',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
             ],
           ),
@@ -203,9 +204,9 @@ class _ProfilePageState extends State<ProfilePage> {
     final profileImageUrl = _getProfileImageUrl();
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: RefreshIndicator(
-        color: Colors.blueAccent,
+        color: AppColors.primary,
         onRefresh: _loadProfile,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -294,8 +295,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           icon: Icons.logout_rounded,
                           label: isFr ? 'Déconnexion' : 'Sign Out',
                           subtitle: isFr ? 'Se déconnecter du compte' : 'Log out of your account',
-                          iconColor: Colors.redAccent,
-                          labelColor: Colors.redAccent,
+                          iconColor: AppColors.error,
+                          labelColor: AppColors.error,
                           onTap: _handleLogout,
                         ),
                       ],
@@ -318,10 +319,10 @@ class _ProfilePageState extends State<ProfilePage> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.blueAccent.withAlpha(25),
+            color: AppColors.primary.withAlpha(25),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: Colors.blueAccent, size: 22),
+          child: Icon(icon, color: AppColors.primary, size: 22),
         ),
         const SizedBox(width: 12),
         Text(
@@ -329,7 +330,7 @@ class _ProfilePageState extends State<ProfilePage> {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: AppColors.textDark,
           ),
         ),
       ],
@@ -350,7 +351,7 @@ class _ProfilePageState extends State<ProfilePage> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blueAccent.shade200, Colors.blueAccent.shade700],
+          colors: [AppColors.primary200, AppColors.primary700],
         ),
       ),
       child: SafeArea(
@@ -481,7 +482,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: _buildStatusChip(
             icon: isVerified ? Icons.verified_rounded : Icons.gpp_maybe_rounded,
             label: isVerified ? (isFr ? 'Vérifié' : 'Verified') : (isFr ? 'Non vérifié' : 'Not Verified'),
-            color: isVerified ? Colors.green : Colors.orange,
+            color: isVerified ? AppColors.success : AppColors.warning,
           ),
         ),
         const SizedBox(width: 12),
@@ -491,7 +492,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ? Icons.check_circle_rounded
                 : Icons.pause_circle_rounded,
             label: isActive ? (isFr ? 'Actif' : 'Active') : (isFr ? 'Inactif' : 'Inactive'),
-            color: isActive ? Colors.green : Colors.grey,
+            color: isActive ? AppColors.success : AppColors.textSecondary,
           ),
         ),
       ],
@@ -508,7 +509,7 @@ class _ProfilePageState extends State<ProfilePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(8),
@@ -545,7 +546,7 @@ class _ProfilePageState extends State<ProfilePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(8),
@@ -576,10 +577,10 @@ class _ProfilePageState extends State<ProfilePage> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: Colors.blueAccent.withAlpha(20),
+              color: AppColors.primary.withAlpha(20),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: Colors.blueAccent, size: 20),
+            child: Icon(icon, color: AppColors.primary, size: 20),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -590,7 +591,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   label,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey.shade500,
+                    color: AppColors.textLight,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -600,7 +601,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: valueColor ?? Colors.black87,
+                    color: valueColor ?? AppColors.textDark,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -632,12 +633,12 @@ class _ProfilePageState extends State<ProfilePage> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: (iconColor ?? Colors.blueAccent).withAlpha(20),
+                color: (iconColor ?? AppColors.primary).withAlpha(20),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 icon,
-                color: iconColor ?? Colors.blueAccent,
+                color: iconColor ?? AppColors.primary,
                 size: 20,
               ),
             ),
@@ -651,20 +652,20 @@ class _ProfilePageState extends State<ProfilePage> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: labelColor ?? Colors.black87,
+                      color: labelColor ?? AppColors.textDark,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                    style: TextStyle(fontSize: 12, color: AppColors.textLight),
                   ),
                 ],
               ),
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: Colors.grey.shade400,
+              color: AppColors.textHint,
               size: 22,
             ),
           ],
@@ -676,7 +677,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildCardDivider() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Divider(height: 1, color: Colors.grey.shade100),
+      child: Divider(height: 1, color: AppColors.surfaceVariant),
     );
   }
 
@@ -685,7 +686,7 @@ class _ProfilePageState extends State<ProfilePage> {
   // ──────────────────────────────────────────────
   Widget _buildNotLoggedInState(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
@@ -701,14 +702,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.blueAccent.shade100,
-                      Colors.blueAccent.shade400,
+                      AppColors.primary100,
+                      AppColors.primary400,
                     ],
                   ),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blueAccent.withAlpha(50),
+                      color: AppColors.primary.withAlpha(50),
                       blurRadius: 16,
                       offset: const Offset(0, 8),
                     ),
@@ -728,7 +729,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: AppColors.textDark,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -739,7 +740,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 isFr ? 'Connectez-vous pour gérer votre profil, consulter votre historique et personnaliser votre expérience.' : 'Sign in to manage your profile, view your learning history, and personalize your experience on Tanga Academie.',
                 style: TextStyle(
                   fontSize: 15,
-                  color: Colors.grey.shade600,
+                  color: AppColors.textSecondary,
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
@@ -754,7 +755,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Icons.person_outline_rounded,
                       isFr ? 'Mon profil' : 'My Profile',
                       isFr ? 'Gérer vos infos' : 'Manage your info',
-                      Colors.blue,
+                      AppColors.primary,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -763,7 +764,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Icons.history_rounded,
                       isFr ? 'Historique' : 'History',
                       isFr ? 'Voir l\'activité passée' : 'View past activity',
-                      Colors.green,
+                      AppColors.success,
                     ),
                   ),
                 ],
@@ -776,7 +777,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Icons.settings_rounded,
                       isFr ? 'Paramètres' : 'Settings',
                       isFr ? 'Personnaliser l\'application' : 'Customize your app',
-                      Colors.teal,
+                      AppColors.success,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -785,7 +786,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Icons.bookmark_rounded,
                       isFr ? 'Enregistrés' : 'Saved',
                       isFr ? 'Vos favoris' : 'Your bookmarks',
-                      Colors.orange,
+                      AppColors.warning,
                     ),
                   ),
                 ],
@@ -803,7 +804,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -835,7 +836,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   Text(
                     isFr ? 'Pas de compte ? ' : "Don't have an account? ",
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -847,7 +848,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Text(
                       isFr ? 'S\'inscrire' : 'Sign Up',
                       style: const TextStyle(
-                        color: Colors.blueAccent,
+                        color: AppColors.primary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -871,12 +872,12 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         Row(
           children: [
-            Expanded(child: Divider(color: Colors.grey.shade300)),
+            Expanded(child: Divider(color: AppColors.border)),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Icon(Icons.translate_rounded, color: Colors.grey.shade400, size: 18),
+              child: Icon(Icons.translate_rounded, color: AppColors.textHint, size: 18),
             ),
-            Expanded(child: Divider(color: Colors.grey.shade300)),
+            Expanded(child: Divider(color: AppColors.border)),
           ],
         ),
         const SizedBox(height: 16),
@@ -903,10 +904,10 @@ class _ProfilePageState extends State<ProfilePage> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.blueAccent.withAlpha(20) : Colors.white,
+          color: isSelected ? AppColors.primary.withAlpha(20) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? Colors.blueAccent : Colors.grey.shade300,
+            color: isSelected ? AppColors.primary : AppColors.border,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -920,12 +921,12 @@ class _ProfilePageState extends State<ProfilePage> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: isSelected ? Colors.blueAccent : Colors.black87,
+                color: isSelected ? AppColors.primary : AppColors.textDark,
               ),
             ),
             if (isSelected) ...[
               const SizedBox(width: 6),
-              const Icon(Icons.check_circle, color: Colors.blueAccent, size: 16),
+              const Icon(Icons.check_circle, color: AppColors.primary, size: 16),
             ],
           ],
         ),
@@ -944,7 +945,7 @@ class _ProfilePageState extends State<ProfilePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(8),
@@ -970,13 +971,13 @@ class _ProfilePageState extends State<ProfilePage> {
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 14,
-              color: Colors.black87,
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
           ),
         ],
       ),

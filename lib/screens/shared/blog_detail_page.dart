@@ -3,6 +3,8 @@ import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/models/blog.dart';
 import 'package:tanga_acadamie/services/blog_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
+import 'package:tanga_acadamie/core/widgets/app_network_image.dart';
 
 /// Full-screen blog reading page.
 /// Receives a slug to fetch content, and optional preview data for instant display.
@@ -34,7 +36,7 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: FutureBuilder<Blog>(
         future: _blogFuture,
         builder: (context, snapshot) {
@@ -66,13 +68,13 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const CircularProgressIndicator(
-                  color: Colors.blueAccent,
+                  color: AppColors.primary,
                   strokeWidth: 3,
                 ),
                 const SizedBox(height: 16),
                 Text(
                   isFr ? 'Chargement de l\'article...' : 'Loading article...',
-                  style: TextStyle(color: Colors.grey.shade600),
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -94,7 +96,7 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.error_outline,
-                      size: 56, color: Colors.red.shade300),
+                      size: 56, color: AppColors.error300),
                   const SizedBox(height: 16),
                   Text(
                     isFr
@@ -109,7 +111,7 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
                   Text(
                     error,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
@@ -121,7 +123,7 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
                     icon: const Icon(Icons.refresh, size: 18),
                     label: Text(isFr ? 'Réessayer' : 'Try Again'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 12),
@@ -161,7 +163,7 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent.withAlpha(25),
+                      color: AppColors.primary.withAlpha(25),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -169,7 +171,7 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Colors.blueAccent.shade700,
+                        color: AppColors.primary700,
                       ),
                     ),
                   ),
@@ -182,7 +184,7 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     height: 1.3,
-                    color: Colors.black87,
+                    color: AppColors.textDark,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -207,16 +209,16 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
+                                color: AppColors.surfaceVariant,
                                 borderRadius: BorderRadius.circular(16),
                                 border:
-                                    Border.all(color: Colors.grey.shade300),
+                                    Border.all(color: AppColors.border),
                               ),
                               child: Text(
                                 '#$tag',
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: Colors.grey.shade700,
+                                  color: AppColors.textDark,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -252,11 +254,11 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
       children: [
         CircleAvatar(
           radius: 20,
-          backgroundColor: Colors.blueAccent.shade100,
+          backgroundColor: AppColors.primary100,
           backgroundImage:
               hasAuthorImage ? NetworkImage(authorImageUrl) : null,
           child: !hasAuthorImage
-              ? Icon(Icons.person, size: 20, color: Colors.blueAccent.shade700)
+              ? Icon(Icons.person, size: 20, color: AppColors.primary700)
               : null,
         ),
         const SizedBox(width: 12),
@@ -269,7 +271,7 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: AppColors.textDark,
                 ),
               ),
               if (blog.author?.skill != null &&
@@ -278,7 +280,7 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
                   blog.author!.skill!,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey.shade600,
+                    color: AppColors.textSecondary,
                   ),
                 ),
             ],
@@ -293,26 +295,26 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
     return Row(
       children: [
         Icon(Icons.calendar_today_outlined,
-            size: 14, color: Colors.grey.shade500),
+            size: 14, color: AppColors.textLight),
         const SizedBox(width: 4),
         Text(
           date,
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
         ),
         const SizedBox(width: 20),
         Icon(Icons.visibility_outlined,
-            size: 14, color: Colors.grey.shade500),
+            size: 14, color: AppColors.textLight),
         const SizedBox(width: 4),
         Text(
           '${blog.views} ${isFr ? 'vues' : 'views'}',
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
         ),
         const SizedBox(width: 20),
-        Icon(Icons.timer_outlined, size: 14, color: Colors.grey.shade500),
+        Icon(Icons.timer_outlined, size: 14, color: AppColors.textLight),
         const SizedBox(width: 4),
         Text(
           _estimateReadTime(blog.content),
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
         ),
       ],
     );
@@ -327,7 +329,7 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
           padding: const EdgeInsets.all(32),
           child: Text(
             isFr ? 'Aucun contenu disponible' : 'No content available',
-            style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+            style: TextStyle(color: AppColors.textLight, fontSize: 14),
           ),
         ),
       );
@@ -371,7 +373,7 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
               fontSize: isHeading ? 18 : 15,
               fontWeight: isHeading ? FontWeight.bold : FontWeight.normal,
               height: 1.7,
-              color: isHeading ? Colors.black87 : Colors.grey.shade800,
+              color: isHeading ? AppColors.textDark : AppColors.textDark,
             ),
           ),
         );
@@ -383,7 +385,7 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
     return SliverAppBar(
       expandedHeight: 220,
       pinned: true,
-      backgroundColor: Colors.blueAccent.shade700,
+      backgroundColor: AppColors.primary700,
       foregroundColor: Colors.white,
       leading: IconButton(
         icon: Container(
@@ -410,10 +412,9 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
           fit: StackFit.expand,
           children: [
             if (imageUrl != null && imageUrl.isNotEmpty)
-              Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => _buildHeaderPlaceholder(),
+              AppNetworkImage(
+                url: imageUrl,
+                errorWidget: _buildHeaderPlaceholder(),
               )
             else
               _buildHeaderPlaceholder(),
@@ -443,8 +444,8 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.blueAccent.shade200,
-            Colors.blueAccent.shade700,
+            AppColors.primary200,
+            AppColors.primary700,
           ],
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:tanga_acadamie/data_fetcher.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class AdminAnalyticsPage extends StatefulWidget {
   const AdminAnalyticsPage({super.key});
@@ -47,9 +48,9 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: RefreshIndicator(
-        color: Colors.blueAccent,
+        color: AppColors.primary,
         onRefresh: _fetchChartData,
         child: _isLoading
             ? _buildLoadingState()
@@ -66,13 +67,13 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(
-            color: Colors.blueAccent,
+            color: AppColors.primary,
             strokeWidth: 3,
           ),
           const SizedBox(height: 20),
           Text(
             isFr ? 'Chargement des analytiques...' : 'Loading analytics...',
-            style: const TextStyle(color: Colors.grey, fontSize: 14),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
         ],
       ),
@@ -86,7 +87,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+            Icon(Icons.error_outline, size: 64, color: AppColors.error300),
             const SizedBox(height: 16),
             Text(
               isFr
@@ -95,13 +96,13 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade800,
+                color: AppColors.textDark,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               _error ?? 'Unknown error',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -110,7 +111,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
               icon: const Icon(Icons.refresh),
               label: Text(isFr ? 'Réessayer' : 'Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -134,7 +135,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
               ? 'Tendances d\'inscription mensuelles'
               : 'Monthly Enrollment Trends',
           icon: Icons.trending_up,
-          color: Colors.blueAccent,
+          color: AppColors.primary,
           child: _buildEnrollmentChart(),
         ),
         const SizedBox(height: 20),
@@ -145,7 +146,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
               ? 'Distribution des catégories de cours'
               : 'Course Category Distribution',
           icon: Icons.pie_chart,
-          color: Colors.purple,
+          color: AppColors.secondary,
           child: _buildDistributionChart(),
         ),
         const SizedBox(height: 20),
@@ -156,7 +157,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
               ? 'Revenus mensuels de la plateforme'
               : 'Monthly Platform Revenue',
           icon: Icons.bar_chart,
-          color: Colors.green,
+          color: AppColors.success,
           child: _buildRevenueChart(),
         ),
         const SizedBox(height: 20),
@@ -171,12 +172,12 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blueAccent.shade400, Colors.blueAccent.shade700],
+          colors: [AppColors.primary400, AppColors.primary700],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.blueAccent.withAlpha(60),
+            color: AppColors.primary.withAlpha(60),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -366,7 +367,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
             drawVerticalLine: false,
             horizontalInterval: 10,
             getDrawingHorizontalLine: (value) =>
-                FlLine(color: Colors.grey.shade200, strokeWidth: 1),
+                FlLine(color: AppColors.borderLight, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
             leftTitles: AxisTitles(
@@ -375,7 +376,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) => Text(
                   value.toInt().toString(),
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
                 ),
               ),
             ),
@@ -393,7 +394,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                         labels[index].length > 3 ? 3 : labels[index].length,
                       ),
                       style: TextStyle(
-                        color: Colors.grey.shade600,
+                        color: AppColors.textSecondary,
                         fontSize: 10,
                       ),
                     );
@@ -414,12 +415,12 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
             LineChartBarData(
               spots: spots,
               isCurved: true,
-              color: Colors.blueAccent,
+              color: AppColors.primary,
               barWidth: 3,
               dotData: const FlDotData(show: true),
               belowBarData: BarAreaData(
                 show: true,
-                color: Colors.blueAccent.withAlpha(30),
+                color: AppColors.primary.withAlpha(30),
               ),
             ),
           ],
@@ -453,14 +454,14 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
     }
 
     final colors = [
-      Colors.blueAccent,
-      Colors.purple,
-      Colors.orange,
-      Colors.green,
-      Colors.red,
-      Colors.teal,
-      Colors.amber,
-      Colors.pink,
+      AppColors.primary,
+      AppColors.secondary,
+      AppColors.warning,
+      AppColors.success,
+      AppColors.error,
+      AppColors.success,
+      AppColors.warning,
+      AppColors.secondary,
     ];
 
     final sections = <PieChartSectionData>[];
@@ -570,7 +571,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
-                colors: [Colors.green.shade400, Colors.green.shade600],
+                colors: [AppColors.success400, AppColors.success600],
               ),
               width: 18,
               borderRadius: const BorderRadius.vertical(
@@ -593,7 +594,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
             drawVerticalLine: false,
             horizontalInterval: maxValue > 0 ? maxValue / 5 : 20,
             getDrawingHorizontalLine: (value) =>
-                FlLine(color: Colors.grey.shade200, strokeWidth: 1),
+                FlLine(color: AppColors.borderLight, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
             leftTitles: AxisTitles(
@@ -602,7 +603,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                 reservedSize: 50,
                 getTitlesWidget: (value, meta) => Text(
                   '\$${value.toInt()}',
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
                 ),
               ),
             ),
@@ -619,7 +620,7 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
                         labels[index].length > 3 ? 3 : labels[index].length,
                       ),
                       style: TextStyle(
-                        color: Colors.grey.shade600,
+                        color: AppColors.textSecondary,
                         fontSize: 10,
                       ),
                     );
@@ -652,19 +653,19 @@ class _AdminAnalyticsPageState extends State<AdminAnalyticsPage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: AppColors.surfaceVariant,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.show_chart,
               size: 40,
-              color: Colors.grey.shade400,
+              color: AppColors.textHint,
             ),
           ),
           const SizedBox(height: 12),
           Text(
             message,
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
         ],
       ),

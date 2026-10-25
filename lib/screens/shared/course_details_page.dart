@@ -8,6 +8,8 @@ import 'package:tanga_acadamie/storage_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
+import 'package:tanga_acadamie/core/widgets/app_network_image.dart';
 
 class CourseDetailsPage extends StatefulWidget {
   final Map<String, dynamic> course;
@@ -235,10 +237,10 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.blueAccent.withAlpha(25),
+                color: AppColors.primary.withAlpha(25),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.login, color: Colors.blueAccent),
+              child: const Icon(Icons.login, color: AppColors.primary),
             ),
             const SizedBox(width: 12),
             Text(isFr ? 'Connexion requise' : 'Sign In Required'),
@@ -246,14 +248,14 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
         ),
         content: Text(
           message,
-          style: TextStyle(color: Colors.grey.shade700, fontSize: 15),
+          style: TextStyle(color: AppColors.textDark, fontSize: 15),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
               isFr ? 'Annuler' : 'Cancel',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
           ElevatedButton(
@@ -265,7 +267,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueAccent,
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -288,7 +290,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
           // App Bar with Course Banner
@@ -312,7 +314,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                 controller: _tabController,
                 isScrollable: false,
                 labelColor: Theme.of(context).primaryColor,
-                unselectedLabelColor: Colors.grey,
+                unselectedLabelColor: AppColors.textSecondary,
                 indicatorColor: Theme.of(context).primaryColor,
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
@@ -344,33 +346,54 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
   }
 
   Widget _buildAppBar(Map<String, dynamic> course) {
+    final heroTag = course['_id'] != null ? 'course-banner-${course['_id']}' : null;
+
+    final banner = AppNetworkImage(
+      url: course['bannerImage'] != null
+          ? '${ApiConfig.baseUrl}${course['bannerImage']}'
+          : '',
+      placeholderIcon: Icons.school,
+    );
+
     return SliverAppBar(
-      expandedHeight: 200,
+      expandedHeight: 220,
       pinned: true,
+      backgroundColor: AppColors.primary700,
+      foregroundColor: Colors.white,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: Colors.black.withAlpha(60),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.arrow_back_rounded,
+              color: Colors.white, size: 18),
+        ),
         onPressed: () => Navigator.pop(context),
       ),
       flexibleSpace: FlexibleSpaceBar(
-        background: course['bannerImage'] != null
-            ? Image.network(
-                '${ApiConfig.baseUrl}${course['bannerImage']}',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.blue.shade700,
-                    child: const Icon(
-                      Icons.school,
-                      size: 80,
-                      color: Colors.white,
-                    ),
-                  );
-                },
-              )
-            : Container(
-                color: Colors.blue.shade700,
-                child: const Icon(Icons.school, size: 80, color: Colors.white),
+        background: Stack(
+          fit: StackFit.expand,
+          children: [
+            heroTag != null ? Hero(tag: heroTag, child: banner) : banner,
+            // Scrim so the pinned title stays readable.
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withAlpha(70),
+                    Colors.transparent,
+                    Colors.black.withAlpha(120),
+                  ],
+                  stops: const [0, 0.45, 1],
+                ),
               ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -392,8 +415,8 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
             spacing: 8,
             runSpacing: 8,
             children: [
-              _buildChip(isFr ? 'En vedette' : 'Featured', Colors.blue),
-              _buildChip(course['category'] ?? 'All', Colors.indigo),
+              _buildChip(isFr ? 'En vedette' : 'Featured', AppColors.primary),
+              _buildChip(course['category'] ?? 'All', AppColors.primary),
             ],
           ),
           const SizedBox(height: 12),
@@ -410,7 +433,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
             course['description'] ?? '',
             style: TextStyle(
               fontSize: 15,
-              color: Colors.grey.shade700,
+              color: AppColors.textDark,
               height: 1.5,
             ),
           ),
@@ -421,11 +444,11 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: Colors.blue.shade100,
+                backgroundColor: AppColors.primary100,
                 child: Text(
                   (instructor?['firstName']?[0] ?? 'U').toUpperCase(),
                   style: TextStyle(
-                    color: Colors.blue.shade700,
+                    color: AppColors.primary700,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -446,7 +469,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                       isFr ? 'Instructeur' : 'Instructor',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey.shade600,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -499,9 +522,9 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 18, color: Colors.grey.shade600),
+        Icon(icon, size: 18, color: AppColors.textSecondary),
         const SizedBox(width: 6),
-        Text(text, style: TextStyle(fontSize: 13, color: Colors.grey.shade700)),
+        Text(text, style: TextStyle(fontSize: 13, color: AppColors.textDark)),
       ],
     );
   }
@@ -534,7 +557,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.green,
+                    color: AppColors.success,
                   ),
                 )
               else
@@ -546,7 +569,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+                        color: AppColors.primary,
                       ),
                     ),
                     if (originalPrice != null &&
@@ -557,7 +580,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                         style: TextStyle(
                           fontSize: 16,
                           decoration: TextDecoration.lineThrough,
-                          color: Colors.grey.shade500,
+                          color: AppColors.textLight,
                         ),
                       ),
                     ],
@@ -570,7 +593,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.orange.shade100,
+                    color: AppColors.warning100,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -578,7 +601,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Colors.orange.shade800,
+                      color: AppColors.warning800,
                     ),
                   ),
                 ),
@@ -598,7 +621,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.info_outline, size: 16, color: Colors.grey.shade600),
+              Icon(Icons.info_outline, size: 16, color: AppColors.textSecondary),
               const SizedBox(width: 4),
               Text(
                 isFr
@@ -608,7 +631,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                     : (isFree
                           ? 'Free lifetime access'
                           : 'Secure payment via MaxiCash'),
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -631,7 +654,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
           icon: const Icon(Icons.play_circle_outline),
           label: Text(isFr ? 'Commencer à apprendre' : 'Start Learning'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
+            backgroundColor: AppColors.success,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
@@ -665,7 +688,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                 : (isFr ? 'S\'inscrire gratuitement' : 'Enroll for Free'),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
+            backgroundColor: AppColors.success,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
@@ -696,7 +719,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
               : '${isFr ? "Acheter" : "Buy Now"} - \$${_getCurrentPrice(course).toStringAsFixed(2)}',
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue,
+          backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -709,7 +732,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: AppColors.surfaceVariant,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -759,7 +782,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
   Widget _buildDetailItem(String label, String value, IconData icon) {
     return Column(
       children: [
-        Icon(icon, size: 24, color: Colors.blue),
+        Icon(icon, size: 24, color: AppColors.primary),
         const SizedBox(height: 4),
         Text(
           value,
@@ -767,7 +790,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
         ),
         Text(
           label,
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
         ),
       ],
     );
@@ -798,8 +821,8 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
             children: (course['tags'] as List).map((tag) {
               return Chip(
                 label: Text(tag.toString()),
-                backgroundColor: Colors.blue.shade50,
-                labelStyle: TextStyle(color: Colors.blue.shade700),
+                backgroundColor: AppColors.primary50,
+                labelStyle: TextStyle(color: AppColors.primary700),
               );
             }).toList(),
           ),
@@ -855,7 +878,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
           content.toString(),
           style: TextStyle(
             fontSize: 15,
-            color: Colors.grey.shade700,
+            color: AppColors.textDark,
             height: 1.5,
           ),
         ),
@@ -874,10 +897,10 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
             margin: const EdgeInsets.only(top: 2),
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: Colors.blue.shade50,
+              color: AppColors.primary50,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Icon(Icons.check, size: 16, color: Colors.blue.shade700),
+            child: Icon(Icons.check, size: 16, color: AppColors.primary700),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -893,7 +916,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                 ),
                 Text(
                   description,
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                  style: TextStyle(fontSize: 14, color: AppColors.textDark),
                 ),
               ],
             ),
@@ -992,7 +1015,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ExpansionTile(
         leading: CircleAvatar(
-          backgroundColor: isLocked ? Colors.grey : Colors.blue,
+          backgroundColor: isLocked ? AppColors.textSecondary : AppColors.primary,
           child: isLocked
               ? const Icon(Icons.lock, color: Colors.white, size: 20)
               : Text(
@@ -1029,13 +1052,13 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
     return ListTile(
       leading: Icon(
         hasVideo ? Icons.play_circle_outline : Icons.article_outlined,
-        color: isLocked ? Colors.grey : Colors.blue,
+        color: isLocked ? AppColors.textSecondary : AppColors.primary,
       ),
       title: Text(lesson['title'] ?? 'Lesson $lessonNumber'),
       subtitle: Row(
         children: [
           if (hasVideo && duration != null) ...[
-            const Icon(Icons.videocam, size: 14, color: Colors.grey),
+            const Icon(Icons.videocam, size: 14, color: AppColors.textSecondary),
             const SizedBox(width: 4),
             Text(
               '${(duration / 60).floor()}min',
@@ -1044,14 +1067,14 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
           ],
           if (hasQuiz) ...[
             const SizedBox(width: 12),
-            const Icon(Icons.quiz, size: 14, color: Colors.orange),
+            const Icon(Icons.quiz, size: 14, color: AppColors.warning),
             const SizedBox(width: 4),
             const Text('Quiz', style: TextStyle(fontSize: 12)),
           ],
         ],
       ),
       trailing: isLocked
-          ? const Icon(Icons.lock, size: 20, color: Colors.grey)
+          ? const Icon(Icons.lock, size: 20, color: AppColors.textSecondary)
           : const Icon(Icons.chevron_right),
       onTap: isLocked
           ? null
@@ -1083,7 +1106,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade200),
+            border: Border.all(color: AppColors.borderLight),
           ),
           child: Column(
             children: [
@@ -1099,7 +1122,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
                 children: List.generate(5, (index) {
                   return Icon(
                     index < rating ? Icons.star : Icons.star_border,
-                    color: Colors.amber,
+                    color: AppColors.warning,
                     size: 24,
                   );
                 }),
@@ -1107,7 +1130,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
               const SizedBox(height: 8),
               Text(
                 isFr ? '$totalReviews avis' : '$totalReviews reviews',
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -1121,7 +1144,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage>
               padding: const EdgeInsets.all(40),
               child: Text(
                 isFr ? 'Aucun avis' : 'No reviews yet',
-                style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
               ),
             ),
           )

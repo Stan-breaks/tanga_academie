@@ -8,6 +8,7 @@ import 'package:tanga_acadamie/core/utils/chat.dart';
 import 'package:tanga_acadamie/screens/shared/chat_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class AdminUsersList extends StatefulWidget {
   const AdminUsersList({super.key});
@@ -133,7 +134,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: Column(
         children: [
           // Header with search
@@ -145,7 +146,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
           // User list
           Expanded(
             child: RefreshIndicator(
-              color: Colors.blueAccent,
+              color: AppColors.primary,
               onRefresh: _getAllUsers,
               child: _isLoading
                   ? _buildLoadingState()
@@ -181,12 +182,12 @@ class _AdminUsersListState extends State<AdminUsersList> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.withAlpha(25),
+                  color: AppColors.primary.withAlpha(25),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.people,
-                  color: Colors.blueAccent,
+                  color: AppColors.primary,
                   size: 24,
                 ),
               ),
@@ -206,7 +207,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
                       '${_users.length} ${isFr ? 'utilisateurs au total' : 'total users'}',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey.shade600,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -219,9 +220,9 @@ class _AdminUsersListState extends State<AdminUsersList> {
           // Search bar
           Container(
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: AppColors.borderLight),
             ),
             child: TextField(
               controller: _searchController,
@@ -230,11 +231,11 @@ class _AdminUsersListState extends State<AdminUsersList> {
                 hintText: isFr
                     ? 'Rechercher des utilisateurs...'
                     : 'Search users...',
-                hintStyle: TextStyle(color: Colors.grey.shade500),
-                prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
+                hintStyle: TextStyle(color: AppColors.textLight),
+                prefixIcon: Icon(Icons.search, color: AppColors.textLight),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.clear, color: Colors.grey.shade500),
+                        icon: Icon(Icons.clear, color: AppColors.textLight),
                         onPressed: () {
                           _searchController.clear();
                           _filterUsers();
@@ -259,7 +260,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+        border: Border(bottom: BorderSide(color: AppColors.borderLight)),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -286,13 +287,13 @@ class _AdminUsersListState extends State<AdminUsersList> {
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? Colors.blueAccent
-                        : Colors.grey.shade100,
+                        ? AppColors.primary
+                        : AppColors.surfaceVariant,
                     borderRadius: BorderRadius.circular(25),
                     border: Border.all(
                       color: isSelected
-                          ? Colors.blueAccent
-                          : Colors.grey.shade300,
+                          ? AppColors.primary
+                          : AppColors.border,
                     ),
                   ),
                   child: Row(
@@ -305,7 +306,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
                         style: TextStyle(
                           color: isSelected
                               ? Colors.white
-                              : Colors.grey.shade700,
+                              : AppColors.textDark,
                           fontWeight: isSelected
                               ? FontWeight.w600
                               : FontWeight.w500,
@@ -321,7 +322,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? Colors.white.withAlpha(50)
-                              : Colors.grey.shade300,
+                              : AppColors.border,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -329,7 +330,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
                           style: TextStyle(
                             color: isSelected
                                 ? Colors.white
-                                : Colors.grey.shade700,
+                                : AppColors.textDark,
                             fontWeight: FontWeight.bold,
                             fontSize: 11,
                           ),
@@ -347,21 +348,21 @@ class _AdminUsersListState extends State<AdminUsersList> {
   }
 
   Widget _getRoleIcon(String role, bool isSelected) {
-    Color color = isSelected ? Colors.white : Colors.grey.shade600;
+    Color color = isSelected ? Colors.white : AppColors.textSecondary;
     IconData icon;
 
     switch (role) {
       case 'student':
         icon = Icons.school;
-        color = isSelected ? Colors.white : Colors.green;
+        color = isSelected ? Colors.white : AppColors.success;
         break;
       case 'instructor':
         icon = Icons.architecture;
-        color = isSelected ? Colors.white : Colors.blue;
+        color = isSelected ? Colors.white : AppColors.primary;
         break;
       case 'admin':
         icon = Icons.admin_panel_settings;
-        color = isSelected ? Colors.white : Colors.purple;
+        color = isSelected ? Colors.white : AppColors.secondary;
         break;
       default:
         icon = Icons.people;
@@ -376,13 +377,13 @@ class _AdminUsersListState extends State<AdminUsersList> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(
-            color: Colors.blueAccent,
+            color: AppColors.primary,
             strokeWidth: 3,
           ),
           const SizedBox(height: 20),
           Text(
             isFr ? 'Chargement des utilisateurs...' : 'Loading users...',
-            style: const TextStyle(color: Colors.grey, fontSize: 14),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
         ],
       ),
@@ -396,7 +397,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+            Icon(Icons.error_outline, size: 64, color: AppColors.error300),
             const SizedBox(height: 16),
             Text(
               isFr
@@ -405,13 +406,13 @@ class _AdminUsersListState extends State<AdminUsersList> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade800,
+                color: AppColors.textDark,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               _error ?? 'Unknown error',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -420,7 +421,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
               icon: const Icon(Icons.refresh),
               label: Text(isFr ? 'Réessayer' : 'Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -516,7 +517,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
                           Icon(
                             Icons.email_outlined,
                             size: 14,
-                            color: Colors.grey.shade500,
+                            color: AppColors.textLight,
                           ),
                           const SizedBox(width: 4),
                           Expanded(
@@ -524,7 +525,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
                               user.email,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: Colors.grey.shade600,
+                                color: AppColors.textSecondary,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -569,14 +570,14 @@ class _AdminUsersListState extends State<AdminUsersList> {
                             Icon(
                               Icons.calendar_today,
                               size: 12,
-                              color: Colors.grey.shade500,
+                              color: AppColors.textLight,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               formattedDate,
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Colors.grey.shade500,
+                                color: AppColors.textLight,
                               ),
                             ),
                           ],
@@ -587,7 +588,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
                 ),
 
                 // Arrow
-                Icon(Icons.chevron_right, color: Colors.grey.shade400),
+                Icon(Icons.chevron_right, color: AppColors.textHint),
               ],
             ),
           ),
@@ -599,13 +600,13 @@ class _AdminUsersListState extends State<AdminUsersList> {
   Color _getRoleColor(String role) {
     switch (role) {
       case 'student':
-        return Colors.green;
+        return AppColors.success;
       case 'instructor':
-        return Colors.blue;
+        return AppColors.primary;
       case 'admin':
-        return Colors.purple;
+        return AppColors.secondary;
       default:
-        return Colors.grey;
+        return AppColors.textSecondary;
     }
   }
 
@@ -638,13 +639,13 @@ class _AdminUsersListState extends State<AdminUsersList> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: AppColors.surfaceVariant,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.person_off_outlined,
               size: 56,
-              color: Colors.grey.shade400,
+              color: AppColors.textHint,
             ),
           ),
           const SizedBox(height: 20),
@@ -653,7 +654,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700,
+              color: AppColors.textDark,
             ),
           ),
         ],
@@ -690,7 +691,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: AppColors.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -797,8 +798,8 @@ class _AdminUsersListState extends State<AdminUsersList> {
                     icon: const Icon(Icons.message),
                     label: Text(isFr ? 'Message' : 'Message'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.blueAccent,
-                      side: const BorderSide(color: Colors.blueAccent),
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.primary),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -819,12 +820,12 @@ class _AdminUsersListState extends State<AdminUsersList> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.blueAccent, size: 20),
+          Icon(icon, color: AppColors.primary, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -834,7 +835,7 @@ class _AdminUsersListState extends State<AdminUsersList> {
                   label,
                   style: TextStyle(
                     fontSize: 11,
-                    color: Colors.grey.shade500,
+                    color: AppColors.textLight,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

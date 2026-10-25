@@ -236,7 +236,7 @@ class _SignupPageState extends State<SignupPage> {
                   obscureText: _isObscure,
                   suffixIcon: IconButton(
                     icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.grey.shade500, size: 20),
+                        color: AppColors.textLight, size: 20),
                     onPressed: () => setState(() => _isObscure = !_isObscure),
                   ),
                 ),
@@ -250,7 +250,7 @@ class _SignupPageState extends State<SignupPage> {
                   obscureText: _isObscureConfirm,
                   suffixIcon: IconButton(
                     icon: Icon(_isObscureConfirm ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.grey.shade500, size: 20),
+                        color: AppColors.textLight, size: 20),
                     onPressed: () => setState(() => _isObscureConfirm = !_isObscureConfirm),
                   ),
                 ),
@@ -284,13 +284,13 @@ class _SignupPageState extends State<SignupPage> {
                   decoration: BoxDecoration(
                     color: AppColors.surfaceVariant,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey.shade300, width: 2),
+                    border: Border.all(color: AppColors.border, width: 2),
                     image: _selectedImage != null
                         ? DecorationImage(image: FileImage(_selectedImage!), fit: BoxFit.cover)
                         : null,
                   ),
                   child: _selectedImage == null
-                      ? Icon(Icons.person, size: 50, color: Colors.grey.shade400)
+                      ? Icon(Icons.person, size: 50, color: AppColors.textHint)
                       : null,
                 ),
                 Positioned(
@@ -335,7 +335,7 @@ class _SignupPageState extends State<SignupPage> {
           DropdownMenuItem(
             value: "student",
             child: Row(children: [
-              const Icon(Icons.school, size: 16, color: Colors.green),
+              const Icon(Icons.school, size: 16, color: AppColors.success),
               const SizedBox(width: 8),
               Text(isFr ? 'Étudiant' : 'Student'),
             ]),
@@ -343,7 +343,7 @@ class _SignupPageState extends State<SignupPage> {
           DropdownMenuItem(
             value: "instructor",
             child: Row(children: [
-              const Icon(Icons.architecture, size: 16, color: Colors.blue),
+              const Icon(Icons.architecture, size: 16, color: AppColors.primary),
               const SizedBox(width: 8),
               Text(isFr ? 'Instructeur' : 'Instructor'),
             ]),
@@ -361,7 +361,7 @@ class _SignupPageState extends State<SignupPage> {
       children: [
         Row(
           children: [
-            Expanded(child: Divider(color: Colors.grey.shade300)),
+            Expanded(child: Divider(color: AppColors.border)),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppTheme.spaceLg),
               child: Text(
@@ -369,7 +369,7 @@ class _SignupPageState extends State<SignupPage> {
                 style: AppTheme.bodySecondaryStyle,
               ),
             ),
-            Expanded(child: Divider(color: Colors.grey.shade300)),
+            Expanded(child: Divider(color: AppColors.border)),
           ],
         ),
         const SizedBox(height: AppTheme.spaceLg),

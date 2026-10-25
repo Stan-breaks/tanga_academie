@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 /// Centralized SnackBar helpers. Replaces inline ScaffoldMessenger calls.
 class AppSnackBar {
@@ -28,7 +29,7 @@ class AppSnackBar {
             ),
           ),
         ]),
-        backgroundColor: isError ? Colors.red.shade600 : Colors.green.shade600,
+        backgroundColor: isError ? AppColors.error600 : AppColors.success600,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),

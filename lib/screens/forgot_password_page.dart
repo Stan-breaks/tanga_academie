@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:tanga_acadamie/screens/login_page.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/utils/app_snackbar.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -211,13 +212,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.blueAccent.withAlpha(26),
+                    color: AppColors.primary.withAlpha(26),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     _codeSent ? Icons.lock_reset : Icons.email_outlined,
                     size: 60,
-                    color: Colors.blueAccent,
+                    color: AppColors.primary,
                   ),
                 ),
               ),
@@ -253,7 +254,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
-                  color: Colors.grey[600],
+                  color: AppColors.textSecondary,
                   height: 1.5,
                 ),
               ),
@@ -277,9 +278,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   onPressed: _isLoading ? null : _sendVerificationCode,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.grey[300],
+                    disabledBackgroundColor: AppColors.border,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -337,7 +338,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
-                              color: Colors.blueAccent,
+                              color: AppColors.primary,
                               width: 2,
                             ),
                           ),
@@ -411,9 +412,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   onPressed: _isLoading ? null : _resetPassword,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.grey[300],
+                    disabledBackgroundColor: AppColors.border,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -450,7 +451,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: Colors.blueAccent,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),

@@ -12,6 +12,7 @@ import 'package:tanga_acadamie/screens/shared/course_details_page.dart';
 import 'package:tanga_acadamie/screens/shared/settings_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -107,13 +108,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _buildLoadingState() {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const CircularProgressIndicator(
-              color: Colors.blueAccent,
+              color: AppColors.primary,
               strokeWidth: 3,
             ),
             const SizedBox(height: 20),
@@ -121,7 +122,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               isFr
                   ? 'Chargement du tableau de bord admin...'
                   : 'Loading admin dashboard...',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
           ],
         ),
@@ -131,27 +132,27 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _buildErrorState() {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+              Icon(Icons.error_outline, size: 64, color: AppColors.error300),
               const SizedBox(height: 16),
               Text(
                 isFr ? 'Quelque chose a mal tourné' : 'Something went wrong',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade800,
+                  color: AppColors.textDark,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 _error ?? 'Unknown error',
-                style: TextStyle(color: Colors.grey.shade600),
+                style: TextStyle(color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -160,7 +161,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 icon: const Icon(Icons.refresh),
                 label: Text(isFr ? 'Réessayer' : 'Retry'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                 ),
               ),
@@ -177,9 +178,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final statsList = statsMap?['stats'] as List<dynamic>? ?? [];
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.background,
       body: RefreshIndicator(
-        color: Colors.blueAccent,
+        color: AppColors.primary,
         onRefresh: _fetchDashboardData,
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -262,12 +263,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blueAccent.shade400, Colors.blue.shade700],
+          colors: [AppColors.primary400, AppColors.primary700],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.blueAccent.withAlpha(80),
+            color: AppColors.primary.withAlpha(80),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -379,39 +380,39 @@ class _AdminDashboardState extends State<AdminDashboard> {
           value: '${statsMap['totalCourses'] ?? 0}',
           icon: Icons.library_books,
           gradientColors: [
-            Colors.blueAccent.shade200,
-            Colors.blueAccent.shade700,
+            AppColors.primary200,
+            AppColors.primary700,
           ],
         ),
         StatCard(
           title: isFr ? 'Cours actifs' : 'Active Courses',
           value: '${statsMap['activeCourses'] ?? 0}',
           icon: Icons.play_circle_fill,
-          gradientColors: [Colors.green.shade400, Colors.green.shade700],
+          gradientColors: [AppColors.success400, AppColors.success700],
         ),
         StatCard(
           title: isFr ? 'Cours en attente' : 'Pending Courses',
           value: '${statsMap['pendingCourses'] ?? 0}',
           icon: Icons.pending_actions,
-          gradientColors: [Colors.orange.shade400, Colors.deepOrange.shade600],
+          gradientColors: [AppColors.warning400, AppColors.warning600],
         ),
         StatCard(
           title: isFr ? 'Total des étudiants' : 'Total Students',
           value: '${statsMap['totalStudents'] ?? 0}',
           icon: Icons.people,
-          gradientColors: [Colors.purple.shade400, Colors.purple.shade800],
+          gradientColors: [AppColors.secondary400, AppColors.secondary800],
         ),
         StatCard(
           title: isFr ? 'Total des instructeurs' : 'Total Instructors',
           value: '${statsMap['totalInstructors'] ?? 0}',
           icon: Icons.school,
-          gradientColors: [Colors.teal.shade400, Colors.teal.shade700],
+          gradientColors: [AppColors.success400, AppColors.success700],
         ),
         StatCard(
           title: isFr ? 'Revenus de la plateforme' : 'Platform Revenue',
           value: _formatMoney(statsMap['totalRevenue']),
           icon: Icons.payments,
-          gradientColors: [Colors.amber.shade400, Colors.amber.shade700],
+          gradientColors: [AppColors.warning400, AppColors.warning700],
         ),
       ],
     );
@@ -428,10 +429,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.blueAccent.withAlpha(25),
+            color: AppColors.primary.withAlpha(25),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: Colors.blueAccent, size: 22),
+          child: Icon(icon, color: AppColors.primary, size: 22),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -443,13 +444,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: AppColors.textDark,
                 ),
               ),
               if (count > 0)
                 Text(
                   '$count ${count == 1 ? (isFr ? 'élément' : 'item') : (isFr ? 'éléments' : 'items')}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
             ],
           ),
@@ -463,7 +464,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       _QuickActionItem(
         title: isFr ? 'Gérer les cours' : 'Manage Courses',
         icon: Icons.library_books,
-        color: Colors.blueAccent,
+        color: AppColors.primary,
         onTap: () {
           Navigator.push(
             context,
@@ -474,7 +475,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       _QuickActionItem(
         title: isFr ? 'Analytiques' : 'Analytics',
         icon: Icons.bar_chart,
-        color: Colors.purple,
+        color: AppColors.secondary,
         onTap: () {
           Navigator.push(
             context,
@@ -485,7 +486,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       _QuickActionItem(
         title: isFr ? 'Utilisateurs' : 'Users',
         icon: Icons.people,
-        color: Colors.green,
+        color: AppColors.success,
         onTap: () {
           Navigator.push(
             context,
@@ -496,7 +497,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       _QuickActionItem(
         title: isFr ? 'Articles' : 'Blogs',
         icon: Icons.article,
-        color: Colors.teal,
+        color: AppColors.success,
         onTap: () {
           Navigator.push(
             context,
@@ -507,7 +508,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       _QuickActionItem(
         title: isFr ? 'Paramètres' : 'Settings',
         icon: Icons.settings,
-        color: Colors.orange,
+        color: AppColors.warning,
         onTap: () {
           Navigator.push(
             context,
@@ -578,7 +579,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.95,
+        childAspectRatio: 0.82,
         crossAxisSpacing: 14,
         mainAxisSpacing: 14,
       ),
@@ -615,14 +616,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: _topInstructors.length > 5 ? 5 : _topInstructors.length,
         separatorBuilder: (_, _) =>
-            Divider(color: Colors.grey.shade200, height: 1),
+            Divider(color: AppColors.borderLight, height: 1),
         itemBuilder: (context, index) {
           final instructor = _topInstructors[index];
           return _buildInstructorTile(instructor);
@@ -646,14 +647,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
         backgroundImage: profile != null && profile.isNotEmpty
             ? NetworkImage('${ApiConfig.baseUrl}$profile')
             : null,
-        backgroundColor: Colors.blueAccent.shade100,
+        backgroundColor: AppColors.primary100,
         child: profile == null || profile.isEmpty
             ? Text(
                 name.isNotEmpty ? name[0].toUpperCase() : '?',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: Colors.blueAccent,
+                  color: AppColors.primary,
                 ),
               )
             : null,
@@ -664,18 +665,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
       subtitle: Row(
         children: [
-          Icon(Icons.people, size: 14, color: Colors.grey.shade600),
+          Icon(Icons.people, size: 14, color: AppColors.textSecondary),
           const SizedBox(width: 4),
           Text(
             '$studentCount',
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
           ),
           const SizedBox(width: 12),
-          Icon(Icons.book, size: 14, color: Colors.grey.shade600),
+          Icon(Icons.book, size: 14, color: AppColors.textSecondary),
           const SizedBox(width: 4),
           Text(
             '$courseCount',
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
           ),
         ],
       ),
@@ -697,14 +698,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: _notices.length,
         separatorBuilder: (context, index) =>
-            Divider(color: Colors.grey.shade200, height: 1),
+            Divider(color: AppColors.borderLight, height: 1),
         itemBuilder: (context, index) {
           final notice = _notices[index];
           return _buildNoticeTile(notice);
@@ -723,13 +724,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
     Color priorityColor;
     switch (priority) {
       case 'high':
-        priorityColor = Colors.red;
+        priorityColor = AppColors.error;
         break;
       case 'medium':
-        priorityColor = Colors.orange;
+        priorityColor = AppColors.warning;
         break;
       default:
-        priorityColor = Colors.green;
+        priorityColor = AppColors.success;
     }
 
     String typeIcon;
@@ -758,7 +759,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return Container(
       decoration: BoxDecoration(
         border: Border(left: BorderSide(color: priorityColor, width: 4)),
-        color: isRead ? Colors.white : Colors.blue.shade50,
+        color: isRead ? Colors.white : AppColors.primary50,
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -774,13 +775,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
         subtitle: Text(
           dateStr,
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+          style: TextStyle(fontSize: 12, color: AppColors.textLight),
         ),
         trailing: !isRead
             ? Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade100,
+                  color: AppColors.primary100,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -788,7 +789,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent,
+                    color: AppColors.primary,
                   ),
                 ),
               )
@@ -803,25 +804,25 @@ class _AdminDashboardState extends State<AdminDashboard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Column(
         children: [
-          Icon(icon, size: 48, color: Colors.grey.shade400),
+          Icon(icon, size: 48, color: AppColors.textHint),
           const SizedBox(height: 16),
           Text(
             title,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700,
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+            style: TextStyle(fontSize: 13, color: AppColors.textLight),
           ),
         ],
       ),

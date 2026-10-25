@@ -310,12 +310,12 @@ class _InstructorStudentProgressPageState
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.teal.shade400, Colors.teal.shade700],
+          colors: [AppColors.success400, AppColors.success700],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.teal.withAlpha(60),
+            color: AppColors.success.withAlpha(60),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -387,7 +387,7 @@ class _InstructorStudentProgressPageState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowLight,
@@ -401,11 +401,11 @@ class _InstructorStudentProgressPageState
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.teal.withAlpha(20),
+              color: AppColors.success.withAlpha(20),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.filter_list,
-                color: Colors.teal, size: 20),
+                color: AppColors.success, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -420,7 +420,7 @@ class _InstructorStudentProgressPageState
                   ),
                 ),
                 icon: const Icon(Icons.keyboard_arrow_down,
-                    color: Colors.teal),
+                    color: AppColors.success),
                 isExpanded: true,
                 items: [
                   const DropdownMenuItem<String>(
@@ -485,11 +485,11 @@ class _InstructorStudentProgressPageState
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.teal.withAlpha(25),
+                color: AppColors.success.withAlpha(25),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.people_outline,
-                  size: 64, color: Colors.teal),
+                  size: 64, color: AppColors.success),
             ),
             const SizedBox(height: 24),
             Text(
@@ -526,7 +526,7 @@ class _InstructorStudentProgressPageState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowLight,
@@ -542,13 +542,13 @@ class _InstructorStudentProgressPageState
           childrenPadding: EdgeInsets.zero,
           leading: CircleAvatar(
             radius: 22,
-            backgroundColor: Colors.teal.withAlpha(25),
+            backgroundColor: AppColors.success.withAlpha(25),
             child: Text(
               studentName.isNotEmpty
                   ? studentName[0].toUpperCase()
                   : 'S',
               style: const TextStyle(
-                color: Colors.teal,
+                color: AppColors.success,
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
               ),
@@ -578,14 +578,14 @@ class _InstructorStudentProgressPageState
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Colors.teal.withAlpha(15),
+                  color: AppColors.success.withAlpha(15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   '${courses.length} course${courses.length != 1 ? 's' : ''}',
                   style: const TextStyle(
                     fontSize: 11,
-                    color: Colors.teal,
+                    color: AppColors.success,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -620,7 +620,7 @@ class _InstructorStudentProgressPageState
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: AppColors.borderLight),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -703,7 +703,7 @@ class _InstructorStudentProgressPageState
             borderRadius: BorderRadius.circular(6),
             child: LinearProgressIndicator(
               value: overallProgress / 100,
-              backgroundColor: Colors.grey.shade200,
+              backgroundColor: AppColors.borderLight,
               valueColor: AlwaysStoppedAnimation<Color>(
                 overallProgress >= 80
                     ? AppColors.success
@@ -721,7 +721,7 @@ class _InstructorStudentProgressPageState
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: AppColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Center(

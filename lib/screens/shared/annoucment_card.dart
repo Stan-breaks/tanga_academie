@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:tanga_acadamie/api_config.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
+import 'package:tanga_acadamie/core/theme/app_colors.dart';
 
 class AnnouncementCard extends StatefulWidget {
   final Map<String, dynamic> announcement;
@@ -121,7 +122,7 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
                   // Timestamp
                   Text(
                     _formatDate(createdAt),
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   ),
                   const SizedBox(width: 8),
                   // Unread indicator
@@ -130,7 +131,7 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
                       width: 8,
                       height: 8,
                       decoration: const BoxDecoration(
-                        color: Colors.blue,
+                        color: AppColors.primary,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -144,7 +145,7 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: isRead ? FontWeight.w600 : FontWeight.w700,
-                  color: Colors.black87,
+                  color: AppColors.textDark,
                 ),
               ),
               const SizedBox(height: 8),
@@ -156,7 +157,7 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey.shade700,
+                  color: AppColors.textDark,
                   height: 1.4,
                 ),
               ),
@@ -171,7 +172,7 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
                       Icon(
                         Icons.school_outlined,
                         size: 16,
-                        color: Colors.grey.shade600,
+                        color: AppColors.textSecondary,
                       ),
                       const SizedBox(width: 6),
                       Expanded(
@@ -179,7 +180,7 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
                           announcement['courseName'] ?? 'Course',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.grey.shade600,
+                            color: AppColors.textSecondary,
                             fontWeight: FontWeight.w500,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -244,7 +245,7 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: AppColors.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -280,7 +281,7 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
                           _formatDate(announcement['createdAt']),
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey.shade500,
+                            color: AppColors.textLight,
                           ),
                         ),
                       ],
@@ -291,7 +292,7 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: AppColors.textDark,
                         height: 1.3,
                       ),
                     ),
@@ -303,13 +304,13 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
                           Icon(
                             Icons.school_outlined,
                             size: 16,
-                            color: Colors.grey.shade500,
+                            color: AppColors.textLight,
                           ),
                           const SizedBox(width: 6),
                           Text(
                             announcement['courseName']?.toString() ?? '',
                             style: TextStyle(
-                              color: Colors.grey.shade600,
+                              color: AppColors.textSecondary,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -317,13 +318,13 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
                       ),
                     ],
                     const SizedBox(height: 20),
-                    Divider(color: Colors.grey.shade200),
+                    Divider(color: AppColors.borderLight),
                     const SizedBox(height: 16),
                     Text(
                       announcement['content'] ?? '',
                       style: TextStyle(
                         fontSize: 15,
-                        color: Colors.grey.shade800,
+                        color: AppColors.textDark,
                         height: 1.7,
                       ),
                     ),
@@ -342,13 +343,13 @@ class _AnnouncementCardState extends State<AnnouncementCard> {
   Color _getPriorityColor(String priority) {
     switch (priority.toLowerCase()) {
       case 'high':
-        return Colors.red;
+        return AppColors.error;
       case 'medium':
-        return Colors.orange;
+        return AppColors.warning;
       case 'low':
-        return Colors.blue;
+        return AppColors.primary;
       default:
-        return Colors.grey;
+        return AppColors.textSecondary;
     }
   }
 

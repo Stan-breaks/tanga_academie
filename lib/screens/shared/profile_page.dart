@@ -6,6 +6,7 @@ import 'package:tanga_acadamie/screens/signup_page.dart';
 import 'package:tanga_acadamie/storage_service.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 import 'package:tanga_acadamie/core/theme/app_colors.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -94,6 +95,27 @@ class _ProfilePageState extends State<ProfilePage> {
         return AppColors.primary;
       default:
         return AppColors.textSecondary;
+    }
+  }
+
+  Future<void> _openTangaChat() async {
+    final firstName = (_user['firstName'] ?? '').toString();
+    final lastName = (_user['lastName'] ?? '').toString();
+    final fullName = '$firstName $lastName'.trim();
+    final email = (_user['email'] ?? '').toString();
+
+    final uri = Uri.https('app.expressdesignagency.com', '/chat/ed_Oihex0F5GteB', {
+      if (fullName.isNotEmpty) 'name': fullName,
+      if (email.isNotEmpty) 'email': email,
+      'lang': isFr ? 'fr' : 'fr',
+    });
+
+    try {
+      await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+    } catch (e) {
+      try {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (_) {}
     }
   }
 
@@ -283,6 +305,13 @@ class _ProfilePageState extends State<ProfilePage> {
                               MaterialPageRoute(builder: (_) => const SettingsPage()),
                             );
                           },
+                        ),
+                        _buildCardDivider(),
+                        _buildActionTile(
+                          icon: Icons.chat_bubble_outline_rounded,
+                          label: isFr ? 'Discuter avec nous' : 'Chat with us',
+                          subtitle: isFr ? 'Assistance Tanga Académie' : 'Tanga Académie support',
+                          onTap: _openTangaChat,
                         ),
                       ],
                     ),

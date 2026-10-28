@@ -3,6 +3,7 @@ import 'package:tanga_acadamie/screens/instructor/instructor_chat_list.dart';
 import 'package:tanga_acadamie/screens/instructor/instructor_dashboard.dart';
 import 'package:tanga_acadamie/screens/shared/custom_appbar.dart';
 import 'package:tanga_acadamie/screens/shared/profile_page.dart';
+import 'package:tanga_acadamie/screens/shared/tanga_chat_screen.dart';
 import 'package:tanga_acadamie/core/language/language_provider.dart';
 
 class InstructorHomePage extends StatefulWidget {
@@ -32,6 +33,22 @@ class _InstructorHomeState extends State<InstructorHomePage> {
   final Set<int> _loadedPages = {};
 
   void _onItemTapped(int index) {
+    if (index == 3 && widget.isLoggedIn) {
+      final firstName = (widget.user['firstName'] ?? '').toString();
+      final lastName = (widget.user['lastName'] ?? '').toString();
+      final fullName = '$firstName $lastName'.trim();
+      final email = (widget.user['email'] ?? '').toString();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TangaChatScreen(
+            name: fullName.isNotEmpty ? fullName : null,
+            email: email.isNotEmpty ? email : null,
+          ),
+        ),
+      );
+      return;
+    }
     setState(() {
       _index = index;
       _loadedPages.add(index);
@@ -57,7 +74,7 @@ class _InstructorHomeState extends State<InstructorHomePage> {
         ],
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
+        selectedIndex: _index > 2 ? 0 : _index,
         onDestinationSelected: _onItemTapped,
         destinations: [
           NavigationDestination(
@@ -74,6 +91,11 @@ class _InstructorHomeState extends State<InstructorHomePage> {
             icon: const Icon(Icons.person_outline_rounded),
             selectedIcon: const Icon(Icons.person_rounded),
             label: isFr ? 'Profil' : 'Profile',
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.support_agent_outlined),
+            selectedIcon: const Icon(Icons.support_agent_rounded),
+            label: isFr ? 'Aide' : 'Help',
           ),
         ],
       ),

@@ -31,7 +31,7 @@ class _StudentHomeState extends State<StudentHome> {
   final Set<int> _loadedPages = {};
 
   void _onItemTapped(int index) {
-    if (index == 4 && widget.isLoggedIn) {
+    if (index == 4) {
       final firstName = (widget.user['firstName'] ?? '').toString();
       final lastName = (widget.user['lastName'] ?? '').toString();
       final fullName = '$firstName $lastName'.trim();
@@ -62,17 +62,20 @@ class _StudentHomeState extends State<StudentHome> {
 
   @override
   Widget build(BuildContext context) {
+    // "Aide" opens a pushed route, so it is not a page index. Guard the stack
+    // anyway so an out-of-range index can never render a blank body.
+    final safeIndex = _index >= 0 && _index < _pages.length ? _index : 0;
     return Scaffold(
       appBar: CustomAppbar(isLoggedIn: widget.isLoggedIn),
       body: IndexedStack(
-        index: _index,
+        index: safeIndex,
         children: [
           for (var i = 0; i < _pages.length; i++)
             _loadedPages.contains(i) ? _pages[i] : const SizedBox.shrink(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _index > 3 ? 0 : _index,
+        selectedIndex: safeIndex,
         onDestinationSelected: _onItemTapped,
         destinations: [
           NavigationDestination(

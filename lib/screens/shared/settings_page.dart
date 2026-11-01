@@ -1022,21 +1022,21 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           const SizedBox(height: 20),
 
-          // Language options
+          // Language options — French is the app default, so list it first.
+          _buildLanguageOption(
+            flag: '🇫🇷',
+            label: 'Français',
+            subtitle: 'Français',
+            langCode: 'fr',
+            isSelected: currentLanguage == 'fr',
+          ),
+          const SizedBox(height: 10),
           _buildLanguageOption(
             flag: '🇬🇧',
             label: 'English',
             subtitle: 'English',
             langCode: 'en',
             isSelected: currentLanguage == 'en',
-          ),
-          const SizedBox(height: 10),
-          _buildLanguageOption(
-            flag: '🇫🇷',
-            label: 'Français',
-            subtitle: 'French',
-            langCode: 'fr',
-            isSelected: currentLanguage == 'fr',
           ),
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tanga_acadamie/screens/home_page.dart';
@@ -55,22 +56,40 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Tanga Academie',
-      theme: AppTheme.light(),
-      home: HomePage(isLoggedIn: isLoggedIn, user: user),
-      debugShowCheckedModeBanner: false,
-      routes: {
-        '/create-course': (context) => const CreateCoursePage(),
-        '/instructor-courses': (context) => const InstructorCoursesPage(),
-        '/instructor-assignments': (context) => const InstructorAssignmentPage(),
-        '/instructor-quiz': (context) => const InstructorQuizPage(),
-        '/instructor-student-progress': (context) => const InstructorStudentProgressPage(),
-        '/instructor-quiz-approvals': (context) => const InstructorQuizApprovalsPage(),
-        '/student-quiz-attempts': (context) => const StudentQuizAttemptsPage(),
-        '/login': (context) => const LoginPage(),
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, language, _) {
+        return MaterialApp(
+          title: 'Tanga Academie',
+          theme: AppTheme.light(),
+          // French is the app's default language; English is opt-in from
+          // Settings. Keeping the locale on MaterialApp also localizes
+          // Flutter's built-in widgets (date pickers, text selection, etc.).
+          locale: Locale(language),
+          supportedLocales: const <Locale>[Locale('fr'), Locale('en')],
+          localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: HomePage(isLoggedIn: isLoggedIn, user: user),
+          debugShowCheckedModeBanner: false,
+          routes: {
+            '/create-course': (context) => const CreateCoursePage(),
+            '/instructor-courses': (context) => const InstructorCoursesPage(),
+            '/instructor-assignments': (context) =>
+                const InstructorAssignmentPage(),
+            '/instructor-quiz': (context) => const InstructorQuizPage(),
+            '/instructor-student-progress': (context) =>
+                const InstructorStudentProgressPage(),
+            '/instructor-quiz-approvals': (context) =>
+                const InstructorQuizApprovalsPage(),
+            '/student-quiz-attempts': (context) =>
+                const StudentQuizAttemptsPage(),
+            '/login': (context) => const LoginPage(),
+          },
+        );
       },
     );
   }
 }
-

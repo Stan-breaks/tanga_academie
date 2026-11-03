@@ -63,6 +63,8 @@
 		<string>Tanga Academie needs access to your microphone to record audio for course materials.</string>
 		<key>NSPhotoLibraryAddUsageDescription</key>
 		<string>Tanga Academie needs permission to save photos to your library.</string>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>Tanga Academie does not collect or use your location. This permission is only required because a bundled third-party library references location APIs.</string>
 		<key>ITSAppUsesNonExemptEncryption</key>
 		<false/>
 		<key>UIStatusBarHidden</key>
